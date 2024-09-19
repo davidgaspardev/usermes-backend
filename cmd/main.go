@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/davidgaspardev/usermes-backend/internal/app"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	app.Run()
 }

@@ -1,116 +1,116 @@
 # UserMes Backend - Hexagonal Architecture with Modular Monolith
 
-Uma API RESTful construída em Go seguindo os princípios de **Arquitetura Hexagonal** (Ports and Adapters) com **Monolito Modular**.
+A RESTful API built in Go following **Hexagonal Architecture** (Ports and Adapters) principles with **Modular Monolith**.
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
-Este projeto implementa uma arquitetura hexagonal (também conhecida como Ports and Adapters), que promove:
+This project implements hexagonal architecture (also known as Ports and Adapters), which promotes:
 
-- **Separação de responsabilidades**: Domínio isolado da infraestrutura
-- **Testabilidade**: Facilita testes unitários e de integração
-- **Flexibilidade**: Fácil troca de adaptadores (banco de dados, frameworks, etc)
-- **Escalabilidade**: Caminho claro para migração para microsserviços
+- **Separation of concerns**: Domain isolated from infrastructure
+- **Testability**: Facilitates unit and integration testing
+- **Flexibility**: Easy to swap adapters (database, frameworks, etc)
+- **Scalability**: Clear path to migrate to microservices
 
-### Estrutura de Diretórios
+### Directory Structure
 
 ```
 usermes-backend/
-├── cmd/                                    # Entry points da aplicação
+├── cmd/                                    # Application entry points
 │   └── main.go                            # Main application
-├── internal/                              # Código privado da aplicação
-│   ├── modules/                           # Módulos do monolito
-│   │   └── user/                          # Módulo de usuário
-│   │       ├── domain/                    # Camada de Domínio (Núcleo)
-│   │       │   ├── entity/               # Entidades do domínio
+├── internal/                              # Private application code
+│   ├── modules/                           # Monolith modules
+│   │   └── user/                          # User module
+│   │       ├── domain/                    # Domain Layer (Core)
+│   │       │   ├── entity/               # Domain entities
 │   │       │   │   └── user.go
 │   │       │   ├── valueobject/          # Value Objects
 │   │       │   │   ├── email.go
 │   │       │   │   └── password.go
-│   │       │   └── errors/               # Erros do domínio
+│   │       │   └── errors/               # Domain errors
 │   │       │       └── errors.go
-│   │       ├── application/               # Camada de Aplicação (Casos de Uso)
-│   │       │   ├── port/                 # Portas (Interfaces)
-│   │       │   │   ├── input/           # Portas de entrada (Use Cases)
+│   │       ├── application/               # Application Layer (Use Cases)
+│   │       │   ├── port/                 # Ports (Interfaces)
+│   │       │   │   ├── input/           # Input ports (Use Cases)
 │   │       │   │   │   └── user_service.go
-│   │       │   │   └── output/          # Portas de saída (Repositories, etc)
+│   │       │   │   └── output/          # Output ports (Repositories, etc)
 │   │       │   │       ├── user_repository.go
 │   │       │   │       └── token_generator.go
-│   │       │   └── usecase/              # Implementação dos casos de uso
+│   │       │   └── usecase/              # Use case implementations
 │   │       │       └── user_service_impl.go
-│   │       └── infrastructure/            # Camada de Infraestrutura (Adaptadores)
+│   │       └── infrastructure/            # Infrastructure Layer (Adapters)
 │   │           ├── adapter/
 │   │           │   ├── input/
-│   │           │   │   └── http/         # Adaptador HTTP (Controllers)
+│   │           │   │   └── http/         # HTTP Adapter (Controllers)
 │   │           │   │       ├── user_handler.go
 │   │           │   │       ├── middleware.go
 │   │           │   │       └── routes.go
 │   │           │   └── output/
-│   │           │       └── persistence/  # Adaptador de persistência
+│   │           │       └── persistence/  # Persistence adapter
 │   │           │           └── memory_user_repository.go
 │   │           └── dto/                   # Data Transfer Objects
 │   │               └── user_dto.go
-│   └── shared/                            # Código compartilhado entre módulos
+│   └── shared/                            # Code shared between modules
 │       └── infrastructure/
 │           ├── http/
 │           │   └── server/
 │           │       └── fiber_server.go
 │           └── security/
 │               └── jwt_token_generator.go
-└── pkg/                                   # Pacotes públicos reutilizáveis
+└── pkg/                                   # Public reusable packages
 ```
 
-## 📦 Camadas da Arquitetura Hexagonal
+## 📦 Hexagonal Architecture Layers
 
-### 1. **Domain Layer** (Núcleo)
-O coração da aplicação, contendo a lógica de negócio pura:
+### 1. **Domain Layer** (Core)
+The heart of the application, containing pure business logic:
 
-- **Entities**: Objetos com identidade única (`User`)
-- **Value Objects**: Objetos imutáveis sem identidade (`Email`, `Password`)
-- **Domain Errors**: Erros específicos do domínio
-- **Regras de Negócio**: Validações e comportamentos do domínio
+- **Entities**: Objects with unique identity (`User`)
+- **Value Objects**: Immutable objects without identity (`Email`, `Password`)
+- **Domain Errors**: Domain-specific errors
+- **Business Rules**: Domain validations and behaviors
 
-**Características:**
-- Não depende de nenhuma outra camada
-- Não conhece frameworks ou bibliotecas externas
-- Contém apenas lógica de negócio pura
+**Characteristics:**
+- Does not depend on any other layer
+- Does not know about frameworks or external libraries
+- Contains only pure business logic
 
-### 2. **Application Layer** (Casos de Uso)
-Orquestra o fluxo de dados e coordena as operações:
+### 2. **Application Layer** (Use Cases)
+Orchestrates data flow and coordinates operations:
 
-- **Input Ports**: Interfaces que definem os casos de uso (o que a aplicação faz)
-- **Output Ports**: Interfaces que definem as dependências externas (repositórios, serviços)
-- **Use Cases**: Implementação dos casos de uso usando as entidades do domínio
+- **Input Ports**: Interfaces that define use cases (what the application does)
+- **Output Ports**: Interfaces that define external dependencies (repositories, services)
+- **Use Cases**: Implementation of use cases using domain entities
 
-**Características:**
-- Depende apenas da camada de domínio
-- Define interfaces (ports) que serão implementadas pela camada de infraestrutura
-- Contém a lógica de aplicação (orquestração)
+**Characteristics:**
+- Depends only on the domain layer
+- Defines interfaces (ports) that will be implemented by the infrastructure layer
+- Contains application logic (orchestration)
 
-### 3. **Infrastructure Layer** (Adaptadores)
-Implementa os detalhes técnicos e se conecta com o mundo externo:
+### 3. **Infrastructure Layer** (Adapters)
+Implements technical details and connects with the external world:
 
 - **Input Adapters**: HTTP handlers, CLI, gRPC, etc.
-- **Output Adapters**: Implementações de repositórios, clientes de APIs, etc.
-- **DTOs**: Objetos para transferência de dados entre camadas
+- **Output Adapters**: Repository implementations, API clients, etc.
+- **DTOs**: Objects for data transfer between layers
 
-**Características:**
-- Implementa as interfaces (ports) definidas na camada de aplicação
-- Contém código específico de frameworks e bibliotecas
-- Pode ser facilmente substituída sem afetar o domínio
+**Characteristics:**
+- Implements interfaces (ports) defined in the application layer
+- Contains framework and library-specific code
+- Can be easily replaced without affecting the domain
 
-## 🎯 Módulo User
+## 🎯 User Module
 
-O módulo User é o primeiro módulo do monolito, responsável por:
+The User module is the first module of the monolith, responsible for:
 
-- ✅ Registro de usuários
-- ✅ Autenticação (Login)
-- ✅ Gerenciamento de perfil
-- ✅ Alteração de senha
-- ✅ Ativação/Desativação de contas
+- ✅ User registration
+- ✅ Authentication (Login)
+- ✅ Profile management
+- ✅ Password change
+- ✅ Account activation/deactivation
 
-### Endpoints Disponíveis
+### Available Endpoints
 
-#### Públicos (sem autenticação)
+#### Public (no authentication required)
 
 ```http
 POST /api/users/register
@@ -133,7 +133,7 @@ Content-Type: application/json
 }
 ```
 
-#### Protegidos (requerem autenticação)
+#### Protected (authentication required)
 
 ```http
 GET /api/users/me
@@ -176,43 +176,43 @@ POST /api/users/:id/activate
 Authorization: Bearer <token>
 ```
 
-## 🚀 Como Executar
+## 🚀 How to Run
 
-### Pré-requisitos
+### Prerequisites
 
-- Go 1.22.1 ou superior
-- Make (opcional)
+- Go 1.22.1 or higher
+- Make (optional)
 
-### Instalação
+### Installation
 
 ```bash
-# Clone o repositório
+# Clone the repository
 git clone <repository-url>
 cd usermes-backend
 
-# Baixe as dependências
+# Download dependencies
 go mod download
 
-# Execute a aplicação
+# Run the application
 go run cmd/main.go
 ```
 
-### Usando Make
+### Using Make
 
 ```bash
-# Execute a aplicação
+# Run the application
 make run
 
-# Build da aplicação
+# Build the application
 make build
 
-# Execute os testes
+# Run tests
 make test
 ```
 
-## 🧪 Testando a API
+## 🧪 Testing the API
 
-### 1. Registrar um novo usuário
+### 1. Register a new user
 
 ```bash
 curl -X POST http://localhost:3000/api/users/register \
@@ -224,7 +224,7 @@ curl -X POST http://localhost:3000/api/users/register \
   }'
 ```
 
-### 2. Fazer login
+### 2. Login
 
 ```bash
 curl -X POST http://localhost:3000/api/users/login \
@@ -235,13 +235,13 @@ curl -X POST http://localhost:3000/api/users/login \
   }'
 ```
 
-Copie o token retornado para usar nas próximas requisições.
+Copy the returned token to use in the next requests.
 
-### 3. Obter perfil do usuário
+### 3. Get user profile
 
 ```bash
 curl -X GET http://localhost:3000/api/users/me \
-  -H "Authorization: Bearer <seu-token>"
+  -H "Authorization: Bearer <your-token>"
 ```
 
 ### 4. Health Check
@@ -250,58 +250,58 @@ curl -X GET http://localhost:3000/api/users/me \
 curl http://localhost:3000/health
 ```
 
-## 🔒 Segurança
+## 🔒 Security
 
-- **Senha**: Hash com bcrypt (cost factor 12)
-- **JWT**: Tokens com expiração de 24 horas
-- **Validação**: Email e senha validados com regras de negócio
-- **CORS**: Configurado para permitir requisições de qualquer origem (ajustar em produção)
+- **Password**: Hashed with bcrypt (cost factor 12)
+- **JWT**: Tokens with 24-hour expiration
+- **Validation**: Email and password validated with business rules
+- **CORS**: Configured to allow requests from any origin (adjust in production)
 
-### Regras de Senha
+### Password Rules
 
-- Mínimo de 8 caracteres
-- Máximo de 72 caracteres (limitação do bcrypt)
-- Deve conter pelo menos uma letra
-- Deve conter pelo menos um número
+- Minimum 8 characters
+- Maximum 72 characters (bcrypt limitation)
+- Must contain at least one letter
+- Must contain at least one number
 
-## 📝 Boas Práticas Implementadas
+## 📝 Implemented Best Practices
 
-1. **Dependency Inversion**: As camadas superiores não dependem de implementações concretas
-2. **Single Responsibility**: Cada componente tem uma única responsabilidade
-3. **Open/Closed**: Aberto para extensão, fechado para modificação
-4. **Interface Segregation**: Interfaces pequenas e focadas
-5. **Domain-Driven Design**: Modelagem rica do domínio
-6. **Value Objects**: Validação e encapsulamento de valores
-7. **Repository Pattern**: Abstração de persistência
-8. **Use Case Pattern**: Casos de uso explícitos e testáveis
+1. **Dependency Inversion**: Upper layers don't depend on concrete implementations
+2. **Single Responsibility**: Each component has a single responsibility
+3. **Open/Closed**: Open for extension, closed for modification
+4. **Interface Segregation**: Small and focused interfaces
+5. **Domain-Driven Design**: Rich domain modeling
+6. **Value Objects**: Validation and value encapsulation
+7. **Repository Pattern**: Persistence abstraction
+8. **Use Case Pattern**: Explicit and testable use cases
 
-## 🔄 Próximos Passos
+## 🔄 Next Steps
 
-### Implementações Futuras
+### Future Implementations
 
-- [ ] Integração com banco de dados (PostgreSQL/MySQL)
-- [ ] Redis para cache e sessions
+- [ ] Integration with database (PostgreSQL/MySQL)
+- [ ] Redis for cache and sessions
 - [ ] Refresh tokens
 - [ ] Rate limiting
-- [ ] Logs estruturados
-- [ ] Métricas e observabilidade
-- [ ] Testes unitários e de integração
+- [ ] Structured logging
+- [ ] Metrics and observability
+- [ ] Unit and integration tests
 - [ ] CI/CD pipeline
-- [ ] Docker e Docker Compose
-- [ ] Migração de banco de dados
+- [ ] Docker and Docker Compose
+- [ ] Database migrations
 - [ ] Swagger/OpenAPI documentation
-- [ ] Novos módulos (Tasks, Projects, etc)
+- [ ] New modules (Tasks, Projects, etc)
 
-### Adicionando Novo Módulo
+### Adding a New Module
 
-Para adicionar um novo módulo ao monolito:
+To add a new module to the monolith:
 
-1. Crie a estrutura de diretórios em `internal/modules/[nome-do-modulo]`
-2. Implemente as camadas: domain → application → infrastructure
-3. Registre as rotas no `main.go`
-4. Mantenha a independência entre módulos
+1. Create the directory structure in `internal/modules/[module-name]`
+2. Implement the layers: domain → application → infrastructure
+3. Register routes in `main.go`
+4. Maintain independence between modules
 
-Exemplo:
+Example:
 ```
 internal/modules/task/
 ├── domain/
@@ -309,19 +309,19 @@ internal/modules/task/
 └── infrastructure/
 ```
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 Licença
+## 📄 License
 
-Este projeto está sob a licença MIT.
+This project is licensed under the MIT License.
 
-## 📚 Referências
+## 📚 References
 
 - [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
 - [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)

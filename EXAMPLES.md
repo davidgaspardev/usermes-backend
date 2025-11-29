@@ -1,33 +1,33 @@
 # API Usage Examples
 
-Este documento contém exemplos práticos de como usar a API do UserMes.
+This document contains practical examples of how to use the UserMes API.
 
-## 📋 Índice
+## 📋 Table of Contents
 
-- [Configuração](#configuração)
-- [Autenticação](#autenticação)
-- [Operações de Usuário](#operações-de-usuário)
-- [Exemplos com cURL](#exemplos-com-curl)
-- [Exemplos com JavaScript/Fetch](#exemplos-com-javascriptfetch)
-- [Exemplos com Go](#exemplos-com-go)
-- [Códigos de Status](#códigos-de-status)
-- [Tratamento de Erros](#tratamento-de-erros)
+- [Configuration](#configuration)
+- [Authentication](#authentication)
+- [User Operations](#user-operations)
+- [Examples with cURL](#examples-with-curl)
+- [Examples with JavaScript/Fetch](#examples-with-javascriptfetch)
+- [Examples with Go](#examples-with-go)
+- [Status Codes](#status-codes)
+- [Error Handling](#error-handling)
 
-## Configuração
+## Configuration
 
 Base URL: `http://localhost:3000`
 
-Todas as rotas da API começam com `/api`
+All API routes start with `/api`
 
-## Autenticação
+## Authentication
 
-A API usa JWT (JSON Web Tokens) para autenticação. Após fazer login, você receberá um token que deve ser incluído no header `Authorization` de todas as requisições protegidas.
+The API uses JWT (JSON Web Tokens) for authentication. After logging in, you'll receive a token that must be included in the `Authorization` header of all protected requests.
 
-Formato: `Authorization: Bearer <seu-token>`
+Format: `Authorization: Bearer <your-token>`
 
-## Operações de Usuário
+## User Operations
 
-### 1. Registrar Novo Usuário
+### 1. Register New User
 
 **Endpoint:** `POST /api/users/register`
 
@@ -39,20 +39,20 @@ Content-Type: application/json
 **Body:**
 ```json
 {
-  "email": "joao@example.com",
-  "password": "SenhaSegura123",
-  "name": "João Silva"
+  "email": "john@example.com",
+  "password": "SecurePass123",
+  "name": "John Silva"
 }
 ```
 
-**Resposta de Sucesso (201):**
+**Success Response (201):**
 ```json
 {
   "message": "User registered successfully",
   "data": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "email": "joao@example.com",
-    "name": "João Silva",
+    "email": "john@example.com",
+    "name": "John Silva",
     "is_active": true,
     "created_at": "2024-01-15T10:30:00Z",
     "updated_at": "2024-01-15T10:30:00Z"
@@ -72,19 +72,19 @@ Content-Type: application/json
 **Body:**
 ```json
 {
-  "email": "joao@example.com",
-  "password": "SenhaSegura123"
+  "email": "john@example.com",
+  "password": "SecurePass123"
 }
 ```
 
-**Resposta de Sucesso (200):**
+**Success Response (200):**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "email": "joao@example.com",
-    "name": "João Silva",
+    "email": "john@example.com",
+    "name": "John Silva",
     "is_active": true,
     "created_at": "2024-01-15T10:30:00Z",
     "updated_at": "2024-01-15T10:30:00Z",
@@ -93,21 +93,21 @@ Content-Type: application/json
 }
 ```
 
-### 3. Obter Perfil Atual
+### 3. Get Current Profile
 
 **Endpoint:** `GET /api/users/me`
 
 **Headers:**
 ```
-Authorization: Bearer <seu-token>
+Authorization: Bearer <your-token>
 ```
 
-**Resposta de Sucesso (200):**
+**Success Response (200):**
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "joao@example.com",
-  "name": "João Silva",
+  "email": "john@example.com",
+  "name": "John Silva",
   "is_active": true,
   "created_at": "2024-01-15T10:30:00Z",
   "updated_at": "2024-01-15T10:30:00Z",
@@ -115,21 +115,21 @@ Authorization: Bearer <seu-token>
 }
 ```
 
-### 4. Obter Usuário por ID
+### 4. Get User by ID
 
 **Endpoint:** `GET /api/users/:id`
 
 **Headers:**
 ```
-Authorization: Bearer <seu-token>
+Authorization: Bearer <your-token>
 ```
 
-**Resposta de Sucesso (200):**
+**Success Response (200):**
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "joao@example.com",
-  "name": "João Silva",
+  "email": "john@example.com",
+  "name": "John Silva",
   "is_active": true,
   "created_at": "2024-01-15T10:30:00Z",
   "updated_at": "2024-01-15T10:30:00Z",
@@ -137,31 +137,31 @@ Authorization: Bearer <seu-token>
 }
 ```
 
-### 5. Atualizar Usuário
+### 5. Update User
 
 **Endpoint:** `PUT /api/users/:id`
 
 **Headers:**
 ```
 Content-Type: application/json
-Authorization: Bearer <seu-token>
+Authorization: Bearer <your-token>
 ```
 
 **Body:**
 ```json
 {
-  "name": "João Pedro Silva"
+  "name": "John Peter Silva"
 }
 ```
 
-**Resposta de Sucesso (200):**
+**Success Response (200):**
 ```json
 {
   "message": "User updated successfully",
   "data": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "email": "joao@example.com",
-    "name": "João Pedro Silva",
+    "email": "john@example.com",
+    "name": "John Peter Silva",
     "is_active": true,
     "created_at": "2024-01-15T10:30:00Z",
     "updated_at": "2024-01-15T12:00:00Z",
@@ -170,57 +170,57 @@ Authorization: Bearer <seu-token>
 }
 ```
 
-### 6. Alterar Senha
+### 6. Change Password
 
 **Endpoint:** `POST /api/users/:id/change-password`
 
 **Headers:**
 ```
 Content-Type: application/json
-Authorization: Bearer <seu-token>
+Authorization: Bearer <your-token>
 ```
 
 **Body:**
 ```json
 {
-  "old_password": "SenhaSegura123",
-  "new_password": "NovaSenhaSegura456"
+  "old_password": "SecurePass123",
+  "new_password": "NewSecurePass456"
 }
 ```
 
-**Resposta de Sucesso (200):**
+**Success Response (200):**
 ```json
 {
   "message": "Password changed successfully"
 }
 ```
 
-### 7. Desativar Conta
+### 7. Deactivate Account
 
 **Endpoint:** `POST /api/users/:id/deactivate`
 
 **Headers:**
 ```
-Authorization: Bearer <seu-token>
+Authorization: Bearer <your-token>
 ```
 
-**Resposta de Sucesso (200):**
+**Success Response (200):**
 ```json
 {
   "message": "User deactivated successfully"
 }
 ```
 
-### 8. Ativar Conta
+### 8. Activate Account
 
 **Endpoint:** `POST /api/users/:id/activate`
 
 **Headers:**
 ```
-Authorization: Bearer <seu-token>
+Authorization: Bearer <your-token>
 ```
 
-**Resposta de Sucesso (200):**
+**Success Response (200):**
 ```json
 {
   "message": "User activated successfully"
@@ -231,7 +231,7 @@ Authorization: Bearer <seu-token>
 
 **Endpoint:** `GET /health`
 
-**Resposta de Sucesso (200):**
+**Success Response (200):**
 ```json
 {
   "status": "ok",
@@ -239,9 +239,9 @@ Authorization: Bearer <seu-token>
 }
 ```
 
-## Exemplos com cURL
+## Examples with cURL
 
-### Registrar Usuário
+### Register User
 
 ```bash
 curl -X POST http://localhost:3000/api/users/register \
@@ -264,7 +264,7 @@ curl -X POST http://localhost:3000/api/users/login \
   }'
 ```
 
-### Salvar token em variável (Linux/Mac)
+### Save token in variable (Linux/Mac)
 
 ```bash
 TOKEN=$(curl -s -X POST http://localhost:3000/api/users/login \
@@ -277,14 +277,14 @@ TOKEN=$(curl -s -X POST http://localhost:3000/api/users/login \
 echo $TOKEN
 ```
 
-### Obter Perfil (usando token)
+### Get Profile (using token)
 
 ```bash
 curl -X GET http://localhost:3000/api/users/me \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-### Atualizar Nome
+### Update Name
 
 ```bash
 curl -X PUT http://localhost:3000/api/users/550e8400-e29b-41d4-a716-446655440000 \
@@ -295,7 +295,7 @@ curl -X PUT http://localhost:3000/api/users/550e8400-e29b-41d4-a716-446655440000
   }'
 ```
 
-### Alterar Senha
+### Change Password
 
 ```bash
 curl -X POST http://localhost:3000/api/users/550e8400-e29b-41d4-a716-446655440000/change-password \
@@ -307,9 +307,9 @@ curl -X POST http://localhost:3000/api/users/550e8400-e29b-41d4-a716-44665544000
   }'
 ```
 
-## Exemplos com JavaScript/Fetch
+## Examples with JavaScript/Fetch
 
-### Registrar Usuário
+### Register User
 
 ```javascript
 async function registerUser(email, password, name) {
@@ -328,15 +328,15 @@ async function registerUser(email, password, name) {
     }
 
     const data = await response.json();
-    console.log('Usuário registrado:', data);
+    console.log('User registered:', data);
     return data;
   } catch (error) {
-    console.error('Erro ao registrar usuário:', error);
+    console.error('Error registering user:', error);
     throw error;
   }
 }
 
-// Uso
+// Usage
 registerUser('pedro@example.com', 'Senha123', 'Pedro Costa');
 ```
 
@@ -360,23 +360,23 @@ async function login(email, password) {
 
     const data = await response.json();
     
-    // Salvar token no localStorage
+    // Save token to localStorage
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     
-    console.log('Login realizado com sucesso');
+    console.log('Login successful');
     return data;
   } catch (error) {
-    console.error('Erro ao fazer login:', error);
+    console.error('Error logging in:', error);
     throw error;
   }
 }
 
-// Uso
+// Usage
 login('pedro@example.com', 'Senha123');
 ```
 
-### Obter Perfil
+### Get Profile
 
 ```javascript
 async function getProfile() {
@@ -384,7 +384,7 @@ async function getProfile() {
     const token = localStorage.getItem('token');
     
     if (!token) {
-      throw new Error('Token não encontrado. Faça login primeiro.');
+      throw new Error('Token not found. Please login first.');
     }
 
     const response = await fetch('http://localhost:3000/api/users/me', {
@@ -400,19 +400,19 @@ async function getProfile() {
     }
 
     const user = await response.json();
-    console.log('Perfil do usuário:', user);
+    console.log('User profile:', user);
     return user;
   } catch (error) {
-    console.error('Erro ao obter perfil:', error);
+    console.error('Error getting profile:', error);
     throw error;
   }
 }
 
-// Uso
+// Usage
 getProfile();
 ```
 
-### Atualizar Nome
+### Update Name
 
 ```javascript
 async function updateUserName(userId, newName) {
@@ -434,19 +434,19 @@ async function updateUserName(userId, newName) {
     }
 
     const data = await response.json();
-    console.log('Nome atualizado:', data);
+    console.log('Name updated:', data);
     return data;
   } catch (error) {
-    console.error('Erro ao atualizar nome:', error);
+    console.error('Error updating name:', error);
     throw error;
   }
 }
 
-// Uso
+// Usage
 updateUserName('550e8400-e29b-41d4-a716-446655440000', 'Novo Nome');
 ```
 
-### Cliente API Completo
+### Complete API Client
 
 ```javascript
 class UserMesAPI {
@@ -486,7 +486,7 @@ class UserMesAPI {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Erro na requisição');
+        throw new Error(data.message || 'Request error');
       }
 
       return data;
@@ -559,28 +559,28 @@ class UserMesAPI {
   }
 }
 
-// Uso
+// Usage
 const api = new UserMesAPI();
 
-// Registrar
+// Register
 await api.register('ana@example.com', 'Senha123', 'Ana Silva');
 
 // Login
 const loginData = await api.login('ana@example.com', 'Senha123');
 
-// Obter perfil
+// Get profile
 const profile = await api.getProfile();
 
-// Atualizar nome
+// Update name
 await api.updateUser(profile.id, 'Ana Paula Silva');
 
 // Logout
 api.logout();
 ```
 
-## Exemplos com Go
+## Examples with Go
 
-### Cliente API
+### API Client
 
 ```go
 package main
@@ -734,59 +734,59 @@ func (c *Client) GetProfile() (*UserResponse, error) {
 func main() {
     client := NewClient()
 
-    // Registrar
+    // Register
     user, err := client.Register("carlos@example.com", "Senha123", "Carlos Oliveira")
     if err != nil {
-        fmt.Printf("Erro ao registrar: %v\n", err)
+        fmt.Printf("Error registering: %v\n", err)
         return
     }
-    fmt.Printf("Usuário registrado: %+v\n", user)
+    fmt.Printf("User registered: %+v\n", user)
 
     // Login
     loginResp, err := client.Login("carlos@example.com", "Senha123")
     if err != nil {
-        fmt.Printf("Erro ao fazer login: %v\n", err)
+        fmt.Printf("Error logging in: %v\n", err)
         return
     }
-    fmt.Printf("Login realizado. Token: %s\n", loginResp.Token)
+    fmt.Printf("Login successful. Token: %s\n", loginResp.Token)
 
-    // Obter perfil
+    // Get profile
     profile, err := client.GetProfile()
     if err != nil {
-        fmt.Printf("Erro ao obter perfil: %v\n", err)
+        fmt.Printf("Error getting profile: %v\n", err)
         return
     }
-    fmt.Printf("Perfil: %+v\n", profile)
+    fmt.Printf("Profile: %+v\n", profile)
 }
 ```
 
-## Códigos de Status
+## Status Codes
 
-| Código | Significado | Descrição |
-|--------|-------------|-----------|
-| 200 | OK | Requisição bem-sucedida |
-| 201 | Created | Recurso criado com sucesso |
-| 400 | Bad Request | Requisição inválida ou malformada |
-| 401 | Unauthorized | Não autenticado ou token inválido |
-| 403 | Forbidden | Sem permissão para acessar o recurso |
-| 404 | Not Found | Recurso não encontrado |
-| 409 | Conflict | Conflito (ex: email já existe) |
-| 500 | Internal Server Error | Erro interno do servidor |
+| Code | Meaning | Description |
+|------|---------|-------------|
+| 200 | OK | Request successful |
+| 201 | Created | Resource created successfully |
+| 400 | Bad Request | Invalid or malformed request |
+| 401 | Unauthorized | Not authenticated or invalid token |
+| 403 | Forbidden | No permission to access the resource |
+| 404 | Not Found | Resource not found |
+| 409 | Conflict | Conflict (e.g., email already exists) |
+| 500 | Internal Server Error | Internal server error |
 
-## Tratamento de Erros
+## Error Handling
 
-Todas as respostas de erro seguem o mesmo formato:
+All error responses follow the same format:
 
 ```json
 {
   "error": "error_code",
-  "message": "Descrição legível do erro"
+  "message": "Human-readable error description"
 }
 ```
 
-### Exemplos de Erros
+### Error Examples
 
-#### Email já existe (409)
+#### Email already exists (409)
 ```json
 {
   "error": "conflict",
@@ -794,7 +794,7 @@ Todas as respostas de erro seguem o mesmo formato:
 }
 ```
 
-#### Credenciais inválidas (401)
+#### Invalid credentials (401)
 ```json
 {
   "error": "unauthorized",
@@ -802,7 +802,7 @@ Todas as respostas de erro seguem o mesmo formato:
 }
 ```
 
-#### Token inválido (401)
+#### Invalid token (401)
 ```json
 {
   "error": "unauthorized",
@@ -810,7 +810,7 @@ Todas as respostas de erro seguem o mesmo formato:
 }
 ```
 
-#### Senha muito curta (400)
+#### Password too short (400)
 ```json
 {
   "error": "invalid_password",
@@ -818,7 +818,7 @@ Todas as respostas de erro seguem o mesmo formato:
 }
 ```
 
-#### Usuário não encontrado (404)
+#### User not found (404)
 ```json
 {
   "error": "not_found",
@@ -826,7 +826,7 @@ Todas as respostas de erro seguem o mesmo formato:
 }
 ```
 
-#### Validação de campo (400)
+#### Field validation (400)
 ```json
 {
   "error": "validation_error",
@@ -834,59 +834,59 @@ Todas as respostas de erro seguem o mesmo formato:
 }
 ```
 
-## Dicas de Segurança
+## Security Tips
 
-1. **Nunca exponha o token JWT** em logs ou console em produção
-2. **Use HTTPS** em produção para proteger o token em trânsito
-3. **Armazene o token de forma segura** (httpOnly cookies ou memória, não localStorage em produção)
-4. **Implemente refresh tokens** para sessões de longa duração
-5. **Valide todos os inputs** no lado do cliente antes de enviar
-6. **Implemente rate limiting** para prevenir ataques de força bruta
-7. **Use senhas fortes** com pelo menos 8 caracteres, letras e números
-8. **Implemente logout adequado** limpando tokens e sessões
+1. **Never expose JWT token** in logs or console in production
+2. **Use HTTPS** in production to protect token in transit
+3. **Store token securely** (httpOnly cookies or memory, not localStorage in production)
+4. **Implement refresh tokens** for long-duration sessions
+5. **Validate all inputs** on client-side before sending
+6. **Implement rate limiting** to prevent brute force attacks
+7. **Use strong passwords** with at least 8 characters, letters and numbers
+8. **Implement proper logout** by clearing tokens and sessions
 
-## Fluxo Completo de Autenticação
+## Complete Authentication Flow
 
 ```javascript
-// 1. Usuário se registra
+// 1. User registers
 const registerData = await api.register('user@example.com', 'Pass123', 'User Name');
 
-// 2. Usuário faz login
+// 2. User logs in
 const loginData = await api.login('user@example.com', 'Pass123');
-// Token é salvo automaticamente
+// Token is saved automatically
 
-// 3. Fazer requisições autenticadas
+// 3. Make authenticated requests
 const profile = await api.getProfile();
 const userData = await api.getUserById(profile.id);
 await api.updateUser(profile.id, 'New Name');
 
 // 4. Logout
 api.logout();
-// Token é removido
+// Token is removed
 ```
 
-## Testes com Postman
+## Tests with Postman
 
-1. Importe a collection no Postman
-2. Configure a variável `baseUrl` como `http://localhost:3000`
-3. Após o login, salve o token retornado em uma variável de ambiente
-4. Use `{{token}}` nos headers de autorização das outras requisições
+1. Import the collection in Postman
+2. Configure the `baseUrl` variable as `http://localhost:3000`
+3. After login, save the returned token in an environment variable
+4. Use `{{token}}` in authorization headers of other requests
 
 ## Troubleshooting
 
-### Erro "Authorization header is required"
-- Verifique se está incluindo o header `Authorization: Bearer <token>`
-- Confirme que o token está sendo enviado corretamente
+### Error "Authorization header is required"
+- Check if you're including the `Authorization: Bearer <token>` header
+- Confirm that the token is being sent correctly
 
-### Erro "Invalid or expired token"
-- Faça login novamente para obter um novo token
-- Tokens expiram após 24 horas
+### Error "Invalid or expired token"
+- Login again to get a new token
+- Tokens expire after 24 hours
 
-### Erro "email already exists"
-- Use um email diferente para registro
-- Ou faça login com o email existente
+### Error "email already exists"
+- Use a different email for registration
+- Or login with the existing email
 
-### Erro CORS
-- Certifique-se de que o servidor está rodando
-- Verifique se está fazendo requisições para a URL correta
-- Em desenvolvimento, o CORS está configurado para aceitar todas as origens
+### CORS Error
+- Make sure the server is running
+- Check if you're making requests to the correct URL
+- In development, CORS is configured to accept all origins

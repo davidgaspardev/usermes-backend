@@ -1,70 +1,70 @@
 # Quick Start Guide - UserMes Backend
 
-Guia rápido para começar a usar o UserMes Backend.
+Quick guide to get started with UserMes Backend.
 
-## 🚀 Instalação Rápida
+## 🚀 Quick Installation
 
-### Pré-requisitos
+### Prerequisites
 
-- Go 1.22.1 ou superior
-- curl (para testes)
+- Go 1.22.1 or higher
+- curl (for testing)
 
-### Passos
+### Steps
 
-1. **Clone o repositório**
+1. **Clone the repository**
 ```bash
-git clone <seu-repositório>
+git clone <your-repository>
 cd usermes-backend
 ```
 
-2. **Instale as dependências**
+2. **Install dependencies**
 ```bash
 go mod download
 ```
 
-3. **Execute a aplicação**
+3. **Run the application**
 ```bash
 go run cmd/main.go
 ```
 
-A API estará disponível em: `http://localhost:3000`
+The API will be available at: `http://localhost:3000`
 
-## ✅ Teste Rápido
+## ✅ Quick Test
 
-Abra outro terminal e execute:
+Open another terminal and run:
 
 ```bash
 # Health check
 curl http://localhost:3000/health
 ```
 
-Deve retornar:
+Should return:
 ```json
 {"status":"ok","timestamp":1705318800}
 ```
 
-## 📝 Seu Primeiro Usuário
+## 📝 Your First User
 
-### 1. Registrar um usuário
+### 1. Register a user
 
 ```bash
 curl -X POST http://localhost:3000/api/users/register \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "seu@email.com",
-    "password": "SuaSenha123",
-    "name": "Seu Nome"
+    "email": "your@email.com",
+    "password": "YourPassword123",
+    "name": "Your Name"
   }'
 ```
 
-**Resposta esperada:**
+**Expected response:**
 ```json
 {
   "message": "User registered successfully",
   "data": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "email": "seu@email.com",
-    "name": "Seu Nome",
+    "email": "your@email.com",
+    "name": "Your Name",
     "is_active": true,
     "created_at": "2024-01-15T10:30:00Z",
     "updated_at": "2024-01-15T10:30:00Z"
@@ -72,25 +72,25 @@ curl -X POST http://localhost:3000/api/users/register \
 }
 ```
 
-### 2. Fazer login
+### 2. Login
 
 ```bash
 curl -X POST http://localhost:3000/api/users/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "seu@email.com",
-    "password": "SuaSenha123"
+    "email": "your@email.com",
+    "password": "YourPassword123"
   }'
 ```
 
-**Resposta esperada:**
+**Expected response:**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "email": "seu@email.com",
-    "name": "Seu Nome",
+    "email": "your@email.com",
+    "name": "Your Name",
     "is_active": true,
     "created_at": "2024-01-15T10:30:00Z",
     "updated_at": "2024-01-15T10:30:00Z",
@@ -99,23 +99,23 @@ curl -X POST http://localhost:3000/api/users/login \
 }
 ```
 
-**⚠️ IMPORTANTE:** Copie o token retornado! Você precisará dele para as próximas requisições.
+**⚠️ IMPORTANT:** Copy the returned token! You'll need it for the next requests.
 
-### 3. Obter seu perfil
+### 3. Get your profile
 
-Substitua `<SEU-TOKEN>` pelo token que você recebeu no login:
+Replace `<YOUR-TOKEN>` with the token you received from login:
 
 ```bash
 curl -X GET http://localhost:3000/api/users/me \
-  -H "Authorization: Bearer <SEU-TOKEN>"
+  -H "Authorization: Bearer <YOUR-TOKEN>"
 ```
 
-**Resposta esperada:**
+**Expected response:**
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "seu@email.com",
-  "name": "Seu Nome",
+  "email": "your@email.com",
+  "name": "Your Name",
   "is_active": true,
   "created_at": "2024-01-15T10:30:00Z",
   "updated_at": "2024-01-15T10:30:00Z",
@@ -123,103 +123,103 @@ curl -X GET http://localhost:3000/api/users/me \
 }
 ```
 
-## 🎯 Teste Automatizado
+## 🎯 Automated Test
 
-Execute todos os testes de uma vez:
+Run all tests at once:
 
 ```bash
-# Terminal 1: Inicie o servidor
+# Terminal 1: Start the server
 go run cmd/main.go
 
-# Terminal 2: Execute os testes
+# Terminal 2: Run the tests
 ./simple_test.sh
 ```
 
-## 🛠️ Usando Makefile
+## 🛠️ Using Makefile
 
 ```bash
-# Executar a aplicação
+# Run the application
 make run
 
 # Build
 make build
 
-# Executar testes
+# Run tests
 make test
 
-# Ver todos os comandos disponíveis
+# See all available commands
 make help
 ```
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 usermes-backend/
 ├── cmd/                          # Entry point
 │   └── main.go
 ├── internal/
-│   ├── modules/                  # Módulos do monolito
-│   │   └── user/                 # Módulo de usuário
-│   │       ├── domain/           # Entidades e regras de negócio
-│   │       ├── application/      # Casos de uso
+│   ├── modules/                  # Monolith modules
+│   │   └── user/                 # User module
+│   │       ├── domain/           # Entities and business rules
+│   │       ├── application/      # Use cases
 │   │       └── infrastructure/   # HTTP, Database, etc
-│   └── shared/                   # Código compartilhado
+│   └── shared/                   # Shared code
 │       └── infrastructure/
-└── pkg/                          # Pacotes públicos
+└── pkg/                          # Public packages
 ```
 
-## 📚 Endpoints Disponíveis
+## 📚 Available Endpoints
 
-### Públicos (sem autenticação)
+### Public (no authentication required)
 
-- `POST /api/users/register` - Registrar novo usuário
-- `POST /api/users/login` - Fazer login
+- `POST /api/users/register` - Register new user
+- `POST /api/users/login` - Login
 - `GET /health` - Health check
 
-### Protegidos (requerem token)
+### Protected (requires token)
 
-- `GET /api/users/me` - Obter perfil do usuário logado
-- `GET /api/users/:id` - Obter usuário por ID
-- `PUT /api/users/:id` - Atualizar nome do usuário
-- `POST /api/users/:id/change-password` - Alterar senha
-- `POST /api/users/:id/deactivate` - Desativar conta
-- `POST /api/users/:id/activate` - Ativar conta
+- `GET /api/users/me` - Get logged user profile
+- `GET /api/users/:id` - Get user by ID
+- `PUT /api/users/:id` - Update user name
+- `POST /api/users/:id/change-password` - Change password
+- `POST /api/users/:id/deactivate` - Deactivate account
+- `POST /api/users/:id/activate` - Activate account
 
-## 🔐 Regras de Senha
+## 🔐 Password Rules
 
-- Mínimo de 8 caracteres
-- Máximo de 72 caracteres
-- Deve conter pelo menos uma letra
-- Deve conter pelo menos um número
+- Minimum 8 characters
+- Maximum 72 characters
+- Must contain at least one letter
+- Must contain at least one number
 
-## 💡 Dicas
+## 💡 Tips
 
-### Salvar token em variável (Linux/Mac)
+### Save token in variable (Linux/Mac)
 
 ```bash
-# Fazer login e salvar token
+# Login and save token
 TOKEN=$(curl -s -X POST http://localhost:3000/api/users/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"seu@email.com","password":"SuaSenha123"}' \
+  -d '{"email":"your@email.com","password":"YourPassword123"}' \
   | grep -o '"token":"[^"]*"' | sed 's/"token":"//; s/"$//')
 
-# Usar o token
+# Use the token
 curl -X GET http://localhost:3000/api/users/me \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-### Salvar token em variável (Windows PowerShell)
+### Save token in variable (Windows PowerShell)
 
 ```powershell
-# Fazer login e salvar token
+# Login and save token
 $response = Invoke-RestMethod -Uri "http://localhost:3000/api/users/login" `
   -Method POST `
   -ContentType "application/json" `
-  -Body '{"email":"seu@email.com","password":"SuaSenha123"}'
+  -Body '{"email":"your@email.com","password":"YourPassword123"}'
 
 $token = $response.token
 
-# Usar o token
+# Use the token
 Invoke-RestMethod -Uri "http://localhost:3000/api/users/me" `
   -Method GET `
   -Headers @{Authorization="Bearer $token"}
@@ -227,100 +227,100 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/users/me" `
 
 ## 🐛 Troubleshooting
 
-### Porta 3000 já em uso
+### Port 3000 already in use
 
 ```bash
-# Encontrar processo usando a porta
+# Find process using the port
 lsof -i :3000
 
-# Matar o processo
+# Kill the process
 kill -9 <PID>
 ```
 
-### Erro "Authorization header is required"
+### Error "Authorization header is required"
 
-Certifique-se de incluir o header de autorização:
+Make sure to include the authorization header:
 ```bash
--H "Authorization: Bearer <seu-token>"
+-H "Authorization: Bearer <your-token>"
 ```
 
-### Erro "Invalid or expired token"
+### Error "Invalid or expired token"
 
-O token expira após 24 horas. Faça login novamente para obter um novo token.
+The token expires after 24 hours. Login again to get a new token.
 
-### Erro "email already exists"
+### Error "email already exists"
 
-Use um email diferente ou faça login com o email existente.
+Use a different email or login with the existing email.
 
-## 🔄 Resetar Dados
+## 🔄 Reset Data
 
-Como está usando repositório em memória, basta reiniciar o servidor:
+Since it's using in-memory repository, just restart the server:
 
 ```bash
-# Pressione Ctrl+C para parar o servidor
-# Execute novamente
+# Press Ctrl+C to stop the server
+# Run again
 go run cmd/main.go
 ```
 
-Todos os dados serão perdidos e você poderá começar do zero.
+All data will be lost and you can start from scratch.
 
-## 📖 Próximos Passos
+## 📖 Next Steps
 
-1. Leia a [Documentação Completa](README.md)
-2. Entenda a [Arquitetura](ARCHITECTURE.md)
-3. Veja mais [Exemplos de Uso](EXAMPLES.md)
-4. Contribua com o projeto!
+1. Read the [Complete Documentation](README.md)
+2. Understand the [Architecture](ARCHITECTURE.md)
+3. See more [Usage Examples](EXAMPLES.md)
+4. Contribute to the project!
 
-## 🆘 Precisa de Ajuda?
+## 🆘 Need Help?
 
-- Abra uma issue no GitHub
-- Consulte a documentação completa
-- Verifique os exemplos
+- Open an issue on GitHub
+- Check the complete documentation
+- Review the examples
 
-## 📝 Notas Importantes
+## 📝 Important Notes
 
-⚠️ **Ambiente de Desenvolvimento:**
-- Dados armazenados em memória (não persistem)
-- JWT secret está hardcoded (trocar em produção)
-- CORS configurado para aceitar qualquer origem
+⚠️ **Development Environment:**
+- Data stored in memory (not persisted)
+- JWT secret is hardcoded (change in production)
+- CORS configured to accept any origin
 
-⚠️ **Antes de ir para Produção:**
-- Configure variáveis de ambiente
-- Use banco de dados real (PostgreSQL, MySQL)
+⚠️ **Before Going to Production:**
+- Configure environment variables
+- Use real database (PostgreSQL, MySQL)
 - Configure HTTPS
-- Implemente rate limiting
-- Configure logging apropriado
-- Use JWT secret seguro e único
+- Implement rate limiting
+- Configure proper logging
+- Use secure and unique JWT secret
 
-## ✨ Exemplos Rápidos
+## ✨ Quick Examples
 
-### Fluxo completo em um script
+### Complete flow in one script
 
 ```bash
 #!/bin/bash
 
 BASE_URL="http://localhost:3000"
 
-# 1. Registrar
+# 1. Register
 curl -X POST $BASE_URL/api/users/register \
   -H "Content-Type: application/json" \
   -d '{"email":"demo@test.com","password":"Demo123","name":"Demo User"}'
 
-# 2. Login e salvar token
+# 2. Login and save token
 TOKEN=$(curl -s -X POST $BASE_URL/api/users/login \
   -H "Content-Type: application/json" \
   -d '{"email":"demo@test.com","password":"Demo123"}' \
   | grep -o '"token":"[^"]*"' | sed 's/"token":"//; s/"$//')
 
-# 3. Ver perfil
+# 3. View profile
 curl -X GET $BASE_URL/api/users/me \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-Salve isso em `test.sh`, dê permissão de execução (`chmod +x test.sh`) e execute (`./test.sh`).
+Save this as `test.sh`, give execution permission (`chmod +x test.sh`) and run (`./test.sh`).
 
 ---
 
-**Pronto para começar!** 🚀
+**Ready to start!** 🚀
 
-Se tudo funcionou, você está pronto para desenvolver novos recursos ou adicionar novos módulos ao monolito.
+If everything worked, you're ready to develop new features or add new modules to the monolith.

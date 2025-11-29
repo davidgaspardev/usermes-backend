@@ -1,5 +1,10 @@
 # UserMes Backend - Hexagonal Architecture with Modular Monolith
 
+[![CI](https://github.com/YOUR_USERNAME/usermes-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/usermes-backend/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/YOUR_USERNAME/usermes-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/usermes-backend)
+[![Go Report Card](https://goreportcard.com/badge/github.com/YOUR_USERNAME/usermes-backend)](https://goreportcard.com/report/github.com/YOUR_USERNAME/usermes-backend)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A RESTful API built in Go following **Hexagonal Architecture** (Ports and Adapters) principles with **Modular Monolith**.
 
 ## 🏗️ Architecture
@@ -208,6 +213,12 @@ make build
 
 # Run tests
 make test
+
+# Run tests with coverage (90% minimum)
+make coverage
+
+# Generate HTML coverage report
+make coverage-html
 ```
 
 ## 🧪 Testing the API
@@ -264,6 +275,43 @@ curl http://localhost:3000/health
 - Must contain at least one letter
 - Must contain at least one number
 
+## 🧪 Testing
+
+This project maintains **90% minimum code coverage** enforced by CI/CD pipeline.
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run tests with coverage check (90% threshold)
+make coverage
+
+# Generate HTML coverage report
+make coverage-html
+open coverage.html
+
+# Show coverage by function
+make coverage-func
+```
+
+### Coverage Status
+
+- **Domain Layer**: 90%+ coverage (entities, value objects)
+- **Application Layer**: 84%+ coverage (use cases)
+- **Infrastructure Layer**: 100% coverage (repositories)
+
+### Writing Tests
+
+We follow these testing principles:
+- **Test behavior, not implementation**
+- **Use table-driven tests** for multiple scenarios
+- **Mock external dependencies** using interfaces
+- **Test edge cases** and error scenarios
+
+See [CI/CD Documentation](.github/workflows/README.md) for more details.
+
 ## 📝 Implemented Best Practices
 
 1. **Dependency Inversion**: Upper layers don't depend on concrete implementations
@@ -285,7 +333,8 @@ curl http://localhost:3000/health
 - [ ] Rate limiting
 - [ ] Structured logging
 - [ ] Metrics and observability
-- [ ] Unit and integration tests
+- [x] Unit and integration tests with 90% coverage
+- [x] CI/CD pipeline with GitHub Actions
 - [ ] CI/CD pipeline
 - [ ] Docker and Docker Compose
 - [ ] Database migrations

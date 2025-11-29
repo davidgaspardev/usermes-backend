@@ -1,0 +1,177 @@
+package server
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
+)
+
+// FiberServer wraps the Fiber HTTP server with lifecycle management
+type FiberServer struct {
+	app  *fiber.App
+	port int
+}
+
+// Config holds the configuration for the Fiber server
+type Config struct {
+	Port                  int
+	AppName               string
+	ReadTimeout           time.Duration
+	WriteTimeout          time.Duration
+	EnableCORS            bool
+	EnableLogger          bool
+	EnableRecover         bool
+	EnableRequestID       bool
+	ShutdownTimeout       time.Duration
+	MaxRequestBodySize    int
+	DisableStartupMessage bool
+}
+
+// DefaultConfig returns the default server configuration
+func DefaultConfig() Config {
+	return Config{
+		Port:                  3000,
+		AppName:               "UserMes API",
+		ReadTimeout:           10 * time.Second,
+		WriteTimeout:          10 * time.Second,
+		EnableCORS:            true,
+		EnableLogger:          true,
+		EnableRecover:         true,
+		EnableRequestID:       true,
+		ShutdownTimeout:       30 * time.Second,
+		MaxRequestBodySize:    4 * 1024 * 1024, // 4MB
+		DisableStartupMessage: false,
+	}
+}
+
+// NewFiberServer creates a new Fiber server instance with the given configuration
+func NewFiberServer(config Config) *FiberServer {
+	app := fiber.New(fiber.Config{
+		AppName:               config.AppName,
+		ReadTimeout:           config.ReadTimeout,
+		WriteTimeout:          config.WriteTimeout,
+		DisableStartupMessage: config.DisableStartupMessage,
+		BodyLimit:             config.MaxRequestBodySize,
+		ErrorHandler:          customErrorHandler,
+	})
+
+	// Setup middleware
+	setupMiddleware(app, config)
+
+	return &FiberServer{
+		app:  app,
+		port: config.Port,
+	}
+}
+
+// setupMiddleware configures all middleware for the Fiber app
+func setupMiddleware(app *fiber.App, config Config) {
+	// Recover middleware (must be first)
+	if config.EnableRecover {
+		app.Use(recover.New(recover.Config{
+			EnableStackTrace: true,
+		}))
+	}
+
+	// Request ID middleware
+	if config.EnableRequestID {
+		app.Use(requestid.New())
+	}
+
+	// Logger middleware
+	if config.EnableLogger {
+		app.Use(logger.New(logger.Config{
+			Format:     "[${time}] ${status} - ${method} ${path} - ${latency}\n",
+			TimeFormat: "2006-01-02 15:04:05",
+			TimeZone:   "Local",
+		}))
+	}
+
+	// CORS middleware
+	if config.EnableCORS {
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     "*",
+			AllowMethods:     "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+			AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+			AllowCredentials: false,
+			MaxAge:           300,
+		}))
+	}
+}
+
+// customErrorHandler handles errors in a consistent way
+func customErrorHandler(c *fiber.Ctx, err error) error {
+	code := fiber.StatusInternalServerError
+
+	if e, ok := err.(*fiber.Error); ok {
+		code = e.Code
+	}
+
+	return c.Status(code).JSON(fiber.Map{
+		"error":   http.StatusText(code),
+		"message": err.Error(),
+	})
+}
+
+// GetApp returns the underlying Fiber app instance
+func (s *FiberServer) GetApp() *fiber.App {
+	return s.app
+}
+
+// Start starts the HTTP server
+func (s *FiberServer) Start() error {
+	// Setup graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	// Start server in a goroutine
+	go func() {
+		log.Printf("🚀 Server starting on port %d...\n", s.port)
+		if err := s.app.Listen(fmt.Sprintf(":%d", s.port)); err != nil {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal
+	<-quit
+	log.Println("🛑 Shutting down server...")
+
+	// Graceful shutdown
+	if err := s.app.Shutdown(); err != nil {
+		log.Printf("Server forced to shutdown: %v", err)
+		return err
+	}
+
+	log.Println("✅ Server stopped gracefully")
+	return nil
+}
+
+// Shutdown gracefully shuts down the server
+func (s *FiberServer) Shutdown() error {
+	return s.app.Shutdown()
+}
+
+// Health adds a health check endpoint
+func (s *FiberServer) AddHealthCheck() {
+	s.app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"status":    "ok",
+			"timestamp": time.Now().Unix(),
+		})
+	})
+}
+
+// RegisterRoutes is a helper method to register route groups
+func (s *FiberServer) RegisterRoutes(setupFunc func(*fiber.App)) {
+	setupFunc(s.app)
+}

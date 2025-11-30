@@ -7,16 +7,16 @@ type Pulse struct {
 	createdAt time.Time
 	updatedAt time.Time
 	id        string
-	ownerId   string
+	ownerID   string
 	factor    int16
 }
 
-func NewPulse(id string, ownerId string, factor int16, date time.Time) *Pulse {
+func NewPulse(id, ownerID string, factor int16, date time.Time) *Pulse {
 	now := time.Now()
 
 	return &Pulse{
 		id:        id,
-		ownerId:   ownerId,
+		ownerID:   ownerID,
 		factor:    factor,
 		date:      date,
 		createdAt: now,

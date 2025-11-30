@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/port/input"
+	"github.com/davidgaspardev/usermes-backend/internal/modules/resource/domain/entity"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/resource/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/dto"
 )
@@ -104,16 +105,9 @@ func (h *ResourceHandler) GetByType(c *fiber.Ctx) error {
 		))
 	}
 
-	limit := c.QueryInt("limit", 10)
-	offset := c.QueryInt("offset", 0)
-
-	resources, err := h.service.GetByType(c.Context(), resourceType, limit, offset)
-	if err != nil {
-		return h.handleError(c, err)
-	}
-
-	response := dto.ToResourceListResponse(resources, limit, offset)
-	return c.Status(fiber.StatusOK).JSON(response)
+	return h.getResourcesWithPagination(c, func(limit, offset int) ([]*entity.Resource, error) {
+		return h.service.GetByType(c.Context(), resourceType, limit, offset)
+	})
 }
 
 // GetByShiftID handles retrieving resources by shift ID
@@ -126,10 +120,20 @@ func (h *ResourceHandler) GetByShiftID(c *fiber.Ctx) error {
 		))
 	}
 
+	return h.getResourcesWithPagination(c, func(limit, offset int) ([]*entity.Resource, error) {
+		return h.service.GetByShiftID(c.Context(), shiftID, limit, offset)
+	})
+}
+
+// getResourcesWithPagination is a helper function to handle pagination logic
+func (h *ResourceHandler) getResourcesWithPagination(
+	c *fiber.Ctx,
+	fetchFunc func(limit, offset int) ([]*entity.Resource, error),
+) error {
 	limit := c.QueryInt("limit", 10)
 	offset := c.QueryInt("offset", 0)
 
-	resources, err := h.service.GetByShiftID(c.Context(), shiftID, limit, offset)
+	resources, err := fetchFunc(limit, offset)
 	if err != nil {
 		return h.handleError(c, err)
 	}

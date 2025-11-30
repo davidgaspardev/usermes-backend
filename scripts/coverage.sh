@@ -35,7 +35,7 @@ echo -e "Threshold:      ${YELLOW}${THRESHOLD}%${NC}"
 echo ""
 
 # Check if coverage meets threshold
-if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+if awk "BEGIN {exit !($COVERAGE < $THRESHOLD)}"; then
     echo -e "${RED}❌ Coverage ${COVERAGE}% is below threshold ${THRESHOLD}%${NC}"
     echo ""
     echo "Coverage by package:"

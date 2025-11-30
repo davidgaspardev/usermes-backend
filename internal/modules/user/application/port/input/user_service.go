@@ -3,8 +3,9 @@ package input
 import (
 	"context"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 	"github.com/google/uuid"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 )
 
 // UserService defines the input port for user operations (use cases)

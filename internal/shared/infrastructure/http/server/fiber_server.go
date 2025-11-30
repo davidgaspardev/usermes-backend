@@ -24,16 +24,16 @@ type FiberServer struct {
 
 // Config holds the configuration for the Fiber server
 type Config struct {
-	Port                  int
 	AppName               string
 	ReadTimeout           time.Duration
 	WriteTimeout          time.Duration
+	ShutdownTimeout       time.Duration
+	Port                  int
+	MaxRequestBodySize    int
 	EnableCORS            bool
 	EnableLogger          bool
 	EnableRecover         bool
 	EnableRequestID       bool
-	ShutdownTimeout       time.Duration
-	MaxRequestBodySize    int
 	DisableStartupMessage bool
 }
 

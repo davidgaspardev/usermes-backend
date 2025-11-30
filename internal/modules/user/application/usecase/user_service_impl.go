@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/input"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
-	"github.com/google/uuid"
 )
 
 // UserServiceImpl implements the UserService interface

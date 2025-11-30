@@ -1,11 +1,12 @@
 package http
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/input"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/dto"
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 // UserHandler handles HTTP requests for user operations

@@ -80,14 +80,29 @@ build-all: build-linux build-windows build-mac
 ## test: Run tests
 test:
 	@echo "$(GREEN)Running tests...$(NC)"
-	@$(GOTEST) -v -race -coverprofile=coverage.out ./...
+	@$(GOTEST) -v -race ./...
 	@echo "$(GREEN)Tests complete!$(NC)"
 
-## test-coverage: Run tests with coverage report
-test-coverage: test
-	@echo "$(GREEN)Generating coverage report...$(NC)"
+## test-coverage: Run tests with coverage report and check threshold
+test-coverage:
+	@echo "$(GREEN)Running tests with coverage...$(NC)"
+	@./scripts/coverage.sh
+
+## coverage: Alias for test-coverage
+coverage: test-coverage
+
+## coverage-html: Generate HTML coverage report
+coverage-html:
+	@echo "$(GREEN)Running tests with coverage...$(NC)"
+	@$(GOTEST) -coverprofile=coverage.out ./...
+	@echo "$(GREEN)Generating HTML report...$(NC)"
 	@$(GOCMD) tool cover -html=coverage.out -o coverage.html
-	@echo "$(GREEN)Coverage report generated: coverage.html$(NC)"
+	@echo "$(GREEN)Coverage report: coverage.html$(NC)"
+
+## coverage-func: Show coverage by function
+coverage-func:
+	@$(GOTEST) -coverprofile=coverage.out ./... > /dev/null 2>&1
+	@$(GOCMD) tool cover -func=coverage.out
 
 ## bench: Run benchmarks
 bench:

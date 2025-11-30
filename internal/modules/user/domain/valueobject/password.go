@@ -5,8 +5,9 @@ import (
 	"encoding/base64"
 	"strings"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/errors"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/errors"
 )
 
 // Password represents a hashed password

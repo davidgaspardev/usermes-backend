@@ -3,20 +3,21 @@ package entity
 import (
 	"time"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
 	"github.com/google/uuid"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
 )
 
 // User represents the core user entity in the domain
 type User struct {
-	id          uuid.UUID
-	email       valueobject.Email
-	password    valueobject.Password
-	name        string
-	isActive    bool
 	createdAt   time.Time
 	updatedAt   time.Time
 	lastLoginAt *time.Time
+	email       valueobject.Email
+	password    valueobject.Password
+	name        string
+	id          uuid.UUID
+	isActive    bool
 }
 
 // NewUser creates a new user instance

@@ -335,7 +335,6 @@ See [CI/CD Documentation](.github/workflows/README.md) for more details.
 - [ ] Metrics and observability
 - [x] Unit and integration tests with 90% coverage
 - [x] CI/CD pipeline with GitHub Actions
-- [ ] CI/CD pipeline
 - [ ] Docker and Docker Compose
 - [ ] Database migrations
 - [ ] Swagger/OpenAPI documentation

@@ -50,9 +50,9 @@ func main() {
 // Config holds the application configuration
 type Config struct {
 	AppName       string
-	ServerPort    int
 	JWTSecret     string
 	TokenDuration time.Duration
+	ServerPort    int
 }
 
 // loadConfig loads the application configuration

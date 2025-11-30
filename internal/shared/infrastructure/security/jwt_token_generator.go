@@ -9,23 +9,24 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
 	"github.com/google/uuid"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
 )
 
 // JWTTokenGenerator implements the TokenGenerator interface using JWT
 type JWTTokenGenerator struct {
-	secretKey []byte
 	issuer    string
+	secretKey []byte
 }
 
 // JWTClaims represents the JWT token claims
 type JWTClaims struct {
 	UserID    string `json:"sub"`
 	Email     string `json:"email"`
+	Issuer    string `json:"iss"`
 	IssuedAt  int64  `json:"iat"`
 	ExpiresAt int64  `json:"exp"`
-	Issuer    string `json:"iss"`
 }
 
 // JWTHeader represents the JWT token header
@@ -35,7 +36,7 @@ type JWTHeader struct {
 }
 
 // NewJWTTokenGenerator creates a new instance of JWTTokenGenerator
-func NewJWTTokenGenerator(secretKey string, issuer string) output.TokenGenerator {
+func NewJWTTokenGenerator(secretKey, issuer string) output.TokenGenerator {
 	return &JWTTokenGenerator{
 		secretKey: []byte(secretKey),
 		issuer:    issuer,

@@ -1,9 +1,10 @@
 package http
 
 import (
+	"github.com/gofiber/fiber/v2"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/input"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
-	"github.com/gofiber/fiber/v2"
 )
 
 // UserRoutes configures all routes for the user module

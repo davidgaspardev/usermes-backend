@@ -4,18 +4,19 @@ import (
 	"context"
 	"sync"
 
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
-	"github.com/google/uuid"
 )
 
 // MemoryUserRepository is an in-memory implementation of UserRepository
 type MemoryUserRepository struct {
-	mu           sync.RWMutex
 	users        map[uuid.UUID]*entity.User
 	usersByEmail map[string]*entity.User
+	mu           sync.RWMutex
 }
 
 // NewMemoryUserRepository creates a new instance of MemoryUserRepository
@@ -54,19 +55,28 @@ func (r *MemoryUserRepository) Update(ctx context.Context, user *entity.User) er
 	defer r.mu.Unlock()
 
 	// Check if user exists
-	existingUser, exists := r.users[user.ID()]
+	_, exists := r.users[user.ID()]
 	if !exists {
 		return errors.ErrUserNotFound
 	}
 
-	// If email changed, update the email index
-	if existingUser.Email().Value() != user.Email().Value() {
-		delete(r.usersByEmail, existingUser.Email().Value())
-		r.usersByEmail[user.Email().Value()] = user
+	// Find and remove old email from index
+	var oldEmail string
+	for email, u := range r.usersByEmail {
+		if u.ID() == user.ID() {
+			oldEmail = email
+			break
+		}
 	}
 
-	// Update user
+	// If email changed, remove old email from index
+	if oldEmail != "" && oldEmail != user.Email().Value() {
+		delete(r.usersByEmail, oldEmail)
+	}
+
+	// Update both maps
 	r.users[user.ID()] = user
+	r.usersByEmail[user.Email().Value()] = user
 
 	return nil
 }

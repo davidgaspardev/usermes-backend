@@ -3,8 +3,9 @@ package dto
 import (
 	"time"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 	"github.com/google/uuid"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 )
 
 // RegisterRequest represents the request body for user registration
@@ -33,13 +34,13 @@ type ChangePasswordRequest struct {
 
 // UserResponse represents the response body for user data
 type UserResponse struct {
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	LastLoginAt *time.Time `json:"last_login_at,omitempty"`
 	ID          string     `json:"id"`
 	Email       string     `json:"email"`
 	Name        string     `json:"name"`
 	IsActive    bool       `json:"is_active"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-	LastLoginAt *time.Time `json:"last_login_at,omitempty"`
 }
 
 // LoginResponse represents the response body for successful login
@@ -56,8 +57,8 @@ type ErrorResponse struct {
 
 // SuccessResponse represents a generic success response
 type SuccessResponse struct {
-	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
+	Message string      `json:"message"`
 }
 
 // ToUserResponse converts a User entity to UserResponse DTO
@@ -82,9 +83,9 @@ func ToLoginResponse(token string, user *entity.User) LoginResponse {
 }
 
 // NewErrorResponse creates a new ErrorResponse
-func NewErrorResponse(error string, message string) ErrorResponse {
+func NewErrorResponse(errMsg, message string) ErrorResponse {
 	return ErrorResponse{
-		Error:   error,
+		Error:   errMsg,
 		Message: message,
 	}
 }

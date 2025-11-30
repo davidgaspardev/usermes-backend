@@ -4,11 +4,12 @@ import (
 	"context"
 	"sync"
 
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
-	"github.com/google/uuid"
 )
 
 // MemoryUserRepository is an in-memory implementation of UserRepository

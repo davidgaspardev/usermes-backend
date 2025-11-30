@@ -4,10 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
-	"github.com/google/uuid"
 )
 
 func createTestUser(t *testing.T) *entity.User {

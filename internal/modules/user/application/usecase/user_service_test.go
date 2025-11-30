@@ -5,10 +5,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/entity"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
-	"github.com/google/uuid"
 )
 
 // Mock Repository
@@ -301,7 +302,10 @@ func TestUserService_UpdateUser_InvalidName(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	registered, _ := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	if err != nil {
+		t.Fatalf("Failed to register user: %v", err)
+	}
 
 	tests := []struct {
 		name    string

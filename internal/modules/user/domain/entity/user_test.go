@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
 	"github.com/google/uuid"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/user/domain/valueobject"
 )
 
 func createTestUser(t *testing.T) *User {

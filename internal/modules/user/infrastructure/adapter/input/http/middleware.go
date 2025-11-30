@@ -3,9 +3,10 @@ package http
 import (
 	"strings"
 
+	"github.com/gofiber/fiber/v2"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/dto"
-	"github.com/gofiber/fiber/v2"
 )
 
 const (

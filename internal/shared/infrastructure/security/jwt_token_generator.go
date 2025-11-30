@@ -9,8 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
 	"github.com/google/uuid"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/port/output"
 )
 
 // JWTTokenGenerator implements the TokenGenerator interface using JWT

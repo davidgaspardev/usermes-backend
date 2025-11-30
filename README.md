@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/YOUR_USERNAME/usermes-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/usermes-backend)
 [![Go Report Card](https://goreportcard.com/badge/github.com/YOUR_USERNAME/usermes-backend)](https://goreportcard.com/report/github.com/YOUR_USERNAME/usermes-backend)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Coverage](https://img.shields.io/badge/coverage-37.2%25-yellow.svg)](./docs/COVERAGE_STATUS.md)
 
 A RESTful API built in Go following **Hexagonal Architecture** (Ports and Adapters) principles with **Modular Monolith**.
 
@@ -277,30 +278,52 @@ curl http://localhost:3000/health
 
 ## 🧪 Testing
 
-This project maintains **90% minimum code coverage** enforced by CI/CD pipeline.
+**Current Coverage:** 37.2% | **Target:** 90%  
+[![Coverage](https://img.shields.io/badge/coverage-37.2%25-yellow.svg)](./docs/COVERAGE_STATUS.md)
 
-### Running Tests
+### Quick Start
 
 ```bash
 # Run all tests
-make test
+go test ./...
 
-# Run tests with coverage check (90% threshold)
-make coverage
+# Run tests with coverage
+go test -coverprofile=coverage.out ./...
 
-# Generate HTML coverage report
-make coverage-html
-open coverage.html
+# View coverage in browser
+go tool cover -html=coverage.out
 
-# Show coverage by function
-make coverage-func
+# Run all CI checks locally
+./scripts/run_ci_checks.sh
 ```
 
 ### Coverage Status
 
-- **Domain Layer**: 90%+ coverage (entities, value objects)
-- **Application Layer**: 84%+ coverage (use cases)
-- **Infrastructure Layer**: 100% coverage (repositories)
+| Layer | Package | Coverage | Status |
+|-------|---------|----------|--------|
+| **Domain** | user/domain | 97% | ✅ Excellent |
+| **Domain** | resource/domain | 100% | ✅ Excellent |
+| **Application** | user/service | 88.6% | ✅ Good |
+| **Application** | resource/service | 0% | ❌ TODO |
+| **Infrastructure** | user/repository | 100% | ✅ Excellent |
+| **Infrastructure** | resource/repository | 0% | ❌ TODO |
+| **Infrastructure** | HTTP handlers | 0% | ❌ TODO |
+
+### Documentation
+
+- 📖 [Testing Strategy](./docs/TESTING_STRATEGY.md) - Comprehensive testing guidelines
+- 📊 [Coverage Status Report](./docs/COVERAGE_STATUS.md) - Detailed coverage breakdown
+- 🚀 [Quick Start Guide](./docs/QUICK_START_TESTING.md) - Get started with testing
+- 📝 [Coverage Fix Summary](./COVERAGE_FIX_SUMMARY.md) - Recent coverage improvements
+
+### Improvement Roadmap
+
+We're following an incremental approach to reach 90% coverage:
+
+- **Phase 1 (50%)**: Add Resource module tests ⏳ Next Sprint
+- **Phase 2 (70%)**: Add HTTP handler tests 📅 3-4 weeks
+- **Phase 3 (80%)**: Add integration tests 🎯 1 month
+- **Phase 4 (90%)**: Add E2E tests 🚀 2 months
 
 ### Writing Tests
 
@@ -309,8 +332,26 @@ We follow these testing principles:
 - **Use table-driven tests** for multiple scenarios
 - **Mock external dependencies** using interfaces
 - **Test edge cases** and error scenarios
+- **Follow AAA pattern** (Arrange, Act, Assert)
 
-See [CI/CD Documentation](.github/workflows/README.md) for more details.
+Example test:
+```go
+func TestUserService_Register(t *testing.T) {
+    // Arrange
+    repo := NewMockUserRepository()
+    service := NewUserService(repo)
+    
+    // Act
+    user, err := service.Register(ctx, "test@example.com", "password", "Test User")
+    
+    // Assert
+    if err != nil {
+        t.Fatalf("Expected no error, got %v", err)
+    }
+}
+```
+
+See [Testing Strategy](./docs/TESTING_STRATEGY.md) for comprehensive guidelines.
 
 ## 📝 Implemented Best Practices
 

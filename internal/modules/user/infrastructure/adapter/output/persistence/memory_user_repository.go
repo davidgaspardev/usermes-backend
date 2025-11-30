@@ -13,9 +13,9 @@ import (
 
 // MemoryUserRepository is an in-memory implementation of UserRepository
 type MemoryUserRepository struct {
-	mu           sync.RWMutex
 	users        map[uuid.UUID]*entity.User
 	usersByEmail map[string]*entity.User
+	mu           sync.RWMutex
 }
 
 // NewMemoryUserRepository creates a new instance of MemoryUserRepository

@@ -68,7 +68,10 @@ func TestUser_UpdateName(t *testing.T) {
 
 func TestUser_UpdateEmail(t *testing.T) {
 	user := createTestUser(t)
-	newEmail, _ := valueobject.NewEmail("newemail@example.com")
+	newEmail, err := valueobject.NewEmail("newemail@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email: %v", err)
+	}
 
 	user.UpdateEmail(newEmail)
 
@@ -79,7 +82,10 @@ func TestUser_UpdateEmail(t *testing.T) {
 
 func TestUser_UpdatePassword(t *testing.T) {
 	user := createTestUser(t)
-	newPassword, _ := valueobject.NewPassword("NewPassword456")
+	newPassword, err := valueobject.NewPassword("NewPassword456")
+	if err != nil {
+		t.Fatalf("Failed to create password: %v", err)
+	}
 
 	user.UpdatePassword(newPassword)
 
@@ -150,8 +156,14 @@ func TestUser_RecordLogin(t *testing.T) {
 
 func TestReconstructUser(t *testing.T) {
 	id := uuid.New()
-	email, _ := valueobject.NewEmail("test@example.com")
-	password, _ := valueobject.NewPassword("Password123")
+	email, err := valueobject.NewEmail("test@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email: %v", err)
+	}
+	password, err := valueobject.NewPassword("Password123")
+	if err != nil {
+		t.Fatalf("Failed to create password: %v", err)
+	}
 	now := time.Now()
 	lastLogin := now.Add(-1 * time.Hour)
 

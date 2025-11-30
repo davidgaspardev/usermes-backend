@@ -8,6 +8,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const (
+	bearerPrefix = "Bearer"
+)
+
 // AuthMiddleware provides authentication middleware for protected routes
 type AuthMiddleware struct {
 	tokenGenerator output.TokenGenerator
@@ -33,7 +37,7 @@ func (m *AuthMiddleware) Authenticate(c *fiber.Ctx) error {
 
 	// Check if it's a Bearer token
 	parts := strings.Split(authHeader, " ")
-	if len(parts) != 2 || parts[0] != "Bearer" {
+	if len(parts) != 2 || parts[0] != bearerPrefix {
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.NewErrorResponse(
 			"unauthorized",
 			"Invalid authorization header format. Use: Bearer <token>",
@@ -69,7 +73,7 @@ func (m *AuthMiddleware) OptionalAuthenticate(c *fiber.Ctx) error {
 
 	// Check if it's a Bearer token
 	parts := strings.Split(authHeader, " ")
-	if len(parts) != 2 || parts[0] != "Bearer" {
+	if len(parts) != 2 || parts[0] != bearerPrefix {
 		// Invalid format, continue without authentication
 		return c.Next()
 	}

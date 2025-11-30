@@ -54,8 +54,14 @@ func TestNewEmail_Invalid(t *testing.T) {
 }
 
 func TestEmail_Normalization(t *testing.T) {
-	email1, _ := NewEmail("Test@Example.COM")
-	email2, _ := NewEmail("test@example.com")
+	email1, err := NewEmail("Test@Example.COM")
+	if err != nil {
+		t.Fatalf("Failed to create email1: %v", err)
+	}
+	email2, err := NewEmail("test@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email2: %v", err)
+	}
 
 	if email1.Value() != email2.Value() {
 		t.Errorf("Email normalization failed: %s != %s", email1.Value(), email2.Value())
@@ -67,9 +73,18 @@ func TestEmail_Normalization(t *testing.T) {
 }
 
 func TestEmail_Equals(t *testing.T) {
-	email1, _ := NewEmail("test@example.com")
-	email2, _ := NewEmail("test@example.com")
-	email3, _ := NewEmail("other@example.com")
+	email1, err := NewEmail("test@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email1: %v", err)
+	}
+	email2, err := NewEmail("test@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email2: %v", err)
+	}
+	email3, err := NewEmail("other@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email3: %v", err)
+	}
 
 	if !email1.Equals(email2) {
 		t.Error("Same emails should be equal")
@@ -82,7 +97,10 @@ func TestEmail_Equals(t *testing.T) {
 
 func TestEmail_String(t *testing.T) {
 	emailStr := "test@example.com"
-	email, _ := NewEmail(emailStr)
+	email, err := NewEmail(emailStr)
+	if err != nil {
+		t.Fatalf("Failed to create email: %v", err)
+	}
 
 	if email.String() != emailStr {
 		t.Errorf("Expected String() to return '%s', got '%s'", emailStr, email.String())

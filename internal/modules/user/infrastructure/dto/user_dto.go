@@ -36,16 +36,16 @@ type UserResponse struct {
 	ID          string     `json:"id"`
 	Email       string     `json:"email"`
 	Name        string     `json:"name"`
-	IsActive    bool       `json:"is_active"`
+	LastLoginAt *time.Time `json:"last_login_at,omitempty"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
-	LastLoginAt *time.Time `json:"last_login_at,omitempty"`
+	IsActive    bool       `json:"is_active"`
 }
 
 // LoginResponse represents the response body for successful login
 type LoginResponse struct {
-	Token string       `json:"token"`
 	User  UserResponse `json:"user"`
+	Token string       `json:"token"`
 }
 
 // ErrorResponse represents the response body for errors
@@ -56,8 +56,8 @@ type ErrorResponse struct {
 
 // SuccessResponse represents a generic success response
 type SuccessResponse struct {
-	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
+	Message string      `json:"message"`
 }
 
 // ToUserResponse converts a User entity to UserResponse DTO
@@ -82,9 +82,9 @@ func ToLoginResponse(token string, user *entity.User) LoginResponse {
 }
 
 // NewErrorResponse creates a new ErrorResponse
-func NewErrorResponse(error string, message string) ErrorResponse {
+func NewErrorResponse(errMsg string, message string) ErrorResponse {
 	return ErrorResponse{
-		Error:   error,
+		Error:   errMsg,
 		Message: message,
 	}
 }

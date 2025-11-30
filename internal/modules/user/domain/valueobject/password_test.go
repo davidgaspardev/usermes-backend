@@ -88,8 +88,14 @@ func TestNewPasswordFromHash(t *testing.T) {
 func TestPassword_HashIsDifferentEachTime(t *testing.T) {
 	plainPassword := "Password123"
 
-	pwd1, _ := NewPassword(plainPassword)
-	pwd2, _ := NewPassword(plainPassword)
+	pwd1, err := NewPassword(plainPassword)
+	if err != nil {
+		t.Fatalf("Failed to create pwd1: %v", err)
+	}
+	pwd2, err := NewPassword(plainPassword)
+	if err != nil {
+		t.Fatalf("Failed to create pwd2: %v", err)
+	}
 
 	if pwd1.Hash() == pwd2.Hash() {
 		t.Error("Same password should produce different hashes (due to salt)")
@@ -112,7 +118,10 @@ func TestGenerateRandomPassword(t *testing.T) {
 	}
 
 	// Generate another and ensure they're different
-	pwd2, _ := GenerateRandomPassword(16)
+	pwd2, err := GenerateRandomPassword(16)
+	if err != nil {
+		t.Fatalf("Failed to generate pwd2: %v", err)
+	}
 	if pwd == pwd2 {
 		t.Error("Random passwords should be different")
 	}

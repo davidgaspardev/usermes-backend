@@ -12,11 +12,11 @@ type User struct {
 	id          uuid.UUID
 	email       valueobject.Email
 	password    valueobject.Password
+	lastLoginAt *time.Time
 	name        string
-	isActive    bool
 	createdAt   time.Time
 	updatedAt   time.Time
-	lastLoginAt *time.Time
+	isActive    bool
 }
 
 // NewUser creates a new user instance

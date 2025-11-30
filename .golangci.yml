@@ -4,19 +4,19 @@
 linters-settings:
   dupl:
     threshold: 100
-
+    
   errcheck:
     check-type-assertions: true
     check-blank: true
-
+    
   funlen:
     lines: 100
     statements: 50
-
+    
   goconst:
     min-len: 2
     min-occurrences: 2
-
+    
   gocritic:
     enabled-tags:
       - diagnostic
@@ -30,24 +30,24 @@ linters-settings:
       - octalLiteral
       - whyNoLint
       - wrapperFunc
-
+      
   gocyclo:
     min-complexity: 15
-
+    
   goimports:
     local-prefixes: github.com/davidgaspardev/usermes-backend
-
+    
   govet:
     enable-all: true
     disable:
       - shadow
-
+      
   lll:
     line-length: 140
-
+    
   misspell:
     locale: US
-
+    
   nolintlint:
     allow-unused: false
     require-explanation: false
@@ -90,11 +90,10 @@ issues:
         - funlen
         - goconst
         - dupl
-        - goimports
     - path: cmd/
       linters:
         - gochecknoinits
-
+        
   max-issues-per-linter: 0
   max-same-issues: 0
 

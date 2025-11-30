@@ -50,26 +50,19 @@ jobs:
           echo "Business Logic Coverage (Domain + Application)"
           echo "=========================================="
           echo "Total coverage: $COVERAGE%"
-          echo "Threshold:      37.0% (temporary, target: 90.0%)"
+          echo "Threshold:      90.0%"
           echo "=========================================="
 
       - name: Check coverage threshold
         run: |
           COVERAGE=${{ steps.coverage.outputs.coverage }}
-          THRESHOLD=37.0
+          THRESHOLD=90.0
 
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
             echo "❌ Coverage $COVERAGE% is below threshold $THRESHOLD%"
             exit 1
           else
             echo "✅ Coverage $COVERAGE% meets threshold $THRESHOLD%"
-            echo ""
-            echo "📋 Coverage Improvement Plan:"
-            echo "  Current: $COVERAGE%"
-            echo "  Target:  90.0%"
-            echo "  Next milestone: 50% (add Resource service + repository tests)"
-            echo "  Future milestone: 70% (add HTTP handler tests)"
-            echo "  Final milestone: 90% (add integration tests)"
           fi
 
       - name: Upload coverage to Codecov

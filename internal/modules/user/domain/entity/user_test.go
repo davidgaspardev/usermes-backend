@@ -185,7 +185,7 @@ func TestReconstructUser(t *testing.T) {
 
 func TestUser_AllGetters(t *testing.T) {
 	user := createTestUser(t)
-	
+
 	// Test all getter methods
 	if user.ID() == uuid.Nil {
 		t.Error("ID should not be nil")

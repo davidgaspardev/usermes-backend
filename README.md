@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/YOUR_USERNAME/usermes-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/usermes-backend)
 [![Go Report Card](https://goreportcard.com/badge/github.com/YOUR_USERNAME/usermes-backend)](https://goreportcard.com/report/github.com/YOUR_USERNAME/usermes-backend)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Coverage](https://img.shields.io/badge/coverage-37.2%25-yellow.svg)](./docs/COVERAGE_STATUS.md)
+[![Coverage](https://img.shields.io/badge/coverage-57.5%25-green.svg)](./docs/COVERAGE_STATUS.md)
 
 A RESTful API built in Go following **Hexagonal Architecture** (Ports and Adapters) principles with **Modular Monolith**.
 
@@ -278,8 +278,8 @@ curl http://localhost:3000/health
 
 ## 🧪 Testing
 
-**Current Coverage:** 37.2% | **Target:** 90%  
-[![Coverage](https://img.shields.io/badge/coverage-37.2%25-yellow.svg)](./docs/COVERAGE_STATUS.md)
+**Current Coverage:** 57.5% | **Target:** 90%  
+[![Coverage](https://img.shields.io/badge/coverage-57.5%25-green.svg)](./docs/COVERAGE_STATUS.md)
 
 ### Quick Start
 
@@ -304,9 +304,9 @@ go tool cover -html=coverage.out
 | **Domain** | user/domain | 97% | ✅ Excellent |
 | **Domain** | resource/domain | 100% | ✅ Excellent |
 | **Application** | user/service | 88.6% | ✅ Good |
-| **Application** | resource/service | 0% | ❌ TODO |
+| **Application** | resource/service | 89.8% | ✅ Excellent |
 | **Infrastructure** | user/repository | 100% | ✅ Excellent |
-| **Infrastructure** | resource/repository | 0% | ❌ TODO |
+| **Infrastructure** | resource/repository | 91.5% | ✅ Excellent |
 | **Infrastructure** | HTTP handlers | 0% | ❌ TODO |
 
 ### Documentation
@@ -320,8 +320,8 @@ go tool cover -html=coverage.out
 
 We're following an incremental approach to reach 90% coverage:
 
-- **Phase 1 (50%)**: Add Resource module tests ⏳ Next Sprint
-- **Phase 2 (70%)**: Add HTTP handler tests 📅 3-4 weeks
+- **Phase 1 (57.5%)**: Add Resource module tests ✅ **COMPLETED**
+- **Phase 2 (70%)**: Add HTTP handler tests ⏳ Next Sprint
 - **Phase 3 (80%)**: Add integration tests 🎯 1 month
 - **Phase 4 (90%)**: Add E2E tests 🚀 2 months
 

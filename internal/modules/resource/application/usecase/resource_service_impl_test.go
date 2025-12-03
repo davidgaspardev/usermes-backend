@@ -10,8 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-//nolint:goimports
-
 func TestNewResourceService(t *testing.T) {
 	repo := persistence.NewMemoryResourceRepository()
 	service := NewResourceService(repo)

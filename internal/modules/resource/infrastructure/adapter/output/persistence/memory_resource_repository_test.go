@@ -9,8 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-//nolint:goimports
-
 func TestNewMemoryResourceRepository(t *testing.T) {
 	repo := NewMemoryResourceRepository()
 	if repo == nil {

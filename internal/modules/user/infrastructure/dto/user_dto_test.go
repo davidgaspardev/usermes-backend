@@ -66,7 +66,7 @@ func TestToUserResponse_DeactivatedUser(t *testing.T) {
 
 func TestToLoginResponse(t *testing.T) {
 	user := createTestUser(t)
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token"
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token" // nolint:gosec
 
 	response := ToLoginResponse(token, user)
 
@@ -389,7 +389,7 @@ func TestUserResponse_WithNilLastLoginAt(t *testing.T) {
 
 func TestLoginResponse_Structure(t *testing.T) {
 	user := createTestUser(t)
-	token := "test.jwt.token"
+	token := "test.jwt.token" // nolint:gosec
 
 	response := LoginResponse{
 		Token: token,
@@ -413,8 +413,10 @@ func TestUserIDParam_Structure(t *testing.T) {
 
 // Benchmark tests for performance-critical conversion functions
 func BenchmarkToUserResponse(b *testing.B) {
-	email, _ := valueobject.NewEmail("test@example.com")
-	password, _ := valueobject.NewPassword("Password123")
+	email, err := valueobject.NewEmail("test@example.com")
+	require.NoError(b, err)
+	password, err := valueobject.NewPassword("Password123")
+	require.NoError(b, err)
 	user := entity.NewUser(email, password, "John Doe")
 
 	b.ResetTimer()
@@ -424,10 +426,12 @@ func BenchmarkToUserResponse(b *testing.B) {
 }
 
 func BenchmarkToLoginResponse(b *testing.B) {
-	email, _ := valueobject.NewEmail("test@example.com")
-	password, _ := valueobject.NewPassword("Password123")
+	email, err := valueobject.NewEmail("test@example.com")
+	require.NoError(b, err)
+	password, err := valueobject.NewPassword("Password123")
+	require.NoError(b, err)
 	user := entity.NewUser(email, password, "John Doe")
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token"
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token" // nolint:gosec
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -444,6 +448,6 @@ func BenchmarkValidateRegisterRequest(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req.Validate()
+		req.Validate() // nolint:errcheck
 	}
 }

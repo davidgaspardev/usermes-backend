@@ -5,8 +5,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/resource/domain/entity"
 	"github.com/google/uuid"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/resource/domain/entity"
 )
 
 func TestNewMemoryResourceRepository(t *testing.T) {

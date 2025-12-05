@@ -14,16 +14,18 @@ import (
 
 // MemoryUserRepository is an in-memory implementation of UserRepository
 type MemoryUserRepository struct {
-	users        map[uuid.UUID]*entity.User
-	usersByEmail map[string]*entity.User
-	mu           sync.RWMutex
+	users           map[uuid.UUID]*entity.User
+	usersByEmail    map[string]*entity.User
+	usersByUsername map[string]*entity.User
+	mu              sync.RWMutex
 }
 
 // NewMemoryUserRepository creates a new instance of MemoryUserRepository
 func NewMemoryUserRepository() output.UserRepository {
 	return &MemoryUserRepository{
-		users:        make(map[uuid.UUID]*entity.User),
-		usersByEmail: make(map[string]*entity.User),
+		users:           make(map[uuid.UUID]*entity.User),
+		usersByEmail:    make(map[string]*entity.User),
+		usersByUsername: make(map[string]*entity.User),
 	}
 }
 
@@ -42,9 +44,15 @@ func (r *MemoryUserRepository) Save(ctx context.Context, user *entity.User) erro
 		return errors.ErrEmailAlreadyExists
 	}
 
+	// Check if username already exists
+	if _, exists := r.usersByUsername[user.Username().Value()]; exists {
+		return errors.ErrUsernameAlreadyExists
+	}
+
 	// Store user
 	r.users[user.ID()] = user
 	r.usersByEmail[user.Email().Value()] = user
+	r.usersByUsername[user.Username().Value()] = user
 
 	return nil
 }
@@ -60,11 +68,17 @@ func (r *MemoryUserRepository) Update(ctx context.Context, user *entity.User) er
 		return errors.ErrUserNotFound
 	}
 
-	// Find and remove old email from index
-	var oldEmail string
+	// Find and remove old email and username from index
+	var oldEmail, oldUsername string
 	for email, u := range r.usersByEmail {
 		if u.ID() == user.ID() {
 			oldEmail = email
+			break
+		}
+	}
+	for username, u := range r.usersByUsername {
+		if u.ID() == user.ID() {
+			oldUsername = username
 			break
 		}
 	}
@@ -74,9 +88,15 @@ func (r *MemoryUserRepository) Update(ctx context.Context, user *entity.User) er
 		delete(r.usersByEmail, oldEmail)
 	}
 
-	// Update both maps
+	// If username changed, remove old username from index
+	if oldUsername != "" && oldUsername != user.Username().Value() {
+		delete(r.usersByUsername, oldUsername)
+	}
+
+	// Update all maps
 	r.users[user.ID()] = user
 	r.usersByEmail[user.Email().Value()] = user
+	r.usersByUsername[user.Username().Value()] = user
 
 	return nil
 }
@@ -107,12 +127,34 @@ func (r *MemoryUserRepository) FindByEmail(ctx context.Context, email valueobjec
 	return user, nil
 }
 
+// FindByUsername retrieves a user by their username
+func (r *MemoryUserRepository) FindByUsername(ctx context.Context, username valueobject.Username) (*entity.User, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	user, exists := r.usersByUsername[username.Value()]
+	if !exists {
+		return nil, errors.ErrUserNotFound
+	}
+
+	return user, nil
+}
+
 // ExistsByEmail checks if a user with the given email exists
 func (r *MemoryUserRepository) ExistsByEmail(ctx context.Context, email valueobject.Email) (bool, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	_, exists := r.usersByEmail[email.Value()]
+	return exists, nil
+}
+
+// ExistsByUsername checks if a user with the given username exists
+func (r *MemoryUserRepository) ExistsByUsername(ctx context.Context, username valueobject.Username) (bool, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	_, exists := r.usersByUsername[username.Value()]
 	return exists, nil
 }
 
@@ -126,9 +168,10 @@ func (r *MemoryUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		return errors.ErrUserNotFound
 	}
 
-	// Remove from both maps
+	// Remove from all maps
 	delete(r.users, id)
 	delete(r.usersByEmail, user.Email().Value())
+	delete(r.usersByUsername, user.Username().Value())
 
 	return nil
 }

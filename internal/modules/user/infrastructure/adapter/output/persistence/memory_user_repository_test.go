@@ -22,7 +22,12 @@ func createTestUser(t *testing.T) *entity.User {
 		t.Fatalf("Failed to create password: %v", err)
 	}
 
-	return entity.NewUser(email, password, "Test User")
+	username, err := valueobject.NewUsername("testuser")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+
+	return entity.NewUser(email, password, username, "Test User")
 }
 
 func TestNewMemoryUserRepository(t *testing.T) {
@@ -73,7 +78,11 @@ func TestMemoryUserRepository_Save_DuplicateEmail(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create password: %v", err)
 	}
-	user2 := entity.NewUser(email, password, "Another User")
+	username, err := valueobject.NewUsername("anotheruser")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+	user2 := entity.NewUser(email, password, username, "Another User")
 
 	err = repo.Save(ctx, user2)
 	if err != errors.ErrEmailAlreadyExists {
@@ -336,7 +345,11 @@ func TestMemoryUserRepository_FindAll(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create password: %v", err)
 		}
-		user := entity.NewUser(email, password, "User "+string(rune('0'+i)))
+		username, err := valueobject.NewUsername("user" + string(rune('0'+i)))
+		if err != nil {
+			t.Fatalf("Failed to create username: %v", err)
+		}
+		user := entity.NewUser(email, password, username, "User "+string(rune('0'+i)))
 		err = repo.Save(ctx, user)
 		if err != nil {
 			t.Fatalf("Failed to save user: %v", err)
@@ -367,7 +380,11 @@ func TestMemoryUserRepository_FindAll_Pagination(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create password: %v", err)
 		}
-		user := entity.NewUser(email, password, "User "+string(rune('0'+i)))
+		username, err := valueobject.NewUsername("user" + string(rune('0'+i)))
+		if err != nil {
+			t.Fatalf("Failed to create username: %v", err)
+		}
+		user := entity.NewUser(email, password, username, "User "+string(rune('0'+i)))
 		err = repo.Save(ctx, user)
 		if err != nil {
 			t.Fatalf("Failed to save user: %v", err)
@@ -419,7 +436,11 @@ func TestMemoryUserRepository_FindAll_NoLimit(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create password: %v", err)
 		}
-		user := entity.NewUser(email, password, "User "+string(rune('0'+i)))
+		username, err := valueobject.NewUsername("user" + string(rune('0'+i)))
+		if err != nil {
+			t.Fatalf("Failed to create username: %v", err)
+		}
+		user := entity.NewUser(email, password, username, "User "+string(rune('0'+i)))
 		err = repo.Save(ctx, user)
 		if err != nil {
 			t.Fatalf("Failed to save user: %v", err)
@@ -471,7 +492,13 @@ func TestMemoryUserRepository_ConcurrentAccess(t *testing.T) {
 				done <- true
 				return
 			}
-			user := entity.NewUser(email, password, "User "+string(rune('0'+index)))
+			username, err := valueobject.NewUsername("user" + string(rune('0'+index)))
+			if err != nil {
+				t.Errorf("Failed to create username: %v", err)
+				done <- true
+				return
+			}
+			user := entity.NewUser(email, password, username, "User "+string(rune('0'+index)))
 			err = repo.Save(ctx, user)
 			if err != nil {
 				t.Errorf("Failed to save user: %v", err)
@@ -493,5 +520,148 @@ func TestMemoryUserRepository_ConcurrentAccess(t *testing.T) {
 	}
 	if len(users) != 10 {
 		t.Errorf("Expected 10 users after concurrent saves, got %d", len(users))
+	}
+}
+
+func TestMemoryUserRepository_FindByUsername(t *testing.T) {
+	repo := NewMemoryUserRepository()
+	ctx := context.Background()
+
+	user := createTestUser(t)
+	err := repo.Save(ctx, user)
+	if err != nil {
+		t.Fatalf("Failed to save user: %v", err)
+	}
+
+	found, err := repo.FindByUsername(ctx, user.Username())
+	if err != nil {
+		t.Fatalf("FindByUsername failed: %v", err)
+	}
+
+	if found.ID() != user.ID() {
+		t.Error("Found user ID doesn't match")
+	}
+}
+
+func TestMemoryUserRepository_FindByUsername_NotFound(t *testing.T) {
+	repo := NewMemoryUserRepository()
+	ctx := context.Background()
+
+	username, err := valueobject.NewUsername("nonexistent")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+	_, err = repo.FindByUsername(ctx, username)
+	if err != errors.ErrUserNotFound {
+		t.Errorf("Expected ErrUserNotFound, got %v", err)
+	}
+}
+
+func TestMemoryUserRepository_ExistsByUsername(t *testing.T) {
+	repo := NewMemoryUserRepository()
+	ctx := context.Background()
+
+	user := createTestUser(t)
+	err := repo.Save(ctx, user)
+	if err != nil {
+		t.Fatalf("Failed to save user: %v", err)
+	}
+
+	exists, err := repo.ExistsByUsername(ctx, user.Username())
+	if err != nil {
+		t.Fatalf("ExistsByUsername failed: %v", err)
+	}
+
+	if !exists {
+		t.Error("User should exist")
+	}
+}
+
+func TestMemoryUserRepository_ExistsByUsername_NotFound(t *testing.T) {
+	repo := NewMemoryUserRepository()
+	ctx := context.Background()
+
+	username, err := valueobject.NewUsername("nonexistent")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+	exists, err := repo.ExistsByUsername(ctx, username)
+	if err != nil {
+		t.Fatalf("ExistsByUsername failed: %v", err)
+	}
+
+	if exists {
+		t.Error("User should not exist")
+	}
+}
+
+func TestMemoryUserRepository_Save_DuplicateUsername(t *testing.T) {
+	repo := NewMemoryUserRepository()
+	ctx := context.Background()
+
+	user1 := createTestUser(t)
+	err := repo.Save(ctx, user1)
+	if err != nil {
+		t.Fatalf("First save failed: %v", err)
+	}
+
+	// Try to save another user with same username
+	email, err := valueobject.NewEmail("different@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email: %v", err)
+	}
+	password, err := valueobject.NewPassword("Password456")
+	if err != nil {
+		t.Fatalf("Failed to create password: %v", err)
+	}
+	username, err := valueobject.NewUsername("testuser")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+	user2 := entity.NewUser(email, password, username, "Another User")
+
+	err = repo.Save(ctx, user2)
+	if err != errors.ErrUsernameAlreadyExists {
+		t.Errorf("Expected ErrUsernameAlreadyExists, got %v", err)
+	}
+}
+
+func TestMemoryUserRepository_Update_UsernameChange(t *testing.T) {
+	repo := NewMemoryUserRepository()
+	ctx := context.Background()
+
+	user := createTestUser(t)
+	err := repo.Save(ctx, user)
+	if err != nil {
+		t.Fatalf("Failed to save user: %v", err)
+	}
+
+	oldUsername := user.Username()
+
+	// Update username
+	newUsername, err := valueobject.NewUsername("newusername")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+	user.UpdateUsername(newUsername)
+
+	err = repo.Update(ctx, user)
+	if err != nil {
+		t.Fatalf("Update failed: %v", err)
+	}
+
+	// Old username should not find the user
+	_, err = repo.FindByUsername(ctx, oldUsername)
+	if err != errors.ErrUserNotFound {
+		t.Error("Old username should not find user after update")
+	}
+
+	// New username should find the user
+	found, err := repo.FindByUsername(ctx, newUsername)
+	if err != nil {
+		t.Fatalf("FindByUsername with new username failed: %v", err)
+	}
+	if found.ID() != user.ID() {
+		t.Error("Found user ID doesn't match")
 	}
 }

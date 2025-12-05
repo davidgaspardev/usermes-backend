@@ -34,7 +34,7 @@ func NewUserService(
 }
 
 // Register creates a new user account
-func (s *UserServiceImpl) Register(ctx context.Context, emailStr, password, name string) (*entity.User, error) {
+func (s *UserServiceImpl) Register(ctx context.Context, emailStr, password, usernameStr, name string) (*entity.User, error) {
 	// Validate name
 	if err := validateName(name); err != nil {
 		return nil, err
@@ -42,6 +42,12 @@ func (s *UserServiceImpl) Register(ctx context.Context, emailStr, password, name
 
 	// Create email value object
 	email, err := valueobject.NewEmail(emailStr)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create username value object
+	username, err := valueobject.NewUsername(usernameStr)
 	if err != nil {
 		return nil, err
 	}
@@ -55,6 +61,15 @@ func (s *UserServiceImpl) Register(ctx context.Context, emailStr, password, name
 		return nil, errors.ErrEmailAlreadyExists
 	}
 
+	// Check if username already exists
+	exists, err = s.userRepository.ExistsByUsername(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, errors.ErrUsernameAlreadyExists
+	}
+
 	// Create password value object (this will hash the password)
 	passwordVO, err := valueobject.NewPassword(password)
 	if err != nil {
@@ -62,7 +77,7 @@ func (s *UserServiceImpl) Register(ctx context.Context, emailStr, password, name
 	}
 
 	// Create new user entity
-	user := entity.NewUser(email, passwordVO, name)
+	user := entity.NewUser(email, passwordVO, username, name)
 
 	// Persist user
 	if err := s.userRepository.Save(ctx, user); err != nil {
@@ -73,15 +88,15 @@ func (s *UserServiceImpl) Register(ctx context.Context, emailStr, password, name
 }
 
 // Login authenticates a user and returns a token
-func (s *UserServiceImpl) Login(ctx context.Context, emailStr, password string) (string, *entity.User, error) {
-	// Create email value object
-	email, err := valueobject.NewEmail(emailStr)
+func (s *UserServiceImpl) Login(ctx context.Context, usernameStr, password string) (string, *entity.User, error) {
+	// Create username value object
+	username, err := valueobject.NewUsername(usernameStr)
 	if err != nil {
 		return "", nil, errors.ErrInvalidCredentials
 	}
 
-	// Find user by email
-	user, err := s.userRepository.FindByEmail(ctx, email)
+	// Find user by username
+	user, err := s.userRepository.FindByUsername(ctx, username)
 	if err != nil {
 		return "", nil, errors.ErrInvalidCredentials
 	}
@@ -129,6 +144,21 @@ func (s *UserServiceImpl) GetUserByEmail(ctx context.Context, emailStr string) (
 	}
 
 	user, err := s.userRepository.FindByEmail(ctx, email)
+	if err != nil {
+		return nil, errors.ErrUserNotFound
+	}
+
+	return user, nil
+}
+
+// GetUserByUsername retrieves a user by their username
+func (s *UserServiceImpl) GetUserByUsername(ctx context.Context, usernameStr string) (*entity.User, error) {
+	username, err := valueobject.NewUsername(usernameStr)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.userRepository.FindByUsername(ctx, username)
 	if err != nil {
 		return nil, errors.ErrUserNotFound
 	}

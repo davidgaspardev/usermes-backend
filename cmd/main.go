@@ -4,9 +4,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/application/usecase"
+	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
+	resourcehttp "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/input/http"
+	resourcepersistence "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/output/persistence"
+	userusecase "github.com/davidgaspardev/usermes-backend/internal/modules/user/application/usecase"
 	userhttp "github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/input/http"
-	"github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/output/persistence"
+	userpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/output/persistence"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/http/server"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/security"
 )
@@ -17,14 +20,18 @@ func main() {
 
 	// Initialize infrastructure dependencies
 	tokenGenerator := security.NewJWTTokenGenerator(config.JWTSecret, config.AppName)
-	userRepository := persistence.NewMemoryUserRepository()
 
-	// Initialize application services (use cases)
-	userService := usecase.NewUserService(
+	// Initialize User module
+	userRepository := userpersistence.NewMemoryUserRepository()
+	userService := userusecase.NewUserService(
 		userRepository,
 		tokenGenerator,
 		config.TokenDuration,
 	)
+
+	// Initialize Resource module
+	resourceRepository := resourcepersistence.NewMemoryResourceRepository()
+	resourceService := resourceusecase.NewResourceService(resourceRepository)
 
 	// Initialize HTTP server
 	serverConfig := server.DefaultConfig()
@@ -37,8 +44,13 @@ func main() {
 	httpServer.AddHealthCheck()
 
 	// Register module routes
+	// User module routes
 	userRoutes := userhttp.NewUserRoutes(userService, tokenGenerator)
 	httpServer.RegisterRoutes(userRoutes.SetupRoutes)
+
+	// Resource module routes
+	resourceRoutes := resourcehttp.NewResourceRoutes(resourceService)
+	httpServer.RegisterRoutes(resourceRoutes.SetupRoutes)
 
 	// Start server
 	log.Printf("Starting %s on port %d", config.AppName, config.ServerPort)

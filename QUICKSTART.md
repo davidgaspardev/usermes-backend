@@ -29,6 +29,90 @@ go run cmd/main.go
 
 The API will be available at: `http://localhost:3000`
 
+## 📚 Available Modules
+
+The application includes two modules:
+
+1. **User Module** - User authentication and management
+   - Base path: `/api/users`
+   - Features: Register, login, profile management, password change
+
+2. **Resource Module** - Resource management (NEW!)
+   - Base path: `/api/resources`
+   - Features: Full CRUD operations for resources
+
+## 🧪 Testing the APIs
+
+### User Module Examples
+
+**Register a user:**
+```bash
+curl -X POST http://localhost:3000/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "Password123",
+    "name": "Test User"
+  }'
+```
+
+**Login:**
+```bash
+curl -X POST http://localhost:3000/api/users/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "Password123"
+  }'
+```
+
+### Resource Module Examples
+
+**Create a resource:**
+```bash
+curl -X POST http://localhost:3000/api/resources \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "RES001",
+    "shift_id": "SHIFT123",
+    "type": "MACHINE",
+    "stop_factor": 5
+  }'
+```
+
+**Get all resources:**
+```bash
+curl "http://localhost:3000/api/resources?limit=10&offset=0"
+```
+
+**Get resource by code:**
+```bash
+curl http://localhost:3000/api/resources/code/RES001
+```
+
+**Update a resource:**
+```bash
+curl -X PUT http://localhost:3000/api/resources/{id} \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "RES001-UPDATED",
+    "shift_id": "SHIFT456",
+    "type": "OPERATOR",
+    "stop_factor": 10
+  }'
+```
+
+**Delete a resource:**
+```bash
+curl -X DELETE http://localhost:3000/api/resources/{id}
+```
+
+## 📖 Documentation
+
+- **Complete API Documentation**: See [API_ENDPOINTS.md](API_ENDPOINTS.md)
+- **Resource Module Details**: See [internal/modules/resource/README.md](internal/modules/resource/README.md)
+- **Architecture**: See [README.md](README.md)
+
 ## ✅ Quick Test
 
 Open another terminal and run:

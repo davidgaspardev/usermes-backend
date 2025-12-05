@@ -83,13 +83,19 @@ func (r *MemoryUserRepository) Update(ctx context.Context, user *entity.User) er
 		}
 	}
 
-	// If email changed, remove old email from index
+	// If email changed, check for conflicts
 	if oldEmail != "" && oldEmail != user.Email().Value() {
+		if _, exists := r.usersByEmail[user.Email().Value()]; exists {
+			return errors.ErrEmailAlreadyExists
+		}
 		delete(r.usersByEmail, oldEmail)
 	}
 
-	// If username changed, remove old username from index
+	// If username changed, check for conflicts
 	if oldUsername != "" && oldUsername != user.Username().Value() {
+		if _, exists := r.usersByUsername[user.Username().Value()]; exists {
+			return errors.ErrUsernameAlreadyExists
+		}
 		delete(r.usersByUsername, oldUsername)
 	}
 

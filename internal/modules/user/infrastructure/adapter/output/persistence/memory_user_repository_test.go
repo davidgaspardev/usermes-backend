@@ -665,3 +665,67 @@ func TestMemoryUserRepository_Update_UsernameChange(t *testing.T) {
 		t.Error("Found user ID doesn't match")
 	}
 }
+
+func TestMemoryUserRepository_Update_UsernameConflict(t *testing.T) {
+	repo := NewMemoryUserRepository()
+	ctx := context.Background()
+
+	// Create and save first user
+	email1, _ := valueobject.NewEmail("user1@example.com")
+	password1, _ := valueobject.NewPassword("Password123")
+	username1, _ := valueobject.NewUsername("user1")
+	user1 := entity.NewUser(email1, password1, username1, "User 1")
+	err := repo.Save(ctx, user1)
+	if err != nil {
+		t.Fatalf("Failed to save user1: %v", err)
+	}
+
+	// Create and save second user
+	email2, _ := valueobject.NewEmail("user2@example.com")
+	password2, _ := valueobject.NewPassword("Password123")
+	username2, _ := valueobject.NewUsername("user2")
+	user2 := entity.NewUser(email2, password2, username2, "User 2")
+	err = repo.Save(ctx, user2)
+	if err != nil {
+		t.Fatalf("Failed to save user2: %v", err)
+	}
+
+	// Try to update user2's username to user1's username (should fail)
+	user2.UpdateUsername(username1)
+	err = repo.Update(ctx, user2)
+	if err != errors.ErrUsernameAlreadyExists {
+		t.Errorf("Expected ErrUsernameAlreadyExists, got %v", err)
+	}
+}
+
+func TestMemoryUserRepository_Update_EmailConflict(t *testing.T) {
+	repo := NewMemoryUserRepository()
+	ctx := context.Background()
+
+	// Create and save first user
+	email1, _ := valueobject.NewEmail("user1@example.com")
+	password1, _ := valueobject.NewPassword("Password123")
+	username1, _ := valueobject.NewUsername("user1")
+	user1 := entity.NewUser(email1, password1, username1, "User 1")
+	err := repo.Save(ctx, user1)
+	if err != nil {
+		t.Fatalf("Failed to save user1: %v", err)
+	}
+
+	// Create and save second user
+	email2, _ := valueobject.NewEmail("user2@example.com")
+	password2, _ := valueobject.NewPassword("Password123")
+	username2, _ := valueobject.NewUsername("user2")
+	user2 := entity.NewUser(email2, password2, username2, "User 2")
+	err = repo.Save(ctx, user2)
+	if err != nil {
+		t.Fatalf("Failed to save user2: %v", err)
+	}
+
+	// Try to update user2's email to user1's email (should fail)
+	user2.UpdateEmail(email1)
+	err = repo.Update(ctx, user2)
+	if err != errors.ErrEmailAlreadyExists {
+		t.Errorf("Expected ErrEmailAlreadyExists, got %v", err)
+	}
+}

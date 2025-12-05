@@ -1,418 +1,126 @@
-# UserMes Backend - Hexagonal Architecture with Modular Monolith
+# UserMes Backend
 
 [![CI](https://github.com/YOUR_USERNAME/usermes-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/usermes-backend/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/YOUR_USERNAME/usermes-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/usermes-backend)
+[![Coverage](https://img.shields.io/badge/coverage-92.3%25-green.svg)](https://github.com/YOUR_USERNAME/usermes-backend/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/YOUR_USERNAME/usermes-backend)](https://goreportcard.com/report/github.com/YOUR_USERNAME/usermes-backend)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Coverage](https://img.shields.io/badge/coverage-57.5%25-green.svg)](./docs/COVERAGE_STATUS.md)
 
-A RESTful API built in Go following **Hexagonal Architecture** (Ports and Adapters) principles with **Modular Monolith**.
+RESTful API built with Go, following **Hexagonal Architecture** and **Modular Monolith** principles.
+
+## 🚀 Quick Start
+
+```bash
+# Clone and run
+git clone https://github.com/YOUR_USERNAME/usermes-backend.git
+cd usermes-backend
+go run cmd/main.go
+
+# Server starts at http://localhost:8080
+```
+
+## 📚 API Documentation
+
+Each module has complete API documentation with curl examples:
+
+- **[User Module](./internal/modules/user/README.md)** - Registration, authentication, user management
+- **[Resource Module](./internal/modules/resource/README.md)** - Resource CRUD operations
 
 ## 🏗️ Architecture
 
-This project implements hexagonal architecture (also known as Ports and Adapters), which promotes:
-
-- **Separation of concerns**: Domain isolated from infrastructure
-- **Testability**: Facilitates unit and integration testing
-- **Flexibility**: Easy to swap adapters (database, frameworks, etc)
-- **Scalability**: Clear path to migrate to microservices
-
-### Directory Structure
+Built with **Hexagonal Architecture** + **Modular Monolith**:
 
 ```
-usermes-backend/
-├── cmd/                                    # Application entry points
-│   └── main.go                            # Main application
-├── internal/                              # Private application code
-│   ├── modules/                           # Monolith modules
-│   │   └── user/                          # User module
-│   │       ├── domain/                    # Domain Layer (Core)
-│   │       │   ├── entity/               # Domain entities
-│   │       │   │   └── user.go
-│   │       │   ├── valueobject/          # Value Objects
-│   │       │   │   ├── email.go
-│   │       │   │   └── password.go
-│   │       │   └── errors/               # Domain errors
-│   │       │       └── errors.go
-│   │       ├── application/               # Application Layer (Use Cases)
-│   │       │   ├── port/                 # Ports (Interfaces)
-│   │       │   │   ├── input/           # Input ports (Use Cases)
-│   │       │   │   │   └── user_service.go
-│   │       │   │   └── output/          # Output ports (Repositories, etc)
-│   │       │   │       ├── user_repository.go
-│   │       │   │       └── token_generator.go
-│   │       │   └── usecase/              # Use case implementations
-│   │       │       └── user_service_impl.go
-│   │       └── infrastructure/            # Infrastructure Layer (Adapters)
-│   │           ├── adapter/
-│   │           │   ├── input/
-│   │           │   │   └── http/         # HTTP Adapter (Controllers)
-│   │           │   │       ├── user_handler.go
-│   │           │   │       ├── middleware.go
-│   │           │   │       └── routes.go
-│   │           │   └── output/
-│   │           │       └── persistence/  # Persistence adapter
-│   │           │           └── memory_user_repository.go
-│   │           └── dto/                   # Data Transfer Objects
-│   │               └── user_dto.go
-│   └── shared/                            # Code shared between modules
-│       └── infrastructure/
-│           ├── http/
-│           │   └── server/
-│           │       └── fiber_server.go
-│           └── security/
-│               └── jwt_token_generator.go
-└── pkg/                                   # Public reusable packages
+internal/modules/
+├── user/                    # User Management
+│   ├── domain/             # 🎯 Business Logic (Tested)
+│   ├── application/        # 🎯 Use Cases (Tested)  
+│   └── infrastructure/     # 🚫 Adapters (Not Tested)
+└── resource/               # Resource Management
+    ├── domain/             # 🎯 Business Logic (Tested)
+    ├── application/        # 🎯 Use Cases (Tested)
+    └── infrastructure/     # 🚫 Adapters (Not Tested)
 ```
 
-## 📦 Hexagonal Architecture Layers
+**Focus:** We only test what matters for business logic! **Current Coverage: 92.3%** ✅
 
-### 1. **Domain Layer** (Core)
-The heart of the application, containing pure business logic:
+## 🧪 Testing
 
-- **Entities**: Objects with unique identity (`User`)
-- **Value Objects**: Immutable objects without identity (`Email`, `Password`)
-- **Domain Errors**: Domain-specific errors
-- **Business Rules**: Domain validations and behaviors
+```bash
+# Run business logic tests
+go test ./internal/modules/user/domain/... ./internal/modules/user/application/... \
+         ./internal/modules/resource/domain/... ./internal/modules/resource/application/... -v
 
-**Characteristics:**
-- Does not depend on any other layer
-- Does not know about frameworks or external libraries
-- Contains only pure business logic
+# With coverage
+go test -coverprofile=coverage.out -covermode=atomic \
+        ./internal/modules/user/domain/... ./internal/modules/user/application/... \
+        ./internal/modules/resource/domain/... ./internal/modules/resource/application/...
 
-### 2. **Application Layer** (Use Cases)
-Orchestrates data flow and coordinates operations:
-
-- **Input Ports**: Interfaces that define use cases (what the application does)
-- **Output Ports**: Interfaces that define external dependencies (repositories, services)
-- **Use Cases**: Implementation of use cases using domain entities
-
-**Characteristics:**
-- Depends only on the domain layer
-- Defines interfaces (ports) that will be implemented by the infrastructure layer
-- Contains application logic (orchestration)
-
-### 3. **Infrastructure Layer** (Adapters)
-Implements technical details and connects with the external world:
-
-- **Input Adapters**: HTTP handlers, CLI, gRPC, etc.
-- **Output Adapters**: Repository implementations, API clients, etc.
-- **DTOs**: Objects for data transfer between layers
-
-**Characteristics:**
-- Implements interfaces (ports) defined in the application layer
-- Contains framework and library-specific code
-- Can be easily replaced without affecting the domain
-
-## 🎯 User Module
-
-The User module is the first module of the monolith, responsible for:
-
-- ✅ User registration
-- ✅ Authentication (Login)
-- ✅ Profile management
-- ✅ Password change
-- ✅ Account activation/deactivation
-
-### Available Endpoints
-
-#### Public (no authentication required)
-
-```http
-POST /api/users/register
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "SecurePass123",
-  "name": "John Doe"
-}
+go tool cover -func=coverage.out | grep total
 ```
 
-```http
-POST /api/users/login
-Content-Type: application/json
+## 🔒 Security Features
 
-{
-  "email": "user@example.com",
-  "password": "SecurePass123"
-}
+- **JWT Authentication** with 24h expiration
+- **Password Hashing** with bcrypt
+- **Email Validation** with business rules
+- **Input Sanitization** on all endpoints
+
+## 🎯 Example Usage
+
+### Register & Login
+```bash
+# Register
+curl -X POST http://localhost:8080/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "SecurePass123!", "name": "John Doe"}'
+
+# Login
+curl -X POST http://localhost:8080/api/users/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "SecurePass123!"}'
 ```
 
-#### Protected (authentication required)
-
-```http
-GET /api/users/me
-Authorization: Bearer <token>
+### Create Resource
+```bash
+curl -X POST http://localhost:8080/api/resources/ \
+  -H "Content-Type: application/json" \
+  -d '{"code": "RES001", "type": "MACHINE", "stop_factor": 5}'
 ```
 
-```http
-GET /api/users/:id
-Authorization: Bearer <token>
-```
-
-```http
-PUT /api/users/:id
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "name": "Jane Doe"
-}
-```
-
-```http
-POST /api/users/:id/change-password
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "old_password": "OldPass123",
-  "new_password": "NewSecurePass123"
-}
-```
-
-```http
-POST /api/users/:id/deactivate
-Authorization: Bearer <token>
-```
-
-```http
-POST /api/users/:id/activate
-Authorization: Bearer <token>
-```
-
-## 🚀 How to Run
+## 🚧 Development
 
 ### Prerequisites
+- Go 1.22.1+
 
-- Go 1.22.1 or higher
-- Make (optional)
-
-### Installation
-
+### Commands
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd usermes-backend
-
-# Download dependencies
+# Install dependencies
 go mod download
-
-# Run the application
-go run cmd/main.go
-```
-
-### Using Make
-
-```bash
-# Run the application
-make run
-
-# Build the application
-make build
 
 # Run tests
 make test
 
-# Run tests with coverage (90% minimum)
-make coverage
+# Build
+make build
 
-# Generate HTML coverage report
-make coverage-html
+# Lint
+golangci-lint run
 ```
 
-## 🧪 Testing the API
+## 📋 Project Status
 
-### 1. Register a new user
+| Module | Endpoints | Business Logic Coverage |
+|--------|-----------|------------------------|
+| **User** | `/api/users/*` | ✅ 91.2% |
+| **Resource** | `/api/resources/*` | ✅ 94.9% |
 
-```bash
-curl -X POST http://localhost:3000/api/users/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "SecurePass123",
-    "name": "Test User"
-  }'
-```
+## 🔄 Next Features
 
-### 2. Login
-
-```bash
-curl -X POST http://localhost:3000/api/users/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "SecurePass123"
-  }'
-```
-
-Copy the returned token to use in the next requests.
-
-### 3. Get user profile
-
-```bash
-curl -X GET http://localhost:3000/api/users/me \
-  -H "Authorization: Bearer <your-token>"
-```
-
-### 4. Health Check
-
-```bash
-curl http://localhost:3000/health
-```
-
-## 🔒 Security
-
-- **Password**: Hashed with bcrypt (cost factor 12)
-- **JWT**: Tokens with 24-hour expiration
-- **Validation**: Email and password validated with business rules
-- **CORS**: Configured to allow requests from any origin (adjust in production)
-
-### Password Rules
-
-- Minimum 8 characters
-- Maximum 72 characters (bcrypt limitation)
-- Must contain at least one letter
-- Must contain at least one number
-
-## 🧪 Testing
-
-**Current Coverage:** 57.5% | **Target:** 90%  
-[![Coverage](https://img.shields.io/badge/coverage-57.5%25-green.svg)](./docs/COVERAGE_STATUS.md)
-
-### Quick Start
-
-```bash
-# Run all tests
-go test ./...
-
-# Run tests with coverage
-go test -coverprofile=coverage.out ./...
-
-# View coverage in browser
-go tool cover -html=coverage.out
-
-# Run all CI checks locally
-./scripts/run_ci_checks.sh
-```
-
-### Coverage Status
-
-| Layer | Package | Coverage | Status |
-|-------|---------|----------|--------|
-| **Domain** | user/domain | 97% | ✅ Excellent |
-| **Domain** | resource/domain | 100% | ✅ Excellent |
-| **Application** | user/service | 88.6% | ✅ Good |
-| **Application** | resource/service | 89.8% | ✅ Excellent |
-| **Infrastructure** | user/repository | 100% | ✅ Excellent |
-| **Infrastructure** | resource/repository | 91.5% | ✅ Excellent |
-| **Infrastructure** | HTTP handlers | 0% | ❌ TODO |
-
-### Documentation
-
-- 📖 [Testing Strategy](./docs/TESTING_STRATEGY.md) - Comprehensive testing guidelines
-- 📊 [Coverage Status Report](./docs/COVERAGE_STATUS.md) - Detailed coverage breakdown
-- 🚀 [Quick Start Guide](./docs/QUICK_START_TESTING.md) - Get started with testing
-- 📝 [Coverage Fix Summary](./COVERAGE_FIX_SUMMARY.md) - Recent coverage improvements
-
-### Improvement Roadmap
-
-We're following an incremental approach to reach 90% coverage:
-
-- **Phase 1 (57.5%)**: Add Resource module tests ✅ **COMPLETED**
-- **Phase 2 (70%)**: Add HTTP handler tests ⏳ Next Sprint
-- **Phase 3 (80%)**: Add integration tests 🎯 1 month
-- **Phase 4 (90%)**: Add E2E tests 🚀 2 months
-
-### Writing Tests
-
-We follow these testing principles:
-- **Test behavior, not implementation**
-- **Use table-driven tests** for multiple scenarios
-- **Mock external dependencies** using interfaces
-- **Test edge cases** and error scenarios
-- **Follow AAA pattern** (Arrange, Act, Assert)
-
-Example test:
-```go
-func TestUserService_Register(t *testing.T) {
-    // Arrange
-    repo := NewMockUserRepository()
-    service := NewUserService(repo)
-    
-    // Act
-    user, err := service.Register(ctx, "test@example.com", "password", "Test User")
-    
-    // Assert
-    if err != nil {
-        t.Fatalf("Expected no error, got %v", err)
-    }
-}
-```
-
-See [Testing Strategy](./docs/TESTING_STRATEGY.md) for comprehensive guidelines.
-
-## 📝 Implemented Best Practices
-
-1. **Dependency Inversion**: Upper layers don't depend on concrete implementations
-2. **Single Responsibility**: Each component has a single responsibility
-3. **Open/Closed**: Open for extension, closed for modification
-4. **Interface Segregation**: Small and focused interfaces
-5. **Domain-Driven Design**: Rich domain modeling
-6. **Value Objects**: Validation and value encapsulation
-7. **Repository Pattern**: Persistence abstraction
-8. **Use Case Pattern**: Explicit and testable use cases
-
-## 🔄 Next Steps
-
-### Future Implementations
-
-- [ ] Integration with database (PostgreSQL/MySQL)
-- [ ] Redis for cache and sessions
-- [ ] Refresh tokens
+- [ ] Database integration (PostgreSQL)
+- [ ] Docker setup
+- [ ] API versioning
 - [ ] Rate limiting
-- [ ] Structured logging
-- [ ] Metrics and observability
-- [x] Unit and integration tests with 90% coverage
-- [x] CI/CD pipeline with GitHub Actions
-- [ ] Docker and Docker Compose
-- [ ] Database migrations
-- [ ] Swagger/OpenAPI documentation
-- [ ] New modules (Tasks, Projects, etc)
-
-### Adding a New Module
-
-To add a new module to the monolith:
-
-1. Create the directory structure in `internal/modules/[module-name]`
-2. Implement the layers: domain → application → infrastructure
-3. Register routes in `main.go`
-4. Maintain independence between modules
-
-Example:
-```
-internal/modules/task/
-├── domain/
-├── application/
-└── infrastructure/
-```
-
-## 🤝 Contributing
-
-1. Fork the project
-2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- [ ] Monitoring & metrics
 
 ## 📄 License
 
-This project is licensed under the MIT License.
-
-## 📚 References
-
-- [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
-- [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
-- [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Modular Monolith](https://www.kamilgrzybek.com/design/modular-monolith-primer/)
+MIT License

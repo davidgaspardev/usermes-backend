@@ -1,65 +1,29 @@
 # Resource Module
 
-This module implements a complete CRUD (Create, Read, Update, Delete) system for managing resources following Clean Architecture and Domain-Driven Design principles.
+API endpoints for resource management including CRUD operations and filtering.
 
-## Overview
+## Base URL
+All endpoints are prefixed with `/api/resources`
 
-The Resource module manages resources with the following properties:
-- **ID**: Unique identifier (UUID)
-- **Code**: Resource code (2-50 characters, unique)
-- **ShiftID**: Optional shift assignment
-- **Type**: Resource type (2-50 characters)
-- **StopFactor**: Non-negative integer (int16)
+---
 
-## Architecture
+## 📝 Create Resource
+Create a new resource.
 
-The module follows Hexagonal Architecture (Ports & Adapters):
+**POST** `/api/resources/`
 
-```
-resource/
-├── domain/                           # Core business logic
-│   ├── entity/                       # Domain entities
-│   │   ├── resource.go              # Resource entity
-│   │   └── resource_test.go         # Entity tests
-│   └── errors/                       # Domain errors
-│       └── errors.go                # Business rule errors
-├── application/                      # Use cases
-│   ├── port/
-│   │   ├── input/                   # Input ports (interfaces)
-│   │   │   └── resource_service.go # Service interface
-│   │   └── output/                  # Output ports (interfaces)
-│   │       └── resource_repository.go # Repository interface
-│   └── usecase/                     # Business logic implementation
-│       └── resource_service_impl.go # Service implementation
-└── infrastructure/                   # External adapters
-    ├── adapter/
-    │   ├── input/
-    │   │   └── http/                # HTTP handlers
-    │   │       ├── resource_handler.go
-    │   │       └── routes.go
-    │   └── output/
-    │       └── persistence/         # Data persistence
-    │           └── memory_resource_repository.go
-    └── dto/                         # Data Transfer Objects
-        └── resource_dto.go
+```bash
+curl -X POST http://localhost:8080/api/resources/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "RES001",
+    "shift_id": "SHIFT123",
+    "type": "MACHINE",
+    "stop_factor": 5
+  }'
 ```
 
-## API Endpoints
-
-### Create Resource
-```http
-POST /api/v1/resources
-Content-Type: application/json
-
-{
-  "code": "RES001",
-  "shift_id": "SHIFT123",  // optional
-  "type": "MACHINE",
-  "stop_factor": 5
-}
-```
-
-**Response:** `201 Created`
+**Response (201 Created):**
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -67,40 +31,29 @@ Content-Type: application/json
   "shift_id": "SHIFT123",
   "type": "MACHINE",
   "stop_factor": 5,
-  "created_at": "2024-01-15T10:00:00Z",
-  "updated_at": "2024-01-15T10:00:00Z"
+  "created_at": "2023-12-01T10:00:00Z",
+  "updated_at": "2023-12-01T10:00:00Z"
 }
 ```
 
-### Get Resource by ID
-```http
-GET /api/v1/resources/:id
+---
+
+## 🔍 Get Resources
+
+### Get All Resources
+Get all resources with pagination.
+
+**GET** `/api/resources/`
+
+```bash
+# Default pagination (limit=10, offset=0)
+curl -X GET http://localhost:8080/api/resources/
+
+# With custom pagination
+curl -X GET "http://localhost:8080/api/resources/?limit=5&offset=10"
 ```
 
-**Response:** `200 OK`
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "code": "RES001",
-  "shift_id": "SHIFT123",
-  "type": "MACHINE",
-  "stop_factor": 5,
-  "created_at": "2024-01-15T10:00:00Z",
-  "updated_at": "2024-01-15T10:00:00Z"
-}
-```
-
-### Get Resource by Code
-```http
-GET /api/v1/resources/code/:code
-```
-
-### Get All Resources (with pagination)
-```http
-GET /api/v1/resources?limit=10&offset=0
-```
-
-**Response:** `200 OK`
+**Response (200 OK):**
 ```json
 {
   "resources": [
@@ -110,8 +63,8 @@ GET /api/v1/resources?limit=10&offset=0
       "shift_id": "SHIFT123",
       "type": "MACHINE",
       "stop_factor": 5,
-      "created_at": "2024-01-15T10:00:00Z",
-      "updated_at": "2024-01-15T10:00:00Z"
+      "created_at": "2023-12-01T10:00:00Z",
+      "updated_at": "2023-12-01T10:00:00Z"
     }
   ],
   "total": 1,
@@ -120,212 +73,147 @@ GET /api/v1/resources?limit=10&offset=0
 }
 ```
 
+### Get Resource by ID
+Get specific resource by UUID.
+
+**GET** `/api/resources/:id`
+
+```bash
+curl -X GET http://localhost:8080/api/resources/550e8400-e29b-41d4-a716-446655440000
+```
+
+### Get Resource by Code
+Get specific resource by its code.
+
+**GET** `/api/resources/code/:code`
+
+```bash
+curl -X GET http://localhost:8080/api/resources/code/RES001
+```
+
 ### Get Resources by Type
-```http
-GET /api/v1/resources/type/:type?limit=10&offset=0
+Get all resources of a specific type.
+
+**GET** `/api/resources/type/:type`
+
+```bash
+# Get all MACHINE type resources
+curl -X GET http://localhost:8080/api/resources/type/MACHINE
+
+# With pagination
+curl -X GET "http://localhost:8080/api/resources/type/MACHINE?limit=5&offset=0"
 ```
 
 ### Get Resources by Shift ID
-```http
-GET /api/v1/resources/shift/:shiftId?limit=10&offset=0
+Get all resources assigned to a specific shift.
+
+**GET** `/api/resources/shift/:shiftId`
+
+```bash
+# Get all resources for SHIFT123
+curl -X GET http://localhost:8080/api/resources/shift/SHIFT123
+
+# With pagination
+curl -X GET "http://localhost:8080/api/resources/shift/SHIFT123?limit=5&offset=0"
 ```
 
-### Update Resource
-```http
-PUT /api/v1/resources/:id
-Content-Type: application/json
+---
 
+## ✏️ Update Resource
+Update an existing resource.
+
+**PUT** `/api/resources/:id`
+
+```bash
+curl -X PUT http://localhost:8080/api/resources/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "RES001-UPDATED",
+    "shift_id": "SHIFT456",
+    "type": "OPERATOR",
+    "stop_factor": 10
+  }'
+```
+
+**Response (200 OK):**
+```json
 {
+  "id": "550e8400-e29b-41d4-a716-446655440000",
   "code": "RES001-UPDATED",
   "shift_id": "SHIFT456",
   "type": "OPERATOR",
-  "stop_factor": 10
+  "stop_factor": 10,
+  "created_at": "2023-12-01T10:00:00Z",
+  "updated_at": "2023-12-01T11:00:00Z"
 }
 ```
 
-**Response:** `200 OK`
+---
 
-### Delete Resource
-```http
-DELETE /api/v1/resources/:id
-```
+## 🗑️ Delete Resource
+Delete a resource permanently.
 
-**Response:** `200 OK`
-```json
-{
-  "message": "Resource deleted successfully",
-  "data": null
-}
-```
-
-## Error Responses
-
-All error responses follow this format:
-
-```json
-{
-  "error": "error_code",
-  "message": "Human-readable error message"
-}
-```
-
-### Common Error Codes
-
-| Error Code | Status | Description |
-|-----------|--------|-------------|
-| `invalid_request` | 400 | Invalid request body |
-| `invalid_id` | 400 | Invalid UUID format |
-| `invalid_code` | 400 | Code must be 2-50 characters |
-| `invalid_type` | 400 | Type must be 2-50 characters |
-| `invalid_stop_factor` | 400 | Stop factor must be non-negative |
-| `resource_not_found` | 404 | Resource not found |
-| `code_already_exists` | 409 | Code already in use |
-| `resource_already_exists` | 409 | Resource ID already exists |
-| `internal_error` | 500 | Internal server error |
-
-## Usage Example
-
-### Integration in main.go
-
-```go
-package main
-
-import (
-    "log"
-    
-    resourceHttp "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/input/http"
-    resourcePersistence "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/output/persistence"
-    resourceUseCase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
-)
-
-func main() {
-    // Initialize repository
-    resourceRepo := resourcePersistence.NewMemoryResourceRepository()
-    
-    // Initialize service
-    resourceService := resourceUseCase.NewResourceService(resourceRepo)
-    
-    // Initialize HTTP server (Fiber example)
-    app := fiber.New()
-    
-    // Register routes
-    api := app.Group("/api/v1")
-    resourceHttp.RegisterRoutes(api, resourceService)
-    
-    // Start server
-    log.Fatal(app.Listen(":3000"))
-}
-```
-
-### Programmatic Usage
-
-```go
-package example
-
-import (
-    "context"
-    
-    "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
-    "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/output/persistence"
-)
-
-func Example() {
-    ctx := context.Background()
-    
-    // Setup
-    repo := persistence.NewMemoryResourceRepository()
-    service := usecase.NewResourceService(repo)
-    
-    // Create resource
-    shiftID := "SHIFT123"
-    resource, err := service.Create(ctx, "RES001", &shiftID, "MACHINE", 5)
-    if err != nil {
-        panic(err)
-    }
-    
-    // Get resource by ID
-    found, err := service.GetByID(ctx, resource.ID())
-    if err != nil {
-        panic(err)
-    }
-    
-    // Update resource
-    newShiftID := "SHIFT456"
-    updated, err := service.Update(ctx, resource.ID(), "RES001-UPDATED", &newShiftID, "OPERATOR", 10)
-    if err != nil {
-        panic(err)
-    }
-    
-    // Delete resource
-    err = service.Delete(ctx, updated.ID())
-    if err != nil {
-        panic(err)
-    }
-}
-```
-
-## Validation Rules
-
-### Code
-- **Required**: Yes
-- **Type**: String
-- **Length**: 2-50 characters
-- **Unique**: Yes
-- **Format**: Any non-empty string
-
-### Type
-- **Required**: Yes
-- **Type**: String
-- **Length**: 2-50 characters
-- **Format**: Any non-empty string
-
-### Stop Factor
-- **Required**: Yes
-- **Type**: int16
-- **Range**: >= 0 (non-negative)
-
-### Shift ID
-- **Required**: No
-- **Type**: String (pointer, can be nil)
-- **Format**: Any string when provided
-
-## Testing
-
-Run tests for the Resource module:
+**DELETE** `/api/resources/:id`
 
 ```bash
-# Run all tests
-go test ./internal/modules/resource/... -v
-
-# Run with coverage
-go test ./internal/modules/resource/... -coverprofile=coverage.out
-go tool cover -html=coverage.out
-
-# Run specific tests
-go test ./internal/modules/resource/domain/entity -v
+curl -X DELETE http://localhost:8080/api/resources/550e8400-e29b-41d4-a716-446655440000
 ```
 
-## Domain Rules
+**Response (200 OK):**
+```json
+{
+  "message": "Resource deleted successfully"
+}
+```
 
-1. **Uniqueness**: Each resource must have a unique code
-2. **Stop Factor**: Must be non-negative (>= 0)
-3. **Code Validation**: Cannot be empty and must be within length limits
-4. **Type Validation**: Cannot be empty and must be within length limits
-5. **Shift Assignment**: Optional - resources can exist without a shift assignment
+---
 
-## Future Enhancements
+## ❌ Error Responses
 
-- [ ] Add database persistence (PostgreSQL, MySQL)
-- [ ] Implement soft delete functionality
-- [ ] Add resource status field (active/inactive)
-- [ ] Add resource categories/tags
-- [ ] Implement resource availability tracking
-- [ ] Add audit logging for changes
-- [ ] Implement search and filtering capabilities
-- [ ] Add bulk operations (create/update/delete multiple)
-- [ ] Implement resource scheduling system
-- [ ] Add metrics and monitoring
+All endpoints may return error responses in the following format:
 
-## License
+```json
+{
+  "error": "resource_not_found",
+  "message": "Resource not found"
+}
+```
 
-This module is part of the UserMes Backend project.
+### Common Error Codes:
+- `invalid_request` - Invalid request format or parameters
+- `invalid_id` - Invalid UUID format
+- `invalid_code` - Code validation failed
+- `invalid_type` - Type validation failed
+- `invalid_stop_factor` - Stop factor must be non-negative
+- `resource_not_found` - Resource not found
+- `resource_already_exists` - Code already exists
+- `internal_error` - Server error
+
+---
+
+## 📋 Request Validation Rules
+
+### Create/Update Resource:
+- **code**: Required, 2-50 characters, unique
+- **shift_id**: Optional, string
+- **type**: Required, 2-50 characters
+- **stop_factor**: Required, non-negative integer (>= 0)
+
+### Examples of Valid Data:
+```json
+{
+  "code": "MACHINE_001",
+  "shift_id": "MORNING_SHIFT",
+  "type": "PRODUCTION_MACHINE",
+  "stop_factor": 0
+}
+```
+
+```json
+{
+  "code": "OP_042",
+  "shift_id": null,
+  "type": "OPERATOR",
+  "stop_factor": 15
+}
+```

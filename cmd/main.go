@@ -72,7 +72,7 @@ type Config struct {
 func loadConfig() Config {
 	return Config{
 		AppName:       "UserMes API",
-		ServerPort:    3000,
+		ServerPort:    3001,
 		JWTSecret:     "your-secret-key-change-this-in-production",
 		TokenDuration: 24 * time.Hour, // 24 hours
 	}

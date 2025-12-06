@@ -13,7 +13,7 @@ Create a new resource.
 **POST** `/api/resources/`
 
 ```bash
-curl -X POST http://localhost:8080/api/resources/ \
+curl -X POST http://localhost:3001/api/resources/ \
   -H "Content-Type: application/json" \
   -d '{
     "code": "RES001",
@@ -47,10 +47,10 @@ Get all resources with pagination.
 
 ```bash
 # Default pagination (limit=10, offset=0)
-curl -X GET http://localhost:8080/api/resources/
+curl -X GET http://localhost:3001/api/resources/
 
 # With custom pagination
-curl -X GET "http://localhost:8080/api/resources/?limit=5&offset=10"
+curl -X GET "http://localhost:3001/api/resources/?limit=5&offset=10"
 ```
 
 **Response (200 OK):**
@@ -79,7 +79,7 @@ Get specific resource by UUID.
 **GET** `/api/resources/:id`
 
 ```bash
-curl -X GET http://localhost:8080/api/resources/550e8400-e29b-41d4-a716-446655440000
+curl -X GET http://localhost:3001/api/resources/550e8400-e29b-41d4-a716-446655440000
 ```
 
 ### Get Resource by Code
@@ -88,7 +88,7 @@ Get specific resource by its code.
 **GET** `/api/resources/code/:code`
 
 ```bash
-curl -X GET http://localhost:8080/api/resources/code/RES001
+curl -X GET http://localhost:3001/api/resources/code/RES001
 ```
 
 ### Get Resources by Type
@@ -98,10 +98,10 @@ Get all resources of a specific type.
 
 ```bash
 # Get all MACHINE type resources
-curl -X GET http://localhost:8080/api/resources/type/MACHINE
+curl -X GET http://localhost:3001/api/resources/type/MACHINE
 
 # With pagination
-curl -X GET "http://localhost:8080/api/resources/type/MACHINE?limit=5&offset=0"
+curl -X GET "http://localhost:3001/api/resources/type/MACHINE?limit=5&offset=0"
 ```
 
 ### Get Resources by Shift ID
@@ -111,10 +111,10 @@ Get all resources assigned to a specific shift.
 
 ```bash
 # Get all resources for SHIFT123
-curl -X GET http://localhost:8080/api/resources/shift/SHIFT123
+curl -X GET http://localhost:3001/api/resources/shift/SHIFT123
 
 # With pagination
-curl -X GET "http://localhost:8080/api/resources/shift/SHIFT123?limit=5&offset=0"
+curl -X GET "http://localhost:3001/api/resources/shift/SHIFT123?limit=5&offset=0"
 ```
 
 ---
@@ -125,7 +125,7 @@ Update an existing resource.
 **PUT** `/api/resources/:id`
 
 ```bash
-curl -X PUT http://localhost:8080/api/resources/550e8400-e29b-41d4-a716-446655440000 \
+curl -X PUT http://localhost:3001/api/resources/550e8400-e29b-41d4-a716-446655440000 \
   -H "Content-Type: application/json" \
   -d '{
     "code": "RES001-UPDATED",
@@ -156,7 +156,7 @@ Delete a resource permanently.
 **DELETE** `/api/resources/:id`
 
 ```bash
-curl -X DELETE http://localhost:8080/api/resources/550e8400-e29b-41d4-a716-446655440000
+curl -X DELETE http://localhost:3001/api/resources/550e8400-e29b-41d4-a716-446655440000
 ```
 
 **Response (200 OK):**

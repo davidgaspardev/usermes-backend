@@ -61,6 +61,11 @@ func main() {
 	}
 }
 
+const (
+	// DefaultServerPort is the default port the server will listen on
+	DefaultServerPort = 3001
+)
+
 // Config holds the application configuration
 type Config struct {
 	AppName       string
@@ -72,10 +77,10 @@ type Config struct {
 // loadConfig loads the application configuration
 // Reads from environment variables with fallback to default values
 func loadConfig() Config {
-	// Read port from environment variable, default to 3001
-	port := 3001
+	// Read port from environment variable, default to DefaultServerPort
+	port := DefaultServerPort
 	if portStr := os.Getenv("PORT"); portStr != "" {
-		if p, err := strconv.Atoi(portStr); err == nil && p > 0 {
+		if p, err := strconv.Atoi(portStr); err == nil && p > 0 && p <= 65535 {
 			port = p
 		}
 	}

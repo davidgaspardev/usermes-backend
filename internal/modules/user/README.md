@@ -15,7 +15,7 @@ Create a new user account.
 **POST** `/api/users/register`
 
 ```bash
-curl -X POST http://localhost:8080/api/users/register \
+curl -X POST http://localhost:3001/api/users/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john.doe@example.com",
@@ -48,7 +48,7 @@ Authenticate user and receive access token.
 **POST** `/api/users/login`
 
 ```bash
-curl -X POST http://localhost:8080/api/users/login \
+curl -X POST http://localhost:3001/api/users/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "johndoe",
@@ -85,7 +85,7 @@ Get authenticated user's profile.
 **GET** `/api/users/me`
 
 ```bash
-curl -X GET http://localhost:8080/api/users/me \
+curl -X GET http://localhost:3001/api/users/me \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -95,7 +95,7 @@ Get user profile by user ID.
 **GET** `/api/users/:id`
 
 ```bash
-curl -X GET http://localhost:8080/api/users/123e4567-e89b-12d3-a456-426614174000 \
+curl -X GET http://localhost:3001/api/users/123e4567-e89b-12d3-a456-426614174000 \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -119,7 +119,7 @@ Update user profile information.
 **PUT** `/api/users/:id`
 
 ```bash
-curl -X PUT http://localhost:8080/api/users/123e4567-e89b-12d3-a456-426614174000 \
+curl -X PUT http://localhost:3001/api/users/123e4567-e89b-12d3-a456-426614174000 \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -150,7 +150,7 @@ Change user password.
 **POST** `/api/users/:id/change-password`
 
 ```bash
-curl -X POST http://localhost:8080/api/users/123e4567-e89b-12d3-a456-426614174000/change-password \
+curl -X POST http://localhost:3001/api/users/123e4567-e89b-12d3-a456-426614174000/change-password \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -172,7 +172,7 @@ Deactivate user account.
 **POST** `/api/users/:id/deactivate`
 
 ```bash
-curl -X POST http://localhost:8080/api/users/123e4567-e89b-12d3-a456-426614174000/deactivate \
+curl -X POST http://localhost:3001/api/users/123e4567-e89b-12d3-a456-426614174000/deactivate \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -189,7 +189,7 @@ Reactivate user account.
 **POST** `/api/users/:id/activate`
 
 ```bash
-curl -X POST http://localhost:8080/api/users/123e4567-e89b-12d3-a456-426614174000/activate \
+curl -X POST http://localhost:3001/api/users/123e4567-e89b-12d3-a456-426614174000/activate \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 

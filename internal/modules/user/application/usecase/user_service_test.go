@@ -14,14 +14,16 @@ import (
 
 // Mock Repository
 type MockUserRepository struct {
-	users        map[uuid.UUID]*entity.User
-	usersByEmail map[string]*entity.User
+	users           map[uuid.UUID]*entity.User
+	usersByEmail    map[string]*entity.User
+	usersByUsername map[string]*entity.User
 }
 
 func NewMockUserRepository() *MockUserRepository {
 	return &MockUserRepository{
-		users:        make(map[uuid.UUID]*entity.User),
-		usersByEmail: make(map[string]*entity.User),
+		users:           make(map[uuid.UUID]*entity.User),
+		usersByEmail:    make(map[string]*entity.User),
+		usersByUsername: make(map[string]*entity.User),
 	}
 }
 
@@ -29,8 +31,12 @@ func (m *MockUserRepository) Save(ctx context.Context, user *entity.User) error 
 	if _, exists := m.usersByEmail[user.Email().Value()]; exists {
 		return errors.ErrEmailAlreadyExists
 	}
+	if _, exists := m.usersByUsername[user.Username().Value()]; exists {
+		return errors.ErrUsernameAlreadyExists
+	}
 	m.users[user.ID()] = user
 	m.usersByEmail[user.Email().Value()] = user
+	m.usersByUsername[user.Username().Value()] = user
 	return nil
 }
 
@@ -58,8 +64,21 @@ func (m *MockUserRepository) FindByEmail(ctx context.Context, email valueobject.
 	return user, nil
 }
 
+func (m *MockUserRepository) FindByUsername(ctx context.Context, username valueobject.Username) (*entity.User, error) {
+	user, exists := m.usersByUsername[username.Value()]
+	if !exists {
+		return nil, errors.ErrUserNotFound
+	}
+	return user, nil
+}
+
 func (m *MockUserRepository) ExistsByEmail(ctx context.Context, email valueobject.Email) (bool, error) {
 	_, exists := m.usersByEmail[email.Value()]
+	return exists, nil
+}
+
+func (m *MockUserRepository) ExistsByUsername(ctx context.Context, username valueobject.Username) (bool, error) {
+	_, exists := m.usersByUsername[username.Value()]
 	return exists, nil
 }
 
@@ -70,6 +89,7 @@ func (m *MockUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 	delete(m.users, id)
 	delete(m.usersByEmail, user.Email().Value())
+	delete(m.usersByUsername, user.Username().Value())
 	return nil
 }
 
@@ -108,7 +128,7 @@ func TestUserService_Register(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	user, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	user, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Register failed: %v", err)
 	}
@@ -124,18 +144,22 @@ func TestUserService_Register(t *testing.T) {
 	if user.Email().Value() != "test@example.com" {
 		t.Errorf("Expected email 'test@example.com', got '%s'", user.Email().Value())
 	}
+
+	if user.Username().Value() != "testuser" {
+		t.Errorf("Expected username 'testuser', got '%s'", user.Username().Value())
+	}
 }
 
 func TestUserService_Register_DuplicateEmail(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	_, err := service.Register(ctx, "test@example.com", "Password123", "User 1")
+	_, err := service.Register(ctx, "test@example.com", "Password123", "user1", "User 1")
 	if err != nil {
 		t.Fatalf("First registration failed: %v", err)
 	}
 
-	_, err = service.Register(ctx, "test@example.com", "Password456", "User 2")
+	_, err = service.Register(ctx, "test@example.com", "Password456", "user2", "User 2")
 	if err != errors.ErrEmailAlreadyExists {
 		t.Errorf("Expected ErrEmailAlreadyExists, got %v", err)
 	}
@@ -149,18 +173,20 @@ func TestUserService_Register_InvalidData(t *testing.T) {
 		name     string
 		email    string
 		password string
+		username string
 		userName string
 		wantErr  bool
 	}{
-		{"invalid email", "invalid-email", "Password123", "User", true},
-		{"invalid password", "test@example.com", "short", "User", true},
-		{"empty name", "test@example.com", "Password123", "", true},
-		{"short name", "test@example.com", "Password123", "A", true},
+		{"invalid email", "invalid-email", "Password123", "testuser", "User", true},
+		{"invalid password", "test@example.com", "short", "testuser", "User", true},
+		{"invalid username", "test@example.com", "Password123", "ab", "User", true},
+		{"empty name", "test@example.com", "Password123", "testuser", "", true},
+		{"short name", "test@example.com", "Password123", "testuser", "A", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := service.Register(ctx, tt.email, tt.password, tt.userName)
+			_, err := service.Register(ctx, tt.email, tt.password, tt.username, tt.userName)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Register() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -173,13 +199,13 @@ func TestUserService_Login(t *testing.T) {
 	ctx := context.Background()
 
 	// Register user first
-	_, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	_, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Register failed: %v", err)
 	}
 
 	// Login
-	token, user, err := service.Login(ctx, "test@example.com", "Password123")
+	token, user, err := service.Login(ctx, "testuser", "Password123")
 	if err != nil {
 		t.Fatalf("Login failed: %v", err)
 	}
@@ -202,24 +228,24 @@ func TestUserService_Login_InvalidCredentials(t *testing.T) {
 	ctx := context.Background()
 
 	// Register user
-	_, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	_, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
 
 	tests := []struct {
 		name     string
-		email    string
+		username string
 		password string
 	}{
-		{"wrong password", "test@example.com", "WrongPassword"},
-		{"wrong email", "wrong@example.com", "Password123"},
-		{"nonexistent user", "nonexistent@example.com", "Password123"},
+		{"wrong password", "testuser", "WrongPassword"},
+		{"wrong username", "wronguser", "Password123"},
+		{"nonexistent user", "nonexistent", "Password123"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, _, err := service.Login(ctx, tt.email, tt.password)
+			_, _, err := service.Login(ctx, tt.username, tt.password)
 			if err != errors.ErrInvalidCredentials {
 				t.Errorf("Expected ErrInvalidCredentials, got %v", err)
 			}
@@ -232,7 +258,7 @@ func TestUserService_GetUserByID(t *testing.T) {
 	ctx := context.Background()
 
 	// Register user
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -262,7 +288,7 @@ func TestUserService_GetUserByEmail(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -282,7 +308,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 	ctx := context.Background()
 
 	// Register user
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Old Name")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Old Name")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -302,7 +328,7 @@ func TestUserService_UpdateUser_InvalidName(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -333,7 +359,7 @@ func TestUserService_ChangePassword(t *testing.T) {
 	ctx := context.Background()
 
 	// Register user
-	registered, err := service.Register(ctx, "test@example.com", "OldPassword123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "OldPassword123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -345,13 +371,13 @@ func TestUserService_ChangePassword(t *testing.T) {
 	}
 
 	// Try login with new password
-	_, _, err = service.Login(ctx, "test@example.com", "NewPassword456")
+	_, _, err = service.Login(ctx, "testuser", "NewPassword456")
 	if err != nil {
 		t.Error("Should be able to login with new password")
 	}
 
 	// Try login with old password (should fail)
-	_, _, err = service.Login(ctx, "test@example.com", "OldPassword123")
+	_, _, err = service.Login(ctx, "testuser", "OldPassword123")
 	if err == nil {
 		t.Error("Should not be able to login with old password")
 	}
@@ -361,7 +387,7 @@ func TestUserService_ChangePassword_WrongOldPassword(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -376,7 +402,7 @@ func TestUserService_ChangePassword_InvalidNewPassword(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -391,7 +417,7 @@ func TestUserService_DeactivateUser(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -402,7 +428,7 @@ func TestUserService_DeactivateUser(t *testing.T) {
 	}
 
 	// Try to login (should fail)
-	_, _, err = service.Login(ctx, "test@example.com", "Password123")
+	_, _, err = service.Login(ctx, "testuser", "Password123")
 	if err != errors.ErrUserInactive {
 		t.Errorf("Expected ErrUserInactive, got %v", err)
 	}
@@ -422,7 +448,7 @@ func TestUserService_ActivateUser(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -437,7 +463,7 @@ func TestUserService_ActivateUser(t *testing.T) {
 	}
 
 	// Should be able to login now
-	_, _, err = service.Login(ctx, "test@example.com", "Password123")
+	_, _, err = service.Login(ctx, "testuser", "Password123")
 	if err != nil {
 		t.Error("Should be able to login after reactivation")
 	}
@@ -469,7 +495,7 @@ func TestUserService_Register_InvalidEmail(t *testing.T) {
 	service := setupTestService()
 	ctx := context.Background()
 
-	_, err := service.Register(ctx, "invalid-email", "Password123", "Test User")
+	_, err := service.Register(ctx, "invalid-email", "Password123", "testuser", "Test User")
 	if err == nil {
 		t.Error("Should fail with invalid email")
 	}
@@ -480,7 +506,7 @@ func TestUserService_Login_InactiveUser(t *testing.T) {
 	ctx := context.Background()
 
 	// Register and deactivate user
-	registered, err := service.Register(ctx, "test@example.com", "Password123", "Test User")
+	registered, err := service.Register(ctx, "test@example.com", "Password123", "testuser", "Test User")
 	if err != nil {
 		t.Fatalf("Failed to register user: %v", err)
 	}
@@ -490,7 +516,7 @@ func TestUserService_Login_InactiveUser(t *testing.T) {
 	}
 
 	// Try to login
-	_, _, err = service.Login(ctx, "test@example.com", "Password123")
+	_, _, err = service.Login(ctx, "testuser", "Password123")
 	if err != errors.ErrUserInactive {
 		t.Errorf("Expected ErrUserInactive, got %v", err)
 	}

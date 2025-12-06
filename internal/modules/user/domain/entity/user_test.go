@@ -20,7 +20,12 @@ func createTestUser(t *testing.T) *User {
 		t.Fatalf("Failed to create password: %v", err)
 	}
 
-	return NewUser(email, password, "Test User")
+	username, err := valueobject.NewUsername("testuser")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+
+	return NewUser(email, password, username, "Test User")
 }
 
 func TestNewUser(t *testing.T) {
@@ -165,6 +170,10 @@ func TestReconstructUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create password: %v", err)
 	}
+	username, err := valueobject.NewUsername("testuser")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
 	now := time.Now()
 	lastLogin := now.Add(-1 * time.Hour)
 
@@ -172,6 +181,7 @@ func TestReconstructUser(t *testing.T) {
 		id,
 		email,
 		password,
+		username,
 		"Test User",
 		true,
 		now,
@@ -209,6 +219,9 @@ func TestUser_AllGetters(t *testing.T) {
 	if user.Password().Hash() == "" {
 		t.Error("Password getter failed")
 	}
+	if user.Username().Value() != "testuser" {
+		t.Error("Username getter failed")
+	}
 	if user.Name() != "Test User" {
 		t.Error("Name getter failed")
 	}
@@ -223,5 +236,19 @@ func TestUser_AllGetters(t *testing.T) {
 	}
 	if user.LastLoginAt() != nil {
 		t.Error("LastLoginAt should be nil initially")
+	}
+}
+
+func TestUser_UpdateUsername(t *testing.T) {
+	user := createTestUser(t)
+	newUsername, err := valueobject.NewUsername("newusername")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+
+	user.UpdateUsername(newUsername)
+
+	if user.Username().Value() != "newusername" {
+		t.Errorf("Expected username 'newusername', got '%s'", user.Username().Value())
 	}
 }

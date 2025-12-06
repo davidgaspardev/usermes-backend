@@ -18,6 +18,13 @@ var (
 	ErrPasswordHashFailed = errors.New("failed to hash password")
 	ErrInvalidPassword    = errors.New("invalid password")
 
+	// Username errors
+	ErrUsernameRequired      = errors.New("username is required")
+	ErrUsernameTooShort      = errors.New("username must be at least 3 characters long")
+	ErrUsernameTooLong       = errors.New("username must be at most 30 characters long")
+	ErrInvalidUsernameFormat = errors.New("username can only contain letters, numbers, underscores, and hyphens")
+	ErrUsernameAlreadyExists = errors.New("username already exists")
+
 	// User errors
 	ErrUserNotFound       = errors.New("user not found")
 	ErrUserAlreadyExists  = errors.New("user already exists")

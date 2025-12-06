@@ -15,18 +15,20 @@ type User struct {
 	lastLoginAt *time.Time
 	email       valueobject.Email
 	password    valueobject.Password
+	username    valueobject.Username
 	name        string
 	id          uuid.UUID
 	isActive    bool
 }
 
 // NewUser creates a new user instance
-func NewUser(email valueobject.Email, password valueobject.Password, name string) *User {
+func NewUser(email valueobject.Email, password valueobject.Password, username valueobject.Username, name string) *User {
 	now := time.Now()
 	return &User{
 		id:        uuid.New(),
 		email:     email,
 		password:  password,
+		username:  username,
 		name:      name,
 		isActive:  true,
 		createdAt: now,
@@ -39,6 +41,7 @@ func ReconstructUser(
 	id uuid.UUID,
 	email valueobject.Email,
 	password valueobject.Password,
+	username valueobject.Username,
 	name string,
 	isActive bool,
 	createdAt time.Time,
@@ -49,6 +52,7 @@ func ReconstructUser(
 		id:          id,
 		email:       email,
 		password:    password,
+		username:    username,
 		name:        name,
 		isActive:    isActive,
 		createdAt:   createdAt,
@@ -70,6 +74,11 @@ func (u *User) Email() valueobject.Email {
 // Password returns the user's password
 func (u *User) Password() valueobject.Password {
 	return u.password
+}
+
+// Username returns the user's username
+func (u *User) Username() valueobject.Username {
+	return u.username
 }
 
 // Name returns the user's name
@@ -112,6 +121,12 @@ func (u *User) UpdateEmail(email valueobject.Email) {
 // UpdatePassword updates the user's password
 func (u *User) UpdatePassword(password valueobject.Password) {
 	u.password = password
+	u.updatedAt = time.Now()
+}
+
+// UpdateUsername updates the user's username
+func (u *User) UpdateUsername(username valueobject.Username) {
+	u.username = username
 	u.updatedAt = time.Now()
 }
 

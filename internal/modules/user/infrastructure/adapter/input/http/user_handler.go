@@ -43,7 +43,7 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 	}
 
 	// Call use case
-	user, err := h.userService.Register(c.Context(), req.Email, req.Password, req.Name)
+	user, err := h.userService.Register(c.Context(), req.Email, req.Password, req.Username, req.Name)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -77,7 +77,7 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 	}
 
 	// Call use case
-	token, user, err := h.userService.Login(c.Context(), req.Email, req.Password)
+	token, user, err := h.userService.Login(c.Context(), req.Username, req.Password)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -284,7 +284,12 @@ func (h *UserHandler) handleError(c *fiber.Ctx, err error) error {
 			"invalid_password",
 			err.Error(),
 		))
-	case errors.ErrEmailAlreadyExists, errors.ErrUserAlreadyExists:
+	case errors.ErrUsernameRequired, errors.ErrUsernameTooShort, errors.ErrUsernameTooLong, errors.ErrInvalidUsernameFormat:
+		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
+			"invalid_username",
+			err.Error(),
+		))
+	case errors.ErrEmailAlreadyExists, errors.ErrUserAlreadyExists, errors.ErrUsernameAlreadyExists:
 		return c.Status(fiber.StatusConflict).JSON(dto.NewErrorResponse(
 			"conflict",
 			err.Error(),
@@ -297,7 +302,7 @@ func (h *UserHandler) handleError(c *fiber.Ctx, err error) error {
 	case errors.ErrInvalidCredentials:
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.NewErrorResponse(
 			"unauthorized",
-			"Invalid email or password",
+			"Invalid username or password",
 		))
 	case errors.ErrUserInactive:
 		return c.Status(fiber.StatusForbidden).JSON(dto.NewErrorResponse(

@@ -14,7 +14,7 @@ git clone https://github.com/YOUR_USERNAME/usermes-backend.git
 cd usermes-backend
 go run cmd/main.go
 
-# Server starts at http://localhost:8080
+# Server starts at http://localhost:3001
 ```
 
 ## 📚 API Documentation
@@ -69,19 +69,19 @@ go tool cover -func=coverage.out | grep total
 ### Register & Login
 ```bash
 # Register
-curl -X POST http://localhost:8080/api/users/register \
+curl -X POST http://localhost:3001/api/users/register \
   -H "Content-Type: application/json" \
   -d '{"email": "test@example.com", "password": "SecurePass123!", "name": "John Doe"}'
 
 # Login
-curl -X POST http://localhost:8080/api/users/login \
+curl -X POST http://localhost:3001/api/users/login \
   -H "Content-Type: application/json" \
   -d '{"email": "test@example.com", "password": "SecurePass123!"}'
 ```
 
 ### Create Resource
 ```bash
-curl -X POST http://localhost:8080/api/resources/ \
+curl -X POST http://localhost:3001/api/resources/ \
   -H "Content-Type: application/json" \
   -d '{"code": "RES001", "type": "MACHINE", "stop_factor": 5}'
 ```
@@ -90,6 +90,17 @@ curl -X POST http://localhost:8080/api/resources/ \
 
 ### Prerequisites
 - Go 1.22.1+
+
+### Configuration
+The server port can be configured via environment variable:
+```bash
+# Run with custom port (default: 3001)
+PORT=8080 go run cmd/main.go
+
+# Or set environment variable
+export PORT=8080
+go run cmd/main.go
+```
 
 ### Commands
 ```bash

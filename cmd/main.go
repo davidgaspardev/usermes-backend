@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
@@ -68,11 +70,19 @@ type Config struct {
 }
 
 // loadConfig loads the application configuration
-// In a production app, use environment variables or a config file
+// Reads from environment variables with fallback to default values
 func loadConfig() Config {
+	// Read port from environment variable, default to 3001
+	port := 3001
+	if portStr := os.Getenv("PORT"); portStr != "" {
+		if p, err := strconv.Atoi(portStr); err == nil && p > 0 {
+			port = p
+		}
+	}
+
 	return Config{
 		AppName:       "UserMes API",
-		ServerPort:    3001,
+		ServerPort:    port,
 		JWTSecret:     "your-secret-key-change-this-in-production",
 		TokenDuration: 24 * time.Hour, // 24 hours
 	}

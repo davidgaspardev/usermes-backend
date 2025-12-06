@@ -7,16 +7,37 @@ on:
 
 jobs:
   build-and-deploy:
+    environment: AWS
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check AWS_EC2_KEY secret
+      - name: Check all EC2 secrets
         run: |
+          missing=0
+      
           if [ -z "${{ secrets.AWS_EC2_KEY }}" ]; then
             echo "AWS_EC2_KEY is empty or not set!"
-            exit 1
+            missing=1
           else
             echo "AWS_EC2_KEY is set."
+          fi
+      
+          if [ -z "${{ secrets.AWS_EC2_HOST }}" ]; then
+            echo "AWS_EC2_HOST is empty or not set!"
+            missing=1
+          else
+            echo "AWS_EC2_HOST is set."
+          fi
+      
+          if [ -z "${{ secrets.AWS_EC2_USER }}" ]; then
+            echo "AWS_EC2_USER is empty or not set!"
+            missing=1
+          else
+            echo "AWS_EC2_USER is set."
+          fi
+      
+          if [ "$missing" -eq 1 ]; then
+            exit 1
           fi
 
       - name: Checkout code

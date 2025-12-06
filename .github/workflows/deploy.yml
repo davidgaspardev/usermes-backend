@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check EC2_KEY secret
+      - name: Check AWS_EC2_KEY secret
         run: |
-          if [ -z "${{ secrets.EC2_KEY }}" ]; then
-            echo "EC2_KEY is empty or not set!"
+          if [ -z "${{ secrets.AWS_EC2_KEY }}" ]; then
+            echo "AWS_EC2_KEY is empty or not set!"
             exit 1
           else
-            echo "EC2_KEY is set."
+            echo "AWS_EC2_KEY is set."
           fi
 
       - name: Checkout code

@@ -1,0 +1,35 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Build
+        run: go build -o app
+
+      - name: Upload SSH key
+        run: |
+          echo "${{ secrets.AWS_EC2_KEY }}" > key.pem
+          chmod 600 key.pem
+
+      - name: Copy binary to EC2
+        run: |
+          scp -i key.pem -o StrictHostKeyChecking=no app ${{ secrets.AWS_EC2_USER }}@{{ secrets.AWS_EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app
+
+      - name: Restart app on EC2
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "pkill app || true && nohup /home/${{ secrets.EC2_USER }}/app > app.log 2>&1 &"

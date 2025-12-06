@@ -31,6 +31,7 @@ func (s *ResourceServiceImpl) Create(
 	shiftID *string,
 	resourceType string,
 	stopFactor int16,
+	tags []string,
 ) (*entity.Resource, error) {
 	// Validate code
 	if err := s.validateCode(code); err != nil {
@@ -57,7 +58,7 @@ func (s *ResourceServiceImpl) Create(
 	}
 
 	// Create resource
-	resource := entity.NewResource(code, shiftID, resourceType, stopFactor)
+	resource := entity.NewResource(code, shiftID, resourceType, stopFactor, tags)
 
 	// Save resource
 	if err := s.repository.Save(ctx, resource); err != nil {
@@ -75,6 +76,7 @@ func (s *ResourceServiceImpl) Update(
 	shiftID *string,
 	resourceType string,
 	stopFactor int16,
+	tags []string,
 ) (*entity.Resource, error) {
 	// Validate code
 	if err := s.validateCode(code); err != nil {
@@ -109,7 +111,7 @@ func (s *ResourceServiceImpl) Update(
 	}
 
 	// Update resource
-	resource.Update(code, shiftID, resourceType, stopFactor)
+	resource.Update(code, shiftID, resourceType, stopFactor, tags)
 
 	// Save changes
 	if err := s.repository.Update(ctx, resource); err != nil {

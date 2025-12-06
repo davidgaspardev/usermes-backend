@@ -12,12 +12,13 @@ import (
 type RegisterRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Username string `json:"username"`
 	Name     string `json:"name"`
 }
 
 // LoginRequest represents the request body for user login
 type LoginRequest struct {
-	Email    string `json:"email"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -39,6 +40,7 @@ type UserResponse struct {
 	LastLoginAt *time.Time `json:"last_login_at,omitempty"`
 	ID          string     `json:"id"`
 	Email       string     `json:"email"`
+	Username    string     `json:"username"`
 	Name        string     `json:"name"`
 	IsActive    bool       `json:"is_active"`
 }
@@ -66,6 +68,7 @@ func ToUserResponse(user *entity.User) UserResponse {
 	return UserResponse{
 		ID:          user.ID().String(),
 		Email:       user.Email().Value(),
+		Username:    user.Username().Value(),
 		Name:        user.Name(),
 		IsActive:    user.IsActive(),
 		CreatedAt:   user.CreatedAt(),
@@ -106,6 +109,9 @@ func (r *RegisterRequest) Validate() error {
 	if r.Password == "" {
 		return &ValidationError{Field: "password", Message: "password is required"}
 	}
+	if r.Username == "" {
+		return &ValidationError{Field: "username", Message: "username is required"}
+	}
 	if r.Name == "" {
 		return &ValidationError{Field: "name", Message: "name is required"}
 	}
@@ -114,8 +120,8 @@ func (r *RegisterRequest) Validate() error {
 
 // ValidateLoginRequest validates the login request
 func (r *LoginRequest) Validate() error {
-	if r.Email == "" {
-		return &ValidationError{Field: "email", Message: "email is required"}
+	if r.Username == "" {
+		return &ValidationError{Field: "username", Message: "username is required"}
 	}
 	if r.Password == "" {
 		return &ValidationError{Field: "password", Message: "password is required"}

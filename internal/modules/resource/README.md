@@ -10,6 +10,7 @@ The Resource module manages resources with the following properties:
 - **ShiftID**: Optional shift assignment
 - **Type**: Resource type (2-50 characters)
 - **StopFactor**: Non-negative integer (int16)
+- **Tags**: Optional array of string tags for classification
 
 ## Architecture
 
@@ -55,7 +56,8 @@ Content-Type: application/json
   "code": "RES001",
   "shift_id": "SHIFT123",  // optional
   "type": "MACHINE",
-  "stop_factor": 5
+  "stop_factor": 5,
+  "tags": ["production", "critical"]  // optional
 }
 ```
 
@@ -67,6 +69,7 @@ Content-Type: application/json
   "shift_id": "SHIFT123",
   "type": "MACHINE",
   "stop_factor": 5,
+  "tags": ["production", "critical"],
   "created_at": "2024-01-15T10:00:00Z",
   "updated_at": "2024-01-15T10:00:00Z"
 }
@@ -85,6 +88,7 @@ GET /api/v1/resources/:id
   "shift_id": "SHIFT123",
   "type": "MACHINE",
   "stop_factor": 5,
+  "tags": ["production", "critical"],
   "created_at": "2024-01-15T10:00:00Z",
   "updated_at": "2024-01-15T10:00:00Z"
 }
@@ -110,6 +114,7 @@ GET /api/v1/resources?limit=10&offset=0
       "shift_id": "SHIFT123",
       "type": "MACHINE",
       "stop_factor": 5,
+      "tags": ["production", "critical"],
       "created_at": "2024-01-15T10:00:00Z",
       "updated_at": "2024-01-15T10:00:00Z"
     }
@@ -139,7 +144,8 @@ Content-Type: application/json
   "code": "RES001-UPDATED",
   "shift_id": "SHIFT456",
   "type": "OPERATOR",
-  "stop_factor": 10
+  "stop_factor": 10,
+  "tags": ["maintenance", "high-priority"]  // optional
 }
 ```
 
@@ -238,7 +244,8 @@ func Example() {
     
     // Create resource
     shiftID := "SHIFT123"
-    resource, err := service.Create(ctx, "RES001", &shiftID, "MACHINE", 5)
+    tags := []string{"production", "critical"}
+    resource, err := service.Create(ctx, "RES001", &shiftID, "MACHINE", 5, tags)
     if err != nil {
         panic(err)
     }
@@ -251,7 +258,8 @@ func Example() {
     
     // Update resource
     newShiftID := "SHIFT456"
-    updated, err := service.Update(ctx, resource.ID(), "RES001-UPDATED", &newShiftID, "OPERATOR", 10)
+    newTags := []string{"maintenance", "high-priority"}
+    updated, err := service.Update(ctx, resource.ID(), "RES001-UPDATED", &newShiftID, "OPERATOR", 10, newTags)
     if err != nil {
         panic(err)
     }
@@ -289,6 +297,12 @@ func Example() {
 - **Type**: String (pointer, can be nil)
 - **Format**: Any string when provided
 
+### Tags
+- **Required**: No
+- **Type**: Array of strings
+- **Format**: Any string array when provided
+- **Usage**: For classification and filtering resources
+
 ## Testing
 
 Run tests for the Resource module:
@@ -318,10 +332,11 @@ go test ./internal/modules/resource/domain/entity -v
 - [ ] Add database persistence (PostgreSQL, MySQL)
 - [ ] Implement soft delete functionality
 - [ ] Add resource status field (active/inactive)
-- [ ] Add resource categories/tags
+- [x] Add resource categories/tags *(Completed)*
 - [ ] Implement resource availability tracking
 - [ ] Add audit logging for changes
 - [ ] Implement search and filtering capabilities
+- [ ] Add filtering by tags
 - [ ] Add bulk operations (create/update/delete multiple)
 - [ ] Implement resource scheduling system
 - [ ] Add metrics and monitoring

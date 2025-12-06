@@ -20,6 +20,7 @@ curl -X POST http://localhost:8080/api/users/register \
   -d '{
     "email": "john.doe@example.com",
     "password": "StrongPassword123!",
+    "username": "johndoe",
     "name": "John Doe"
   }'
 ```
@@ -31,6 +32,7 @@ curl -X POST http://localhost:8080/api/users/register \
   "data": {
     "id": "123e4567-e89b-12d3-a456-426614174000",
     "email": "john.doe@example.com",
+    "username": "johndoe",
     "name": "John Doe",
     "is_active": true,
     "created_at": "2023-12-01T10:00:00Z",
@@ -49,7 +51,7 @@ Authenticate user and receive access token.
 curl -X POST http://localhost:8080/api/users/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "john.doe@example.com",
+    "username": "johndoe",
     "password": "StrongPassword123!"
   }'
 ```
@@ -61,6 +63,7 @@ curl -X POST http://localhost:8080/api/users/login \
   "user": {
     "id": "123e4567-e89b-12d3-a456-426614174000",
     "email": "john.doe@example.com",
+    "username": "johndoe",
     "name": "John Doe",
     "is_active": true,
     "created_at": "2023-12-01T10:00:00Z",
@@ -101,6 +104,7 @@ curl -X GET http://localhost:8080/api/users/123e4567-e89b-12d3-a456-426614174000
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
   "email": "john.doe@example.com",
+  "username": "johndoe",
   "name": "John Doe",
   "is_active": true,
   "created_at": "2023-12-01T10:00:00Z",
@@ -130,6 +134,7 @@ curl -X PUT http://localhost:8080/api/users/123e4567-e89b-12d3-a456-426614174000
   "data": {
     "id": "123e4567-e89b-12d3-a456-426614174000",
     "email": "john.doe@example.com",
+    "username": "johndoe",
     "name": "John Smith",
     "is_active": true,
     "created_at": "2023-12-01T10:00:00Z",
@@ -214,9 +219,10 @@ All endpoints may return error responses in the following format:
 - `unauthorized` - Authentication required or invalid credentials
 - `forbidden` - User account is inactive
 - `not_found` - User not found
-- `conflict` - Email already exists
+- `conflict` - Email or username already exists
 - `invalid_email` - Invalid email format
 - `invalid_password` - Invalid password format
+- `invalid_username` - Invalid username format
 - `invalid_name` - Invalid name format
 - `internal_error` - Server error
 
@@ -227,10 +233,11 @@ All endpoints may return error responses in the following format:
 ### Registration:
 - **email**: Required, valid email format, max 255 characters
 - **password**: Required, min 8 characters, must contain letters and numbers
+- **username**: Required, min 3 characters, max 30 characters, alphanumeric with underscores and hyphens only
 - **name**: Required, min 2 characters, max 100 characters
 
 ### Login:
-- **email**: Required, valid email format
+- **username**: Required, min 3 characters, max 30 characters
 - **password**: Required
 
 ### Update User:

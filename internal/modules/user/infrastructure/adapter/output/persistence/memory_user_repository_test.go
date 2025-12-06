@@ -671,19 +671,37 @@ func TestMemoryUserRepository_Update_UsernameConflict(t *testing.T) {
 	ctx := context.Background()
 
 	// Create and save first user
-	email1, _ := valueobject.NewEmail("user1@example.com")
-	password1, _ := valueobject.NewPassword("Password123")
-	username1, _ := valueobject.NewUsername("user1")
+	email1, err := valueobject.NewEmail("user1@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email: %v", err)
+	}
+	password1, err := valueobject.NewPassword("Password123")
+	if err != nil {
+		t.Fatalf("Failed to create password: %v", err)
+	}
+	username1, err := valueobject.NewUsername("user1")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
 	user1 := entity.NewUser(email1, password1, username1, "User 1")
-	err := repo.Save(ctx, user1)
+	err = repo.Save(ctx, user1)
 	if err != nil {
 		t.Fatalf("Failed to save user1: %v", err)
 	}
 
 	// Create and save second user
-	email2, _ := valueobject.NewEmail("user2@example.com")
-	password2, _ := valueobject.NewPassword("Password123")
-	username2, _ := valueobject.NewUsername("user2")
+	email2, err := valueobject.NewEmail("user2@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email: %v", err)
+	}
+	password2, err := valueobject.NewPassword("Password123")
+	if err != nil {
+		t.Fatalf("Failed to create password: %v", err)
+	}
+	username2, err := valueobject.NewUsername("user2")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
 	user2 := entity.NewUser(email2, password2, username2, "User 2")
 	err = repo.Save(ctx, user2)
 	if err != nil {
@@ -703,19 +721,37 @@ func TestMemoryUserRepository_Update_EmailConflict(t *testing.T) {
 	ctx := context.Background()
 
 	// Create and save first user
-	email1, _ := valueobject.NewEmail("user1@example.com")
-	password1, _ := valueobject.NewPassword("Password123")
-	username1, _ := valueobject.NewUsername("user1")
+	email1, err := valueobject.NewEmail("user1@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email: %v", err)
+	}
+	password1, err := valueobject.NewPassword("Password123")
+	if err != nil {
+		t.Fatalf("Failed to create password: %v", err)
+	}
+	username1, err := valueobject.NewUsername("user1")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
 	user1 := entity.NewUser(email1, password1, username1, "User 1")
-	err := repo.Save(ctx, user1)
+	err = repo.Save(ctx, user1)
 	if err != nil {
 		t.Fatalf("Failed to save user1: %v", err)
 	}
 
 	// Create and save second user
-	email2, _ := valueobject.NewEmail("user2@example.com")
-	password2, _ := valueobject.NewPassword("Password123")
-	username2, _ := valueobject.NewUsername("user2")
+	email2, err := valueobject.NewEmail("user2@example.com")
+	if err != nil {
+		t.Fatalf("Failed to create email: %v", err)
+	}
+	password2, err := valueobject.NewPassword("Password123")
+	if err != nil {
+		t.Fatalf("Failed to create password: %v", err)
+	}
+	username2, err := valueobject.NewUsername("user2")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
 	user2 := entity.NewUser(email2, password2, username2, "User 2")
 	err = repo.Save(ctx, user2)
 	if err != nil {

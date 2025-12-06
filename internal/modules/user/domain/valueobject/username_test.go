@@ -60,9 +60,9 @@ func TestNewUsername_Valid(t *testing.T) {
 
 func TestNewUsername_Invalid(t *testing.T) {
 	tests := []struct {
+		expectedErr error
 		name        string
 		username    string
-		expectedErr error
 	}{
 		{
 			name:        "empty username",
@@ -138,9 +138,18 @@ func TestUsername_String(t *testing.T) {
 }
 
 func TestUsername_Equals(t *testing.T) {
-	username1, _ := NewUsername("john_doe")
-	username2, _ := NewUsername("john_doe")
-	username3, _ := NewUsername("jane_doe")
+	username1, err := NewUsername("john_doe")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+	username2, err := NewUsername("john_doe")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
+	username3, err := NewUsername("jane_doe")
+	if err != nil {
+		t.Fatalf("Failed to create username: %v", err)
+	}
 
 	if !username1.Equals(username2) {
 		t.Error("Expected usernames to be equal")

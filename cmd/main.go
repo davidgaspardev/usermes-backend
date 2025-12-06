@@ -74,14 +74,29 @@ type Config struct {
 	ServerPort    int
 }
 
+// parseValidPort attempts to parse a port string and validates it's in the valid range (1-65535)
+// Returns the parsed port and true if valid, otherwise returns 0 and false
+func parseValidPort(portStr string) (int, bool) {
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return 0, false
+	}
+	if port < 1 || port > 65535 {
+		return 0, false
+	}
+	return port, true
+}
+
 // loadConfig loads the application configuration
 // Reads from environment variables with fallback to default values
 func loadConfig() Config {
 	// Read port from environment variable, default to DefaultServerPort
 	port := DefaultServerPort
 	if portStr := os.Getenv("PORT"); portStr != "" {
-		if p, err := strconv.Atoi(portStr); err == nil && p > 0 && p <= 65535 {
+		if p, valid := parseValidPort(portStr); valid {
 			port = p
+		} else {
+			log.Printf("Warning: Invalid PORT value '%s' (must be 1-65535), using default port %d", portStr, DefaultServerPort)
 		}
 	}
 

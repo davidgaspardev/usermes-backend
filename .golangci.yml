@@ -69,23 +69,18 @@ linters:
     - goimports
     - goprintffuncname
     - gosec
-    # gosimple disabled due to typecheck false positives with module imports (megacheck)
-    # - gosimple
-    # govet disabled due to typecheck false positives with module imports  
-    # - govet
+    - gosimple
+    - govet
     - ineffassign
     - lll
     - misspell
     - nakedret
-    # staticcheck disabled due to typecheck false positives with module imports (megacheck)
-    # - staticcheck
+    - staticcheck
     - stylecheck
-    # typecheck disabled due to false positives with module imports
-    # - typecheck
+    - typecheck
     - unconvert
     - unparam
-    # unused disabled due to typecheck false positives with module imports (megacheck)
-    # - unused
+    - unused
     - whitespace
 
 issues:

@@ -16,6 +16,11 @@ import (
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/security"
 )
 
+const (
+	// DefaultServerPort is the default port the server will listen on
+	DefaultServerPort = 3001
+)
+
 func main() {
 	// Load configuration (in a real app, use environment variables or config files)
 	config := loadConfig()
@@ -60,11 +65,6 @@ func main() {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
-
-const (
-	// DefaultServerPort is the default port the server will listen on
-	DefaultServerPort = 3001
-)
 
 // Config holds the application configuration
 type Config struct {

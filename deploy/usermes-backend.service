@@ -1,0 +1,20 @@
+[Unit]
+Description=Usermes Backend Service
+After=network.target
+
+[Service]
+Type=simple
+User={{EC2_USER}}
+WorkingDirectory=/home/{{EC2_USER}}
+ExecStart=/home/{{EC2_USER}}/app
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/{{EC2_USER}}/app.log
+StandardError=append:/home/{{EC2_USER}}/app.log
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

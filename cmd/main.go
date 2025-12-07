@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
@@ -12,6 +14,11 @@ import (
 	userpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/output/persistence"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/http/server"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/security"
+)
+
+const (
+	// DefaultServerPort is the default port the server will listen on
+	DefaultServerPort = 3001
 )
 
 func main() {
@@ -67,12 +74,35 @@ type Config struct {
 	ServerPort    int
 }
 
+// parseValidPort attempts to parse a port string and validates it's in the valid range (1-65535)
+// Returns the parsed port and true if valid, otherwise returns 0 and false
+func parseValidPort(portStr string) (int, bool) {
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return 0, false
+	}
+	if port < 1 || port > 65535 {
+		return 0, false
+	}
+	return port, true
+}
+
 // loadConfig loads the application configuration
-// In a production app, use environment variables or a config file
+// Reads from environment variables with fallback to default values
 func loadConfig() Config {
+	// Read port from environment variable, default to DefaultServerPort
+	port := DefaultServerPort
+	if portStr := os.Getenv("PORT"); portStr != "" {
+		if p, valid := parseValidPort(portStr); valid {
+			port = p
+		} else {
+			log.Printf("Warning: Invalid PORT value '%s' (must be 1-65535), using default port %d", portStr, DefaultServerPort)
+		}
+	}
+
 	return Config{
 		AppName:       "UserMes API",
-		ServerPort:    3000,
+		ServerPort:    port,
 		JWTSecret:     "your-secret-key-change-this-in-production",
 		TokenDuration: 24 * time.Hour, // 24 hours
 	}

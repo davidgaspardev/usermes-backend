@@ -1,0 +1,104 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    environment: AWS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check all EC2 secrets
+        run: |
+          missing=0
+
+          if [ -z "${{ secrets.AWS_EC2_KEY }}" ]; then
+            echo "AWS_EC2_KEY is empty or not set!"
+            missing=1
+          else
+            echo "AWS_EC2_KEY is set."
+          fi
+
+          if [ -z "${{ secrets.AWS_EC2_HOST }}" ]; then
+            echo "AWS_EC2_HOST is empty or not set!"
+            missing=1
+          else
+            echo "AWS_EC2_HOST is set."
+          fi
+
+          if [ -z "${{ secrets.AWS_EC2_USER }}" ]; then
+            echo "AWS_EC2_USER is empty or not set!"
+            missing=1
+          else
+            echo "AWS_EC2_USER is set."
+          fi
+
+          if [ "$missing" -eq 1 ]; then
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+          cache: true
+
+      - name: Build
+        run: go build -o app ./cmd
+
+      - name: Upload SSH key
+        run: |
+          echo "${{ secrets.AWS_EC2_KEY }}" > key.pem
+          chmod 600 key.pem
+
+      - name: Add EC2 host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Check if systemd service exists on EC2
+        id: check_service
+        run: |
+          if ssh -i key.pem ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "sudo systemctl list-unit-files | grep -q usermes-backend.service"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Prepare systemd service file
+        if: steps.check_service.outputs.exists != 'true'
+        run: |
+          sed 's/{{EC2_USER}}/${{ secrets.AWS_EC2_USER }}/g' deploy/usermes-backend.service > usermes-backend.service
+
+      - name: Upload systemd service file if not exists
+        if: steps.check_service.outputs.exists != 'true'
+        run: |
+          scp -i key.pem usermes-backend.service ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/tmp/usermes-backend.service
+          ssh -i key.pem ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "sudo mv /tmp/usermes-backend.service /etc/systemd/system/usermes-backend.service && sudo systemctl daemon-reload && sudo systemctl enable usermes-backend.service"
+
+      - name: Stop app service
+        run: |
+          ssh -i key.pem ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "sudo systemctl stop usermes-backend.service || true"
+
+      - name: Copy binary to EC2
+        run: |
+          scp -i key.pem app ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/home/${{ secrets.AWS_EC2_USER }}/app
+          ssh -i key.pem ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "chmod +x /home/${{ secrets.AWS_EC2_USER }}/app"
+
+      - name: Start app service
+        run: |
+          ssh -i key.pem ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "sudo systemctl start usermes-backend.service"
+
+      - name: Check service status
+        run: |
+          ssh -i key.pem ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} "sudo systemctl status usermes-backend.service --no-pager"
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f key.pem

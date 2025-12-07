@@ -1,8 +1,9 @@
 # Resource Module
 
-This module implements a complete CRUD (Create, Read, Update, Delete) system for managing resources following Clean Architecture and Domain-Driven Design principles.
+API endpoints for resource management including CRUD operations and filtering.
 
-## Overview
+## Base URL
+All endpoints are prefixed with `/api/resources`
 
 The Resource module manages resources with the following properties:
 - **ID**: Unique identifier (UUID)
@@ -12,9 +13,10 @@ The Resource module manages resources with the following properties:
 - **StopFactor**: Non-negative integer (int16)
 - **Tags**: Optional array of string tags for classification
 
-## Architecture
+## 📝 Create Resource
+Create a new resource.
 
-The module follows Hexagonal Architecture (Ports & Adapters):
+**POST** `/api/resources/`
 
 ```
 resource/
@@ -61,7 +63,7 @@ Content-Type: application/json
 }
 ```
 
-**Response:** `201 Created`
+**Response (201 Created):**
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -75,10 +77,7 @@ Content-Type: application/json
 }
 ```
 
-### Get Resource by ID
-```http
-GET /api/v1/resources/:id
-```
+---
 
 **Response:** `200 OK`
 ```json
@@ -94,17 +93,20 @@ GET /api/v1/resources/:id
 }
 ```
 
-### Get Resource by Code
-```http
-GET /api/v1/resources/code/:code
+### Get All Resources
+Get all resources with pagination.
+
+**GET** `/api/resources/`
+
+```bash
+# Default pagination (limit=10, offset=0)
+curl -X GET http://localhost:3001/api/resources/
+
+# With custom pagination
+curl -X GET "http://localhost:3001/api/resources/?limit=5&offset=10"
 ```
 
-### Get All Resources (with pagination)
-```http
-GET /api/v1/resources?limit=10&offset=0
-```
-
-**Response:** `200 OK`
+**Response (200 OK):**
 ```json
 {
   "resources": [
@@ -125,22 +127,72 @@ GET /api/v1/resources?limit=10&offset=0
 }
 ```
 
+### Get Resource by ID
+Get specific resource by UUID.
+
+**GET** `/api/resources/:id`
+
+```bash
+curl -X GET http://localhost:3001/api/resources/550e8400-e29b-41d4-a716-446655440000
+```
+
+### Get Resource by Code
+Get specific resource by its code.
+
+**GET** `/api/resources/code/:code`
+
+```bash
+curl -X GET http://localhost:3001/api/resources/code/RES001
+```
+
 ### Get Resources by Type
-```http
-GET /api/v1/resources/type/:type?limit=10&offset=0
+Get all resources of a specific type.
+
+**GET** `/api/resources/type/:type`
+
+```bash
+# Get all MACHINE type resources
+curl -X GET http://localhost:3001/api/resources/type/MACHINE
+
+# With pagination
+curl -X GET "http://localhost:3001/api/resources/type/MACHINE?limit=5&offset=0"
 ```
 
 ### Get Resources by Shift ID
-```http
-GET /api/v1/resources/shift/:shiftId?limit=10&offset=0
+Get all resources assigned to a specific shift.
+
+**GET** `/api/resources/shift/:shiftId`
+
+```bash
+# Get all resources for SHIFT123
+curl -X GET http://localhost:3001/api/resources/shift/SHIFT123
+
+# With pagination
+curl -X GET "http://localhost:3001/api/resources/shift/SHIFT123?limit=5&offset=0"
 ```
 
-### Update Resource
-```http
-PUT /api/v1/resources/:id
-Content-Type: application/json
+---
 
+## ✏️ Update Resource
+Update an existing resource.
+
+**PUT** `/api/resources/:id`
+
+```bash
+curl -X PUT http://localhost:3001/api/resources/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "RES001-UPDATED",
+    "shift_id": "SHIFT456",
+    "type": "OPERATOR",
+    "stop_factor": 10
+  }'
+```
+
+**Response (200 OK):**
+```json
 {
+  "id": "550e8400-e29b-41d4-a716-446655440000",
   "code": "RES001-UPDATED",
   "shift_id": "SHIFT456",
   "type": "OPERATOR",
@@ -149,79 +201,46 @@ Content-Type: application/json
 }
 ```
 
-**Response:** `200 OK`
+---
 
-### Delete Resource
-```http
-DELETE /api/v1/resources/:id
+## 🗑️ Delete Resource
+Delete a resource permanently.
+
+**DELETE** `/api/resources/:id`
+
+```bash
+curl -X DELETE http://localhost:3001/api/resources/550e8400-e29b-41d4-a716-446655440000
 ```
 
-**Response:** `200 OK`
+**Response (200 OK):**
 ```json
 {
-  "message": "Resource deleted successfully",
-  "data": null
+  "message": "Resource deleted successfully"
 }
 ```
 
-## Error Responses
+---
 
-All error responses follow this format:
+## ❌ Error Responses
+
+All endpoints may return error responses in the following format:
 
 ```json
 {
-  "error": "error_code",
-  "message": "Human-readable error message"
+  "error": "resource_not_found",
+  "message": "Resource not found"
 }
 ```
 
-### Common Error Codes
-
-| Error Code | Status | Description |
-|-----------|--------|-------------|
-| `invalid_request` | 400 | Invalid request body |
-| `invalid_id` | 400 | Invalid UUID format |
-| `invalid_code` | 400 | Code must be 2-50 characters |
-| `invalid_type` | 400 | Type must be 2-50 characters |
-| `invalid_stop_factor` | 400 | Stop factor must be non-negative |
-| `resource_not_found` | 404 | Resource not found |
-| `code_already_exists` | 409 | Code already in use |
-| `resource_already_exists` | 409 | Resource ID already exists |
-| `internal_error` | 500 | Internal server error |
-
-## Usage Example
-
-### Integration in main.go
-
-```go
-package main
-
-import (
-    "log"
-    
-    resourceHttp "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/input/http"
-    resourcePersistence "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/output/persistence"
-    resourceUseCase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
-)
-
-func main() {
-    // Initialize repository
-    resourceRepo := resourcePersistence.NewMemoryResourceRepository()
-    
-    // Initialize service
-    resourceService := resourceUseCase.NewResourceService(resourceRepo)
-    
-    // Initialize HTTP server (Fiber example)
-    app := fiber.New()
-    
-    // Register routes
-    api := app.Group("/api/v1")
-    resourceHttp.RegisterRoutes(api, resourceService)
-    
-    // Start server
-    log.Fatal(app.Listen(":3000"))
-}
-```
+### Common Error Codes:
+- `invalid_request` - Invalid request format or parameters
+- `invalid_id` - Invalid UUID format
+- `invalid_code` - Code validation failed
+- `invalid_type` - Type validation failed
+- `invalid_stop_factor` - Stop factor must be non-negative
+- `resource_not_found` - Resource not found
+- `resource_already_exists` - Code already exists
+- `internal_error` - Server error
 
 ### Programmatic Usage
 
@@ -272,14 +291,13 @@ func Example() {
 }
 ```
 
-## Validation Rules
+## 📋 Request Validation Rules
 
-### Code
-- **Required**: Yes
-- **Type**: String
-- **Length**: 2-50 characters
-- **Unique**: Yes
-- **Format**: Any non-empty string
+### Create/Update Resource:
+- **code**: Required, 2-50 characters, unique
+- **shift_id**: Optional, string
+- **type**: Required, 2-50 characters
+- **stop_factor**: Required, non-negative integer (>= 0)
 
 ### Type
 - **Required**: Yes

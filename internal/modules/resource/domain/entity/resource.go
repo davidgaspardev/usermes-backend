@@ -21,13 +21,19 @@ type Resource struct {
 // NewResource creates a new resource instance
 func NewResource(code string, shiftID *string, resourceType string, stopFactor int16, tags []string) *Resource {
 	now := time.Now()
+	// Defensive copy of tags to prevent external modification
+	var copiedTags []string
+	if tags != nil {
+		copiedTags = make([]string, len(tags))
+		copy(copiedTags, tags)
+	}
 	return &Resource{
 		id:           uuid.New(),
 		code:         code,
 		shiftID:      shiftID,
 		resourceType: resourceType,
 		stopFactor:   stopFactor,
-		tags:         tags,
+		tags:         copiedTags,
 		createdAt:    now,
 		updatedAt:    now,
 	}
@@ -44,13 +50,19 @@ func ReconstructResource(
 	createdAt time.Time,
 	updatedAt time.Time,
 ) *Resource {
+	// Defensive copy of tags to prevent external modification
+	var copiedTags []string
+	if tags != nil {
+		copiedTags = make([]string, len(tags))
+		copy(copiedTags, tags)
+	}
 	return &Resource{
 		id:           id,
 		code:         code,
 		shiftID:      shiftID,
 		resourceType: resourceType,
 		stopFactor:   stopFactor,
-		tags:         tags,
+		tags:         copiedTags,
 		createdAt:    createdAt,
 		updatedAt:    updatedAt,
 	}
@@ -93,7 +105,12 @@ func (r *Resource) UpdatedAt() time.Time {
 
 // Tags returns the resource tags
 func (r *Resource) Tags() []string {
-	return r.tags
+	if r.tags == nil {
+		return nil
+	}
+	tags := make([]string, len(r.tags))
+	copy(tags, r.tags)
+	return tags
 }
 
 // UpdateCode updates the resource code
@@ -122,7 +139,12 @@ func (r *Resource) UpdateStopFactor(stopFactor int16) {
 
 // UpdateTags updates the resource tags
 func (r *Resource) UpdateTags(tags []string) {
-	r.tags = tags
+	if tags == nil {
+		r.tags = nil
+	} else {
+		r.tags = make([]string, len(tags))
+		copy(r.tags, tags)
+	}
 	r.updatedAt = time.Now()
 }
 
@@ -132,6 +154,12 @@ func (r *Resource) Update(code string, shiftID *string, resourceType string, sto
 	r.shiftID = shiftID
 	r.resourceType = resourceType
 	r.stopFactor = stopFactor
-	r.tags = tags
+	// Defensive copy to prevent external modification
+	if tags == nil {
+		r.tags = nil
+	} else {
+		r.tags = make([]string, len(tags))
+		copy(r.tags, tags)
+	}
 	r.updatedAt = time.Now()
 }

@@ -8,6 +8,7 @@ import (
 
 	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
 	resourcehttp "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/input/http"
+	sitehttp "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/input/http/site"
 	resourcepersistence "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/output/persistence"
 	userusecase "github.com/davidgaspardev/usermes-backend/internal/modules/user/application/usecase"
 	userhttp "github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/input/http"
@@ -38,7 +39,9 @@ func main() {
 
 	// Initialize Resource module
 	resourceRepository := resourcepersistence.NewMemoryResourceRepository()
+	siteRepository := resourcepersistence.NewMemorySiteRepository()
 	resourceService := resourceusecase.NewResourceService(resourceRepository)
+	siteService := resourceusecase.NewSiteService(siteRepository)
 
 	// Initialize HTTP server
 	serverConfig := server.DefaultConfig()
@@ -58,6 +61,9 @@ func main() {
 	// Resource module routes
 	resourceRoutes := resourcehttp.NewResourceRoutes(resourceService)
 	httpServer.RegisterRoutes(resourceRoutes.SetupRoutes)
+
+	siteRoutes := sitehttp.NewSiteRoutes(siteService)
+	httpServer.RegisterRoutes(siteRoutes.SetupRoutes)
 
 	// Start server
 	log.Printf("Starting %s on port %d", config.AppName, config.ServerPort)

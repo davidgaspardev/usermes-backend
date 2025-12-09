@@ -17,6 +17,7 @@ type ResourceService interface {
 		shiftID *string,
 		resourceType string,
 		stopFactor int16,
+		tags []string,
 	) (*entity.Resource, error)
 
 	// Update updates an existing resource
@@ -27,6 +28,7 @@ type ResourceService interface {
 		shiftID *string,
 		resourceType string,
 		stopFactor int16,
+		tags []string,
 	) (*entity.Resource, error)
 
 	// Delete deletes a resource by ID

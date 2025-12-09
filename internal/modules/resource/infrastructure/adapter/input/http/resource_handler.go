@@ -33,7 +33,7 @@ func (h *ResourceHandler) Create(c *fiber.Ctx) error {
 		))
 	}
 
-	resource, err := h.service.Create(c.Context(), req.Code, req.ShiftID, req.Type, req.StopFactor)
+	resource, err := h.service.Create(c.Context(), req.Code, req.ShiftID, req.Type, req.StopFactor, req.Tags)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -161,7 +161,7 @@ func (h *ResourceHandler) Update(c *fiber.Ctx) error {
 		))
 	}
 
-	resource, err := h.service.Update(c.Context(), id, req.Code, req.ShiftID, req.Type, req.StopFactor)
+	resource, err := h.service.Update(c.Context(), id, req.Code, req.ShiftID, req.Type, req.StopFactor, req.Tags)
 	if err != nil {
 		return h.handleError(c, err)
 	}

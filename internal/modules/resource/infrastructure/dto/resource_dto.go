@@ -8,18 +8,20 @@ import (
 
 // CreateResourceRequest represents the request body for creating a resource
 type CreateResourceRequest struct {
-	Code       string  `json:"code" validate:"required,min=2,max=50"`
-	ShiftID    *string `json:"shift_id,omitempty"`
-	Type       string  `json:"type" validate:"required,min=2,max=50"`
-	StopFactor int16   `json:"stop_factor" validate:"gte=0"`
+	ShiftID    *string  `json:"shift_id,omitempty"`
+	Code       string   `json:"code" validate:"required,min=2,max=50"`
+	Type       string   `json:"type" validate:"required,min=2,max=50"`
+	Tags       []string `json:"tags,omitempty"`
+	StopFactor int16    `json:"stop_factor" validate:"gte=0"`
 }
 
 // UpdateResourceRequest represents the request body for updating a resource
 type UpdateResourceRequest struct {
-	Code       string  `json:"code" validate:"required,min=2,max=50"`
-	ShiftID    *string `json:"shift_id,omitempty"`
-	Type       string  `json:"type" validate:"required,min=2,max=50"`
-	StopFactor int16   `json:"stop_factor" validate:"gte=0"`
+	ShiftID    *string  `json:"shift_id,omitempty"`
+	Code       string   `json:"code" validate:"required,min=2,max=50"`
+	Type       string   `json:"type" validate:"required,min=2,max=50"`
+	Tags       []string `json:"tags,omitempty"`
+	StopFactor int16    `json:"stop_factor" validate:"gte=0"`
 }
 
 // ResourceResponse represents the response body for resource data
@@ -30,6 +32,7 @@ type ResourceResponse struct {
 	ID         string    `json:"id"`
 	Code       string    `json:"code"`
 	Type       string    `json:"type"`
+	Tags       []string  `json:"tags,omitempty"`
 	StopFactor int16     `json:"stop_factor"`
 }
 
@@ -61,6 +64,7 @@ func ToResourceResponse(resource *entity.Resource) ResourceResponse {
 		ShiftID:    resource.ShiftID(),
 		Type:       resource.Type(),
 		StopFactor: resource.StopFactor(),
+		Tags:       resource.Tags(),
 		CreatedAt:  resource.CreatedAt(),
 		UpdatedAt:  resource.UpdatedAt(),
 	}

@@ -93,6 +93,10 @@ issues:
     - path: cmd/
       linters:
         - gochecknoinits
+    # Exclude typecheck errors for fiber imports (false positives with golangci-lint)
+    - text: "undefined: fiber"
+      linters:
+        - typecheck
         
   max-issues-per-linter: 0
   max-same-issues: 0

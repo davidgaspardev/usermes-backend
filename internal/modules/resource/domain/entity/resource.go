@@ -13,12 +13,23 @@ type Resource struct {
 	shiftID      *string
 	code         string
 	resourceType string
+	tags         []string
 	stopFactor   int16
 	id           uuid.UUID
 }
 
+// copyStringSlice creates a defensive copy of a string slice
+func copyStringSlice(src []string) []string {
+	if src == nil {
+		return nil
+	}
+	dst := make([]string, len(src))
+	copy(dst, src)
+	return dst
+}
+
 // NewResource creates a new resource instance
-func NewResource(code string, shiftID *string, resourceType string, stopFactor int16) *Resource {
+func NewResource(code string, shiftID *string, resourceType string, stopFactor int16, tags []string) *Resource {
 	now := time.Now()
 	return &Resource{
 		id:           uuid.New(),
@@ -26,6 +37,7 @@ func NewResource(code string, shiftID *string, resourceType string, stopFactor i
 		shiftID:      shiftID,
 		resourceType: resourceType,
 		stopFactor:   stopFactor,
+		tags:         copyStringSlice(tags),
 		createdAt:    now,
 		updatedAt:    now,
 	}
@@ -38,6 +50,7 @@ func ReconstructResource(
 	shiftID *string,
 	resourceType string,
 	stopFactor int16,
+	tags []string,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) *Resource {
@@ -47,6 +60,7 @@ func ReconstructResource(
 		shiftID:      shiftID,
 		resourceType: resourceType,
 		stopFactor:   stopFactor,
+		tags:         copyStringSlice(tags),
 		createdAt:    createdAt,
 		updatedAt:    updatedAt,
 	}
@@ -87,6 +101,11 @@ func (r *Resource) UpdatedAt() time.Time {
 	return r.updatedAt
 }
 
+// Tags returns the resource tags
+func (r *Resource) Tags() []string {
+	return copyStringSlice(r.tags)
+}
+
 // UpdateCode updates the resource code
 func (r *Resource) UpdateCode(code string) {
 	r.code = code
@@ -111,11 +130,18 @@ func (r *Resource) UpdateStopFactor(stopFactor int16) {
 	r.updatedAt = time.Now()
 }
 
+// UpdateTags updates the resource tags
+func (r *Resource) UpdateTags(tags []string) {
+	r.tags = copyStringSlice(tags)
+	r.updatedAt = time.Now()
+}
+
 // Update updates all mutable fields at once
-func (r *Resource) Update(code string, shiftID *string, resourceType string, stopFactor int16) {
+func (r *Resource) Update(code string, shiftID *string, resourceType string, stopFactor int16, tags []string) {
 	r.code = code
 	r.shiftID = shiftID
 	r.resourceType = resourceType
 	r.stopFactor = stopFactor
+	r.tags = copyStringSlice(tags)
 	r.updatedAt = time.Now()
 }

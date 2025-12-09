@@ -8,9 +8,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
-	resourceUseCase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
-	resourceHttp "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/input/http"
-	resourcePersistence "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/output/persistence"
+	resourceUseCase "github.com/davidgaspardev/usermes-backend/internal/modules/production/resource/application/usecase"
+	resourceHttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/resource/infrastructure/adapter/input/http"
+	resourcePersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/resource/infrastructure/adapter/output/persistence"
 )
 
 // This is an example of how to integrate the Resource module into your application

@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"time"
 
-	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
-	resourcehttp "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/input/http"
-	resourcepersistence "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/output/persistence"
-	userusecase "github.com/davidgaspardev/usermes-backend/internal/modules/user/application/usecase"
-	userhttp "github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/input/http"
-	userpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/output/persistence"
+	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/resource/application/usecase"
+	resourcehttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/resource/infrastructure/adapter/input/http"
+	resourcepersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/resource/infrastructure/adapter/output/persistence"
+	userusecase "github.com/davidgaspardev/usermes-backend/internal/modules/iam/user/application/usecase"
+	userhttp "github.com/davidgaspardev/usermes-backend/internal/modules/iam/user/infrastructure/adapter/input/http"
+	userpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/user/infrastructure/adapter/output/persistence"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/http/server"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/security"
 )

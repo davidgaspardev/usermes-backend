@@ -132,6 +132,22 @@ golangci-lint run
 - [ ] Rate limiting
 - [ ] Monitoring & metrics
 
+## 🧩 Critérios para Criar um Módulo
+
+### ✅ **DEVE ser módulo separado quando:**
+
+1. **Bounded Context diferente** - Tem linguagem ubíqua própria
+2. **Ciclo de vida independente** - Pode ser desenvolvido/deployado separadamente  
+3. **Equipes diferentes** - Times diferentes cuidam de cada módulo
+4. **Mudanças independentes** - Alterações não afetam outros módulos
+5. **Possível microservice** - Pode virar serviço independente no futuro
+
+### ❌ **NÃO deve ser módulo separado quando:**
+
+1. **Acoplamento forte** - Sempre usado junto
+2. **Entidades minúsculas** - Muito pequeno, sem lógica própria
+3. **Sem negócio próprio** - É só CRUD simples
+
 ## 📄 License
 
 MIT License

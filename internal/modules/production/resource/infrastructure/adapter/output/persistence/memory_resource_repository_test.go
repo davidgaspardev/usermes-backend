@@ -22,7 +22,7 @@ func TestMemoryResourceRepository_Save(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("save new resource", func(t *testing.T) {
-		resource := entity.NewResource("RES001", nil, "machine", 5, nil)
+		resource := entity.NewResource("SP01", "RES001", nil, "machine", 5, nil)
 
 		err := repo.Save(ctx, resource)
 		if err != nil {
@@ -44,7 +44,7 @@ func TestMemoryResourceRepository_Save(t *testing.T) {
 
 	t.Run("save resource with shiftID", func(t *testing.T) {
 		shiftID := "shift123"
-		resource := entity.NewResource("RES002", &shiftID, "machine", 5, nil)
+		resource := entity.NewResource("SP01", "RES002", &shiftID, "machine", 5, nil)
 
 		err := repo.Save(ctx, resource)
 		if err != nil {
@@ -65,14 +65,14 @@ func TestMemoryResourceRepository_Save(t *testing.T) {
 
 	t.Run("save duplicate code", func(t *testing.T) {
 		code := "RES003"
-		resource1 := entity.NewResource(code, nil, "machine", 5, nil)
+		resource1 := entity.NewResource("SP01", code, nil, "machine", 5, nil)
 
 		err := repo.Save(ctx, resource1)
 		if err != nil {
 			t.Fatalf("Expected no error on first save, got %v", err)
 		}
 
-		resource2 := entity.NewResource(code, nil, "tool", 3, nil)
+		resource2 := entity.NewResource("SP01", code, nil, "tool", 3, nil)
 
 		err = repo.Save(ctx, resource2)
 		if err == nil {
@@ -86,7 +86,7 @@ func TestMemoryResourceRepository_Update(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("update existing resource", func(t *testing.T) {
-		resource := entity.NewResource("RES100", nil, "machine", 5, nil)
+		resource := entity.NewResource("SP01", "RES100", nil, "machine", 5, nil)
 
 		err := repo.Save(ctx, resource)
 		if err != nil {
@@ -113,7 +113,7 @@ func TestMemoryResourceRepository_Update(t *testing.T) {
 	})
 
 	t.Run("update non-existent resource", func(t *testing.T) {
-		resource := entity.NewResource("RES101", nil, "machine", 5, nil)
+		resource := entity.NewResource("SP01", "RES101", nil, "machine", 5, nil)
 
 		// Try to update without saving first
 		err := repo.Update(ctx, resource)
@@ -128,7 +128,7 @@ func TestMemoryResourceRepository_Delete(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("delete existing resource", func(t *testing.T) {
-		resource := entity.NewResource("RES200", nil, "machine", 5, nil)
+		resource := entity.NewResource("SP01", "RES200", nil, "machine", 5, nil)
 
 		err := repo.Save(ctx, resource)
 		if err != nil {
@@ -161,7 +161,7 @@ func TestMemoryResourceRepository_FindByID(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("find existing resource", func(t *testing.T) {
-		resource := entity.NewResource("RES300", nil, "machine", 5, nil)
+		resource := entity.NewResource("SP01", "RES300", nil, "machine", 5, nil)
 
 		err := repo.Save(ctx, resource)
 		if err != nil {
@@ -195,7 +195,7 @@ func TestMemoryResourceRepository_FindByCode(t *testing.T) {
 
 	t.Run("find existing resource by code", func(t *testing.T) {
 		code := "RES400"
-		resource := entity.NewResource(code, nil, "machine", 5, nil)
+		resource := entity.NewResource("SP01", code, nil, "machine", 5, nil)
 
 		err := repo.Save(ctx, resource)
 		if err != nil {
@@ -227,7 +227,7 @@ func TestMemoryResourceRepository_ExistsByCode(t *testing.T) {
 	ctx := context.Background()
 
 	code := "RES500"
-	resource := entity.NewResource(code, nil, "machine", 5, nil)
+	resource := entity.NewResource("SP01", code, nil, "machine", 5, nil)
 
 	err := repo.Save(ctx, resource)
 	if err != nil {
@@ -262,7 +262,7 @@ func TestMemoryResourceRepository_FindAll(t *testing.T) {
 	// Create multiple resources
 	for i := 0; i < 5; i++ {
 		code := "RES600" + string(rune('A'+i))
-		resource := entity.NewResource(code, nil, "machine", int16(i), nil) // nolint:gosec
+		resource := entity.NewResource("SP01", code, nil, "machine", int16(i), nil) // nolint:gosec
 		err := repo.Save(ctx, resource)
 		if err != nil {
 			t.Fatalf("Failed to save resource: %v", err)
@@ -308,7 +308,7 @@ func TestMemoryResourceRepository_FindByType(t *testing.T) {
 	types := []string{"machine", "machine", "tool", "tool", "equipment"}
 	for i, resType := range types {
 		code := "RES700" + string(rune('A'+i))
-		resource := entity.NewResource(code, nil, resType, int16(i), nil) // nolint:gosec
+		resource := entity.NewResource("SP01", code, nil, resType, int16(i), nil) // nolint:gosec
 		err := repo.Save(ctx, resource)
 		if err != nil {
 			t.Fatalf("Failed to save resource: %v", err)
@@ -359,10 +359,10 @@ func TestMemoryResourceRepository_FindByShiftID(t *testing.T) {
 	shift1 := "shift001"
 	shift2 := "shift002"
 
-	resource1 := entity.NewResource("RES800", &shift1, "machine", 1, nil)
-	resource2 := entity.NewResource("RES801", &shift1, "tool", 2, nil)
-	resource3 := entity.NewResource("RES802", &shift2, "machine", 3, nil)
-	resource4 := entity.NewResource("RES803", nil, "tool", 4, nil)
+	resource1 := entity.NewResource("SP01", "RES800", &shift1, "machine", 1, nil)
+	resource2 := entity.NewResource("SP01", "RES801", &shift1, "tool", 2, nil)
+	resource3 := entity.NewResource("SP01", "RES802", &shift2, "machine", 3, nil)
+	resource4 := entity.NewResource("SP01", "RES803", nil, "tool", 4, nil)
 
 	if err := repo.Save(ctx, resource1); err != nil {
 		t.Fatalf("Failed to save resource1: %v", err)
@@ -426,7 +426,7 @@ func TestMemoryResourceRepository_ThreadSafety(t *testing.T) {
 			go func(idx int) {
 				defer wg.Done()
 				code := "CONCURRENT" + string(rune('A'+idx))
-				resource := entity.NewResource(code, nil, "machine", int16(idx), nil) // nolint:gosec
+				resource := entity.NewResource("SP01", code, nil, "machine", int16(idx), nil) // nolint:gosec
 				if err := repo.Save(ctx, resource); err != nil {
 					errors <- err
 				}
@@ -462,7 +462,7 @@ func TestMemoryResourceRepository_ThreadSafety(t *testing.T) {
 
 	t.Run("concurrent reads", func(t *testing.T) {
 		// Save a resource first
-		resource := entity.NewResource("READTEST", nil, "machine", 5, nil)
+		resource := entity.NewResource("SP01", "READTEST", nil, "machine", 5, nil)
 		if err := repo.Save(ctx, resource); err != nil {
 			t.Fatalf("Failed to save test resource: %v", err)
 		}

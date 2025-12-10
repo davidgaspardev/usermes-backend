@@ -8,16 +8,25 @@ import (
 )
 
 func TestNewResource(t *testing.T) {
+	plantCode := "SP01"
 	code := "RES001"
 	shiftID := "SHIFT123"
 	resourceType := "MACHINE"
 	stopFactor := int16(5)
 	tags := []string{"tag1", "tag2"}
 
-	resource := NewResource(code, &shiftID, resourceType, stopFactor, tags)
+	resource := NewResource(plantCode, code, &shiftID, resourceType, stopFactor, tags)
 
 	if resource.ID() == uuid.Nil {
 		t.Error("Resource ID should not be nil")
+	}
+
+	if resource.PlantCode() != plantCode {
+		t.Errorf("Expected plantCode '%s', got '%s'", plantCode, resource.PlantCode())
+	}
+
+	if resource.PlantCode() != plantCode {
+		t.Errorf("Expected plantCode '%s', got '%s'", plantCode, resource.PlantCode())
 	}
 
 	if resource.Code() != code {
@@ -56,7 +65,7 @@ func TestNewResource_WithNilShiftID(t *testing.T) {
 	resourceType := "OPERATOR"
 	stopFactor := int16(0)
 
-	resource := NewResource(code, nil, resourceType, stopFactor, nil)
+	resource := NewResource("SP01", code, nil, resourceType, stopFactor, nil)
 
 	if resource.ShiftID() != nil {
 		t.Error("ShiftID should be nil")
@@ -64,7 +73,7 @@ func TestNewResource_WithNilShiftID(t *testing.T) {
 }
 
 func TestResource_UpdateCode(t *testing.T) {
-	resource := NewResource("RES001", nil, "MACHINE", 5, nil)
+	resource := NewResource("SP01", "RES001", nil, "MACHINE", 5, nil)
 	originalUpdatedAt := resource.UpdatedAt()
 
 	time.Sleep(10 * time.Millisecond)
@@ -81,7 +90,7 @@ func TestResource_UpdateCode(t *testing.T) {
 }
 
 func TestResource_UpdateShiftID(t *testing.T) {
-	resource := NewResource("RES001", nil, "MACHINE", 5, nil)
+	resource := NewResource("SP01", "RES001", nil, "MACHINE", 5, nil)
 	originalUpdatedAt := resource.UpdatedAt()
 
 	time.Sleep(10 * time.Millisecond)
@@ -101,7 +110,7 @@ func TestResource_UpdateShiftID(t *testing.T) {
 
 func TestResource_UpdateShiftID_ToNil(t *testing.T) {
 	shiftID := "SHIFT123"
-	resource := NewResource("RES001", &shiftID, "MACHINE", 5, nil)
+	resource := NewResource("SP01", "RES001", &shiftID, "MACHINE", 5, nil)
 
 	resource.UpdateShiftID(nil)
 
@@ -111,7 +120,7 @@ func TestResource_UpdateShiftID_ToNil(t *testing.T) {
 }
 
 func TestResource_UpdateType(t *testing.T) {
-	resource := NewResource("RES001", nil, "MACHINE", 5, nil)
+	resource := NewResource("SP01", "RES001", nil, "MACHINE", 5, nil)
 	originalUpdatedAt := resource.UpdatedAt()
 
 	time.Sleep(10 * time.Millisecond)
@@ -128,7 +137,7 @@ func TestResource_UpdateType(t *testing.T) {
 }
 
 func TestResource_UpdateStopFactor(t *testing.T) {
-	resource := NewResource("RES001", nil, "MACHINE", 5, nil)
+	resource := NewResource("SP01", "RES001", nil, "MACHINE", 5, nil)
 	originalUpdatedAt := resource.UpdatedAt()
 
 	time.Sleep(10 * time.Millisecond)
@@ -145,7 +154,7 @@ func TestResource_UpdateStopFactor(t *testing.T) {
 }
 
 func TestResource_Update(t *testing.T) {
-	resource := NewResource("RES001", nil, "MACHINE", 5, nil)
+	resource := NewResource("SP01", "RES001", nil, "MACHINE", 5, nil)
 	originalUpdatedAt := resource.UpdatedAt()
 
 	time.Sleep(10 * time.Millisecond)
@@ -193,6 +202,7 @@ func TestReconstructResource(t *testing.T) {
 
 	resource := ReconstructResource(
 		id,
+		"SP01",
 		code,
 		&shiftID,
 		resourceType,
@@ -238,7 +248,7 @@ func TestReconstructResource(t *testing.T) {
 func TestResource_AllGetters(t *testing.T) {
 	shiftID := "SHIFT123"
 	tags := []string{"tag1", "tag2"}
-	resource := NewResource("RES001", &shiftID, "MACHINE", 5, tags)
+	resource := NewResource("SP01", "RES001", &shiftID, "MACHINE", 5, tags)
 
 	// Test all getter methods
 	if resource.ID() == uuid.Nil {
@@ -268,7 +278,7 @@ func TestResource_AllGetters(t *testing.T) {
 }
 
 func TestResource_UpdateTags(t *testing.T) {
-	resource := NewResource("RES001", nil, "MACHINE", 5, []string{"old-tag"})
+	resource := NewResource("SP01", "RES001", nil, "MACHINE", 5, []string{"tag1"})
 	originalUpdatedAt := resource.UpdatedAt()
 
 	time.Sleep(10 * time.Millisecond)

@@ -9,14 +9,14 @@ import (
 // Plant represents a manufacturing plant/facility in the domain
 type Plant struct {
 	id        uuid.UUID
-	code      string
-	name      string
-	latitude  float64
-	longitude float64
 	ownerID   uuid.UUID
-	isActive  bool
 	createdAt time.Time
 	updatedAt time.Time
+	latitude  float64
+	longitude float64
+	code      string
+	name      string
+	isActive  bool
 }
 
 // NewPlant creates a new plant instance

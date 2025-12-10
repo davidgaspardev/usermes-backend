@@ -6,9 +6,40 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/plant/application/port/input"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/plant/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/plant/infrastructure/adapter/output/persistence"
 )
+
+// Helper function to assert expected error
+func assertError(t *testing.T, got, want error) {
+	t.Helper()
+	if got != want {
+		t.Errorf("Expected error %v, got %v", want, got)
+	}
+}
+
+// Helper function to test invalid code scenarios
+func testInvalidCode(t *testing.T, service input.PlantService, ctx context.Context, code string, expectedErr error) {
+	t.Helper()
+	_, err := service.Create(ctx, code, "Plant", 0, 0, uuid.New())
+	assertError(t, err, expectedErr)
+}
+
+// Helper function to test invalid name scenarios
+func testInvalidName(t *testing.T, service input.PlantService, ctx context.Context, name, code string, expectedErr error) {
+	t.Helper()
+	_, err := service.Create(ctx, code, name, 0, 0, uuid.New())
+	assertError(t, err, expectedErr)
+}
+
+// Helper function to test invalid coordinates
+func testInvalidCoordinates(t *testing.T, service input.PlantService, ctx context.Context, lat, lon float64, expectedErr error) {
+	t.Helper()
+	code := "TEST" + uuid.New().String()[:4]
+	_, err := service.Create(ctx, code, "Plant", lat, lon, uuid.New())
+	assertError(t, err, expectedErr)
+}
 
 func TestPlantService_Create(t *testing.T) {
 	repository := persistence.NewInMemoryPlantRepository()
@@ -27,41 +58,31 @@ func TestPlantService_Create(t *testing.T) {
 			t.Fatalf("Expected no error, got %v", err)
 		}
 
-		if plant.Code() != "SP01" { // Should be uppercase
+		if plant.Code() != "SP01" {
 			t.Errorf("Expected code SP01, got %s", plant.Code())
 		}
-
 		if plant.Name() != name {
 			t.Errorf("Expected name %s, got %s", name, plant.Name())
 		}
-
 		if plant.Latitude() != latitude {
 			t.Errorf("Expected latitude %f, got %f", latitude, plant.Latitude())
 		}
-
 		if plant.Longitude() != longitude {
 			t.Errorf("Expected longitude %f, got %f", longitude, plant.Longitude())
 		}
-
 		if plant.OwnerID() != ownerID {
 			t.Errorf("Expected ownerID %s, got %s", ownerID, plant.OwnerID())
 		}
-
 		if !plant.IsActive() {
 			t.Error("Expected plant to be active")
 		}
 	})
 
 	t.Run("code normalization to uppercase", func(t *testing.T) {
-		code := "rj01"
-		name := "Rio Plant"
-		ownerID := uuid.New()
-
-		plant, err := service.Create(ctx, code, name, -22.9068, -43.1729, ownerID)
+		plant, err := service.Create(ctx, "rj01", "Rio Plant", -22.9068, -43.1729, uuid.New())
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
 		}
-
 		if plant.Code() != "RJ01" {
 			t.Errorf("Expected code to be normalized to RJ01, got %s", plant.Code())
 		}
@@ -69,97 +90,58 @@ func TestPlantService_Create(t *testing.T) {
 
 	t.Run("duplicate code", func(t *testing.T) {
 		code := "DUP01"
-		name := "Duplicate Plant"
-		ownerID := uuid.New()
-
-		_, err := service.Create(ctx, code, name, 0, 0, ownerID)
+		_, err := service.Create(ctx, code, "Duplicate Plant", 0, 0, uuid.New())
 		if err != nil {
 			t.Fatalf("Expected no error on first creation, got %v", err)
 		}
-
-		_, err = service.Create(ctx, code, name, 0, 0, ownerID)
-		if err != errors.ErrPlantCodeAlreadyExists {
-			t.Errorf("Expected ErrPlantCodeAlreadyExists, got %v", err)
-		}
+		_, err = service.Create(ctx, code, "Duplicate Plant", 0, 0, uuid.New())
+		assertError(t, err, errors.ErrPlantCodeAlreadyExists)
 	})
 
 	t.Run("invalid code - empty", func(t *testing.T) {
-		_, err := service.Create(ctx, "", "Plant", 0, 0, uuid.New())
-		if err != errors.ErrPlantCodeRequired {
-			t.Errorf("Expected ErrPlantCodeRequired, got %v", err)
-		}
+		testInvalidCode(t, service, ctx, "", errors.ErrPlantCodeRequired)
 	})
 
 	t.Run("invalid code - too short", func(t *testing.T) {
-		_, err := service.Create(ctx, "A", "Plant", 0, 0, uuid.New())
-		if err != errors.ErrPlantCodeTooShort {
-			t.Errorf("Expected ErrPlantCodeTooShort, got %v", err)
-		}
+		testInvalidCode(t, service, ctx, "A", errors.ErrPlantCodeTooShort)
 	})
 
 	t.Run("invalid code - too long", func(t *testing.T) {
-		longCode := "VERYLONGCODEEXCEEDING20CHARS"
-		_, err := service.Create(ctx, longCode, "Plant", 0, 0, uuid.New())
-		if err != errors.ErrPlantCodeTooLong {
-			t.Errorf("Expected ErrPlantCodeTooLong, got %v", err)
-		}
+		testInvalidCode(t, service, ctx, "VERYLONGCODEEXCEEDING20CHARS", errors.ErrPlantCodeTooLong)
 	})
 
 	t.Run("invalid name - empty", func(t *testing.T) {
-		_, err := service.Create(ctx, "TEST01", "", 0, 0, uuid.New())
-		if err != errors.ErrPlantNameRequired {
-			t.Errorf("Expected ErrPlantNameRequired, got %v", err)
-		}
+		testInvalidName(t, service, ctx, "", "TEST01", errors.ErrPlantNameRequired)
 	})
 
 	t.Run("invalid name - too short", func(t *testing.T) {
-		_, err := service.Create(ctx, "TEST02", "A", 0, 0, uuid.New())
-		if err != errors.ErrPlantNameTooShort {
-			t.Errorf("Expected ErrPlantNameTooShort, got %v", err)
-		}
+		testInvalidName(t, service, ctx, "A", "TEST02", errors.ErrPlantNameTooShort)
 	})
 
 	t.Run("invalid name - too long", func(t *testing.T) {
 		longName := "This is a very long plant name that exceeds the maximum allowed length of one hundred characters for sure"
-		_, err := service.Create(ctx, "TEST03", longName, 0, 0, uuid.New())
-		if err != errors.ErrPlantNameTooLong {
-			t.Errorf("Expected ErrPlantNameTooLong, got %v", err)
-		}
+		testInvalidName(t, service, ctx, longName, "TEST03", errors.ErrPlantNameTooLong)
 	})
 
 	t.Run("invalid latitude - below range", func(t *testing.T) {
-		_, err := service.Create(ctx, "TEST04", "Plant", -91, 0, uuid.New())
-		if err != errors.ErrInvalidLatitude {
-			t.Errorf("Expected ErrInvalidLatitude, got %v", err)
-		}
+		testInvalidCoordinates(t, service, ctx, -91, 0, errors.ErrInvalidLatitude)
 	})
 
 	t.Run("invalid latitude - above range", func(t *testing.T) {
-		_, err := service.Create(ctx, "TEST05", "Plant", 91, 0, uuid.New())
-		if err != errors.ErrInvalidLatitude {
-			t.Errorf("Expected ErrInvalidLatitude, got %v", err)
-		}
+		testInvalidCoordinates(t, service, ctx, 91, 0, errors.ErrInvalidLatitude)
 	})
 
 	t.Run("invalid longitude - below range", func(t *testing.T) {
-		_, err := service.Create(ctx, "TEST06", "Plant", 0, -181, uuid.New())
-		if err != errors.ErrInvalidLongitude {
-			t.Errorf("Expected ErrInvalidLongitude, got %v", err)
-		}
+		testInvalidCoordinates(t, service, ctx, 0, -181, errors.ErrInvalidLongitude)
 	})
 
 	t.Run("invalid longitude - above range", func(t *testing.T) {
-		_, err := service.Create(ctx, "TEST07", "Plant", 0, 181, uuid.New())
-		if err != errors.ErrInvalidLongitude {
-			t.Errorf("Expected ErrInvalidLongitude, got %v", err)
-		}
+		testInvalidCoordinates(t, service, ctx, 0, 181, errors.ErrInvalidLongitude)
 	})
 
 	t.Run("invalid owner ID - nil", func(t *testing.T) {
 		_, err := service.Create(ctx, "TEST08", "Plant", 0, 0, uuid.Nil)
-		if err != errors.ErrInvalidOwnerID {
-			t.Errorf("Expected ErrInvalidOwnerID, got %v", err)
-		}
+		assertError(t, err, errors.ErrInvalidOwnerID)
 	})
 }
 

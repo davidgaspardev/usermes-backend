@@ -26,14 +26,14 @@ type UpdatePlantRequest struct {
 // PlantResponse represents a plant in the response
 type PlantResponse struct {
 	ID        uuid.UUID `json:"id"`
-	Code      string    `json:"code"`
-	Name      string    `json:"name"`
-	Latitude  float64   `json:"latitude"`
-	Longitude float64   `json:"longitude"`
 	OwnerID   uuid.UUID `json:"owner_id"`
-	IsActive  bool      `json:"is_active"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Latitude  float64   `json:"latitude"`
+	Longitude float64   `json:"longitude"`
+	Code      string    `json:"code"`
+	Name      string    `json:"name"`
+	IsActive  bool      `json:"is_active"`
 }
 
 // ErrorResponse represents an error response
@@ -44,14 +44,14 @@ type ErrorResponse struct {
 
 // SuccessResponse represents a success response with data
 type SuccessResponse struct {
-	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
+	Message string      `json:"message"`
 }
 
 // NewErrorResponse creates a new error response
-func NewErrorResponse(error, message string) ErrorResponse {
+func NewErrorResponse(errType, message string) ErrorResponse {
 	return ErrorResponse{
-		Error:   error,
+		Error:   errType,
 		Message: message,
 	}
 }

@@ -25,14 +25,14 @@ type UpdatePlantRequest struct {
 
 // PlantResponse represents a plant in the response
 type PlantResponse struct {
-	ID        uuid.UUID `json:"id"`
-	OwnerID   uuid.UUID `json:"owner_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	Latitude  float64   `json:"latitude"`
-	Longitude float64   `json:"longitude"`
 	Code      string    `json:"code"`
 	Name      string    `json:"name"`
+	Latitude  float64   `json:"latitude"`
+	Longitude float64   `json:"longitude"`
+	ID        uuid.UUID `json:"id"`
+	OwnerID   uuid.UUID `json:"owner_id"`
 	IsActive  bool      `json:"is_active"`
 }
 

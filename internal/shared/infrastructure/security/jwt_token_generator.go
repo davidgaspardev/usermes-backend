@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/davidgaspardev/usermes-backend/internal/modules/iam/user/application/port/output"
+	"github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/port/output"
 )
 
 // JWTTokenGenerator implements the TokenGenerator interface using JWT

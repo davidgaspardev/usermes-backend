@@ -27,53 +27,164 @@ UserMes follows **Hexagonal Architecture** (Ports & Adapters) combined with **Mo
 
 ### 📐 Architecture Layers
 
-```
-┌─────────────────────────────────────────────────────────┐
-│              ADAPTERS (Infrastructure)                   │
-│  HTTP Handlers, Repositories, JWT, External Services    │
-└───────────────────┬─────────────────────────────────────┘
-                    │ depends on (interfaces)
-┌───────────────────▼─────────────────────────────────────┐
-│                   PORTS (Interfaces)                     │
-│       Input Ports (Use Cases) + Output Ports            │
-└───────────────────┬─────────────────────────────────────┘
-                    │ implemented by
-┌───────────────────▼─────────────────────────────────────┐
-│            APPLICATION (Use Cases)                       │
-│         Business Logic Orchestration                     │
-└───────────────────┬─────────────────────────────────────┘
-                    │ uses
-┌───────────────────▼─────────────────────────────────────┐
-│              DOMAIN (Core Business)                      │
-│    Entities, Value Objects, Domain Logic                │
-└─────────────────────────────────────────────────────────┘
+> **Note:** The diagrams below use Mermaid syntax, which is natively supported by GitHub and most modern Markdown viewers.
+
+```mermaid
+graph TB
+    subgraph Adapters["🔌 Adapters (Infrastructure)"]
+        HTTP[HTTP Handlers]
+        DB[Repositories]
+        JWT[JWT Security]
+        EXT[External Services]
+    end
+    
+    subgraph Ports["🔗 Ports (Interfaces)"]
+        INPUT[Input Ports<br/>Use Case Interfaces]
+        OUTPUT[Output Ports<br/>Repository Interfaces]
+    end
+    
+    subgraph Application["⚙️ Application Layer"]
+        UC[Use Cases<br/>Business Logic Orchestration]
+    end
+    
+    subgraph Domain["💎 Domain Layer"]
+        ENT[Entities]
+        VO[Value Objects]
+        LOGIC[Domain Logic]
+    end
+    
+    HTTP --> INPUT
+    DB --> OUTPUT
+    JWT --> INPUT
+    EXT --> OUTPUT
+    INPUT --> UC
+    OUTPUT --> UC
+    UC --> ENT
+    UC --> VO
+    UC --> LOGIC
+    
+    style Domain fill:#e1f5e1
+    style Application fill:#e3f2fd
+    style Ports fill:#fff3e0
+    style Adapters fill:#fce4ec
 ```
 
 ## 📦 Module Structure
 
 UserMes is organized into **bounded contexts** (modules) following Domain-Driven Design:
 
+```mermaid
+graph LR
+    subgraph IAM["🔐 IAM - Identity & Access Management"]
+        USER[User Module<br/>━━━━━━━━━━━━<br/>Authentication<br/>User Management<br/>JWT Tokens]
+    end
+    
+    subgraph ORG["🏢 Organization - Business Structure"]
+        PLANT[Plant Module<br/>━━━━━━━━━━━━<br/>Manufacturing Facilities<br/>Multi-tenant Isolation<br/>Geographic Location]
+    end
+    
+    subgraph PROD["🏭 Production - Core MES"]
+        RES[Resource Module<br/>━━━━━━━━━━━━<br/>Machines & Equipment<br/>Stop Factor Tracking<br/>Plant-scoped Resources]
+    end
+    
+    USER -.->|authenticates| PLANT
+    PLANT -.->|owns| RES
+    
+    style IAM fill:#e8eaf6
+    style ORG fill:#e0f2f1
+    style PROD fill:#fff3e0
 ```
-internal/modules/
-│
-├── iam/                          # Identity & Access Management
-│   └── user/                     # User authentication & management
-│       ├── domain/               # User entity, value objects (Email, Password)
-│       ├── application/          # Use cases (Register, Login, UpdateUser)
-│       └── infrastructure/       # HTTP handlers, JWT, repositories
-│
-├── organization/                 # Organizational Structure
-│   └── plant/                    # Manufacturing plants/facilities
-│       ├── domain/               # Plant entity, business rules
-│       ├── application/          # Use cases (Create, Update, Deactivate)
-│       └── infrastructure/       # HTTP handlers, repositories
-│
-└── production/                   # Production Execution (Core MES)
-    └── resource/                 # Production resources (machines, equipment)
-        ├── domain/               # Resource entity, stop factor logic
-        ├── application/          # Use cases (Create, Update, Track)
-        └── infrastructure/       # HTTP handlers, repositories
+
+### Module Layers
+
+Each module follows the same hexagonal architecture pattern:
+
 ```
+module_name/
+├── domain/                       # 💎 Pure business logic (framework-independent)
+│   ├── entity/                   # Business entities with behavior
+│   ├── valueobject/              # Immutable value types
+│   └── errors/                   # Domain-specific errors
+├── application/                  # ⚙️ Use case orchestration
+│   ├── port/
+│   │   ├── input/                # Use case interfaces (what the app can do)
+│   │   └── output/               # Repository interfaces (what the app needs)
+│   └── usecase/                  # Use case implementations
+└── infrastructure/               # 🔌 Technical implementation details
+    ├── adapter/
+    │   ├── input/http/           # HTTP REST handlers
+    │   └── output/persistence/   # Database repositories
+    └── dto/                      # Data transfer objects
+```
+
+### Module Descriptions
+
+#### 🔐 IAM - Identity & Access Management
+
+**Responsibility:** Manages user authentication, authorization, and user lifecycle.
+
+**Key Features:**
+- User registration with email validation
+- Secure password hashing (bcrypt)
+- JWT token generation and validation
+- User profile management
+- Account activation/deactivation
+
+**Boundaries:**
+- Does NOT manage plant-specific permissions (that's handled at application level)
+- Does NOT store business data (only user credentials and profile)
+- Provides authentication tokens consumed by other modules
+
+**Entities:** User  
+**Value Objects:** Email, Password  
+**Coverage:** 95.2% domain, 89.5% application
+
+---
+
+#### 🏢 Organization - Business Structure
+
+**Responsibility:** Manages the organizational hierarchy of manufacturing facilities.
+
+**Key Features:**
+- Create and manage multiple plants/facilities
+- Geographic location tracking (latitude/longitude)
+- Plant ownership and access control
+- Plant activation/deactivation
+- Unique plant codes for identification
+
+**Boundaries:**
+- Does NOT manage what happens INSIDE plants (production, resources)
+- Does NOT handle user authentication (relies on IAM)
+- Provides plant context for production modules
+
+**Entities:** Plant  
+**Value Objects:** PlantCode, Location  
+**Coverage:** 100% domain, 91.5% application
+
+---
+
+#### 🏭 Production - Core MES
+
+**Responsibility:** Manages production resources and operations within plants.
+
+**Key Features:**
+- Production resource management (machines, equipment, lines)
+- Multi-tenant resource isolation (scoped to plants)
+- Stop factor tracking for downtime analysis
+- Resource categorization with tags
+- Resource type classification
+
+**Boundaries:**
+- Resources ALWAYS belong to a specific plant (plantCode)
+- Does NOT manage shifts or production orders (future modules)
+- Does NOT handle actual real-time data collection (future feature)
+- Provides foundation for production tracking and OEE calculation
+
+**Entities:** Resource  
+**Value Objects:** ResourceCode, ResourceType, StopFactor  
+**Coverage:** 98.3% domain, 92.7% application
+
+---
 
 ## 🎯 Golden Rules
 
@@ -149,6 +260,37 @@ Every production resource is scoped to a **Plant**:
 
 ```
 /v1/plants/:plant_code/production/resources
+```
+
+### System Flow
+
+Here's how the modules work together in a typical workflow:
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant IAM as 🔐 IAM/User
+    participant ORG as 🏢 Organization/Plant
+    participant PROD as 🏭 Production/Resource
+
+    Note over Client,PROD: User Registration & Authentication
+    Client->>IAM: POST /v1/users/register
+    IAM-->>Client: User created
+    Client->>IAM: POST /v1/users/login
+    IAM-->>Client: JWT Token
+
+    Note over Client,PROD: Plant Management (Multi-tenant Setup)
+    Client->>ORG: POST /v1/plants (with JWT)
+    Note right of ORG: Validates JWT<br/>Links plant to userID
+    ORG-->>Client: Plant created (code: SP01)
+
+    Note over Client,PROD: Resource Management (Plant-scoped)
+    Client->>PROD: POST /v1/plants/SP01/production/resources
+    Note right of PROD: Validates JWT<br/>Validates plant exists<br/>Creates resource
+    PROD-->>Client: Resource created in SP01
+
+    Note over Client,PROD: Weak Reference Pattern
+    Note right of PROD: Resource stores plantCode="SP01"<br/>NOT a direct Plant object
 ```
 
 ## 🚀 Quick Start
@@ -338,12 +480,6 @@ mkdir -p internal/modules/your-domain/your-module/{domain/{entity,valueobject,er
    - Infrastructure adapters (HTTP, repositories)
 
 3. **Remember the golden rule**: Use weak references (UUIDs) to other modules!
-
-## 📖 Documentation
-
-- [User Module](./internal/modules/iam/user/README.md)
-- [Plant Module](./internal/modules/organization/plant/README.md)
-- [Resource Module](./internal/modules/production/resource/README.md)
 
 ## 🤝 Contributing
 

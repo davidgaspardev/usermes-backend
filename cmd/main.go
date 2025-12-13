@@ -9,9 +9,9 @@ import (
 	iamusecase "github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/usecase"
 	iamhttp "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/input/http"
 	iampersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/output/persistence"
-	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
-	resourcehttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
-	resourcepersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
+	productionusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
+	productionhttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
+	productionpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/http/server"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/security"
 )
@@ -37,8 +37,8 @@ func main() {
 	)
 
 	// Initialize Resource module
-	resourceRepository := resourcepersistence.NewMemoryResourceRepository()
-	resourceService := resourceusecase.NewResourceService(resourceRepository)
+	resourceRepository := productionpersistence.NewMemoryResourceRepository()
+	resourceService := productionusecase.NewResourceService(resourceRepository)
 
 	// Initialize HTTP server
 	serverConfig := server.DefaultConfig()
@@ -55,9 +55,9 @@ func main() {
 	iamRoutes := iamhttp.NewIAMRoutes(userService, tokenGenerator)
 	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
 
-	// Resource module routes
-	resourceRoutes := resourcehttp.NewResourceRoutes(resourceService)
-	httpServer.RegisterRoutes(resourceRoutes.SetupRoutes)
+	// Production module routes
+	productionRoutes := productionhttp.NewProductionRoutes(resourceService)
+	httpServer.RegisterRoutes(productionRoutes.SetupRoutes)
 
 	// Log all registered endpoints
 	httpServer.LogRegisteredEndpoints()

@@ -6,46 +6,29 @@ import (
 	"github.com/davidgaspardev/usermes-backend/internal/modules/production/application/port/input"
 )
 
-// ResourceRoutes configures all routes for the resource module
-type ResourceRoutes struct {
-	handler *ResourceHandler
+// ProductionRoutes configures all routes for the production module
+type ProductionRoutes struct {
+	resourceHandler *ResourceHandler
 }
 
-// NewResourceRoutes creates a new instance of ResourceRoutes
-func NewResourceRoutes(resourceService input.ResourceService) *ResourceRoutes {
-	return &ResourceRoutes{
-		handler: NewResourceHandler(resourceService),
+// NewProductionRoutes creates a new instance of ProductionRoutes
+func NewProductionRoutes(resourceService input.ResourceService) *ProductionRoutes {
+	return &ProductionRoutes{
+		resourceHandler: NewResourceHandler(resourceService),
 	}
 }
 
-// SetupRoutes registers all resource routes with the Fiber app
-// Routes are scoped to a specific plant: /v1/plants/:plant_code/production/resources
-func (r *ResourceRoutes) SetupRoutes(app *fiber.App) {
-	// Create a route group for plant-scoped production resources
-	// Pattern: /v1/plants/:plant_code/production/resources
-	resources := app.Group("/v1/plants/:plant_code/production/resources")
+// SetupRoutes registers all production routes with the Fiber app
+func (r *ProductionRoutes) SetupRoutes(app *fiber.App) {
+	resources := app.Group("/v1/api/production/plants/:plant_code")
 
 	// Create a new resource in the specified plant
-	resources.Post("/", r.handler.Create)
-
-	// Get all resources for the specified plant with pagination
-	resources.Get("/", r.handler.GetAll)
-
-	// Get resource by ID
-	resources.Get("/:id", r.handler.GetByID)
-
-	// Get resource by code within the specified plant
-	resources.Get("/code/:code", r.handler.GetByCode)
-
-	// Get resources by type within the specified plant
-	resources.Get("/type/:type", r.handler.GetByType)
-
-	// Get resources by shift ID within the specified plant
-	resources.Get("/shift/:shiftId", r.handler.GetByShiftID)
-
-	// Update a resource
-	resources.Put("/:id", r.handler.Update)
-
-	// Delete a resource
-	resources.Delete("/:id", r.handler.Delete)
+	resources.Post("/resources/", r.resourceHandler.Create)
+	resources.Get("/resources/", r.resourceHandler.GetAll)
+	resources.Get("/resources/:id", r.resourceHandler.GetByID)
+	resources.Get("/resources/code/:res_code", r.resourceHandler.GetByCode)
+	resources.Get("/resources/type/:type", r.resourceHandler.GetByType)
+	resources.Get("/resources/shift/:shiftId", r.resourceHandler.GetByShiftID)
+	resources.Put("/resources/:id", r.resourceHandler.Update)
+	resources.Delete("/resources/:id", r.resourceHandler.Delete)
 }

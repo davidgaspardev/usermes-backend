@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"time"
 
-	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/resource/application/usecase"
-	resourcehttp "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/input/http"
-	resourcepersistence "github.com/davidgaspardev/usermes-backend/internal/modules/resource/infrastructure/adapter/output/persistence"
-	userusecase "github.com/davidgaspardev/usermes-backend/internal/modules/user/application/usecase"
-	userhttp "github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/input/http"
-	userpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/user/infrastructure/adapter/output/persistence"
+	iamusecase "github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/usecase"
+	iamhttp "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/input/http"
+	iampersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/output/persistence"
+	productionusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
+	productionhttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
+	productionpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/http/server"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/security"
 )
@@ -29,16 +29,16 @@ func main() {
 	tokenGenerator := security.NewJWTTokenGenerator(config.JWTSecret, config.AppName)
 
 	// Initialize User module
-	userRepository := userpersistence.NewMemoryUserRepository()
-	userService := userusecase.NewUserService(
+	userRepository := iampersistence.NewMemoryUserRepository()
+	userService := iamusecase.NewUserService(
 		userRepository,
 		tokenGenerator,
 		config.TokenDuration,
 	)
 
 	// Initialize Resource module
-	resourceRepository := resourcepersistence.NewMemoryResourceRepository()
-	resourceService := resourceusecase.NewResourceService(resourceRepository)
+	resourceRepository := productionpersistence.NewMemoryResourceRepository()
+	resourceService := productionusecase.NewResourceService(resourceRepository)
 
 	// Initialize HTTP server
 	serverConfig := server.DefaultConfig()
@@ -51,13 +51,16 @@ func main() {
 	httpServer.AddHealthCheck()
 
 	// Register module routes
-	// User module routes
-	userRoutes := userhttp.NewUserRoutes(userService, tokenGenerator)
-	httpServer.RegisterRoutes(userRoutes.SetupRoutes)
+	// IAM module routes
+	iamRoutes := iamhttp.NewIAMRoutes(userService, tokenGenerator)
+	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
 
-	// Resource module routes
-	resourceRoutes := resourcehttp.NewResourceRoutes(resourceService)
-	httpServer.RegisterRoutes(resourceRoutes.SetupRoutes)
+	// Production module routes
+	productionRoutes := productionhttp.NewProductionRoutes(resourceService)
+	httpServer.RegisterRoutes(productionRoutes.SetupRoutes)
+
+	// Log all registered endpoints
+	httpServer.LogRegisteredEndpoints()
 
 	// Start server
 	log.Printf("Starting %s on port %d", config.AppName, config.ServerPort)

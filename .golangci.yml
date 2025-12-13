@@ -1,107 +1,66 @@
-# golangci-lint configuration v1.64+
-# https://golangci-lint.run/usage/configuration/
-
-linters-settings:
-  dupl:
-    threshold: 100
-    
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-    
-  funlen:
-    lines: 100
-    statements: 50
-    
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-    
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-    disabled-checks:
-      - dupImport
-      - ifElseChain
-      - octalLiteral
-      - whyNoLint
-      - wrapperFunc
-      
-  gocyclo:
-    min-complexity: 15
-    
-  goimports:
-    local-prefixes: github.com/davidgaspardev/usermes-backend
-    
-  govet:
-    enable-all: true
-    disable:
-      - shadow
-      
-  lll:
-    line-length: 140
-    
-  misspell:
-    locale: US
-    
-  nolintlint:
-    allow-unused: false
-    require-explanation: false
-    require-specific: false
-
-linters:
-  disable-all: true
-  enable:
-    - bodyclose
-    - dogsled
-    - dupl
-    - errcheck
-    - funlen
-    - gochecknoinits
-    - goconst
-    - gocritic
-    - gocyclo
-    - gofmt
-    - goimports
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - lll
-    - misspell
-    - nakedret
-    - staticcheck
-    - stylecheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - whitespace
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - funlen
-        - goconst
-        - dupl
-    - path: cmd/
-      linters:
-        - gochecknoinits
-        
-  max-issues-per-linter: 0
-  max-same-issues: 0
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
+# golangci-lint minimal configuration
+# Focused on essential linters following Go community best practices
 
 run:
   timeout: 5m
   tests: true
-  # Use go.mod to determine modules
   modules-download-mode: readonly
+
+linters:
+  disable-all: true
+  enable:
+    # Code formatting and style
+    - gofmt # Standard Go formatter
+    - goimports # Organizes imports
+
+    # Official Go tooling
+    - govet # Official Go static analyzer
+
+    # High-quality, widely-adopted linters
+    - staticcheck # Most trusted linter in Go community
+    - errcheck # Checks for unchecked errors
+    - gosimple # Simplifies code
+    - ineffassign # Detects ineffectual assignments
+    - unused # Finds unused code
+
+    # Security and best practices
+    - gosec # Security issues
+    - revive # Modern replacement for golint
+
+    # Common mistakes
+    - typecheck # Type checking
+    - bodyclose # HTTP response body must be closed
+
+linters-settings:
+  govet:
+    enable-all: true
+    disable:
+      - shadow # Too noisy for most projects
+
+  goimports:
+    local-prefixes: github.com/davidgaspardev/usermes-backend
+
+  revive:
+    rules:
+      - name: exported
+        disabled: false
+
+issues:
+  # Exclude some checks in test files
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+
+    - path: cmd/
+      linters:
+        - revive
+
+  # Show all issues
+  max-issues-per-linter: 0
+  max-same-issues: 0
 
 output:
   formats:

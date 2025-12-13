@@ -59,6 +59,9 @@ func main() {
 	resourceRoutes := resourcehttp.NewResourceRoutes(resourceService)
 	httpServer.RegisterRoutes(resourceRoutes.SetupRoutes)
 
+	// Log all registered endpoints
+	httpServer.LogRegisteredEndpoints()
+
 	// Start server
 	log.Printf("Starting %s on port %d", config.AppName, config.ServerPort)
 	if err := httpServer.Start(); err != nil {

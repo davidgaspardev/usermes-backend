@@ -7,20 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned Features
-- [ ] PostgreSQL integration for persistent storage
-- [ ] Shift management module
-- [ ] Production orders and scheduling
-- [ ] Stop/downtime tracking with analytics
-- [ ] Real-time resource status updates
-- [ ] WebSocket support for real-time data
-- [ ] Quality management module
-- [ ] Maintenance tracking
-- [ ] OEE (Overall Equipment Effectiveness) calculations
-- [ ] MTBF/MTTR analytics
-
-## [1.1.0] - 2024-01-20
-
 ### Added
 - **Modular Architecture**: Reorganized codebase into bounded contexts
   - `iam/user` - Identity and Access Management
@@ -152,10 +138,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Known Limitations
 
 - In-memory storage means data loss on restart (by design for development)
-- No persistent database integration yet (planned for v1.2)
+- No persistent database integration yet (planned)
 - CORS configured for all origins (development only - must configure for production)
-- No rate limiting (planned for v1.2)
-- No real-time updates yet (planned for v2.0)
+- No rate limiting (planned)
+- No real-time updates yet (planned)
+
+## Future Roadmap
+
+### Planned Features
+- PostgreSQL integration for persistent storage
+- Shift management module
+- Production orders and scheduling
+- Stop/downtime tracking with analytics
+- Real-time resource status updates
+- WebSocket support for real-time data
+- Quality management module
+- Maintenance tracking
+- OEE (Overall Equipment Effectiveness) calculations
+- MTBF/MTTR analytics
 
 ---
 

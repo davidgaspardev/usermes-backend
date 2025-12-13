@@ -27,6 +27,8 @@ UserMes follows **Hexagonal Architecture** (Ports & Adapters) combined with **Mo
 
 ### 📐 Architecture Layers
 
+> **Note:** The diagrams below use Mermaid syntax, which is natively supported by GitHub and most modern Markdown viewers.
+
 ```mermaid
 graph TB
     subgraph Adapters["🔌 Adapters (Infrastructure)"]

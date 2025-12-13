@@ -187,6 +187,17 @@ func (s *FiberServer) LogRegisteredEndpoints() {
 
 	log.Println("📋 Registered endpoints:")
 
+	// Methods to exclude from catch-all root path
+	excludedRootMethods := map[string]bool{
+		"POST":    true,
+		"PUT":     true,
+		"DELETE":  true,
+		"CONNECT": true,
+		"OPTIONS": true,
+		"TRACE":   true,
+		"PATCH":   true,
+	}
+
 	// Group routes by path to show all methods together
 	routeMap := make(map[string][]string)
 	for _, route := range routes {
@@ -195,9 +206,7 @@ func (s *FiberServer) LogRegisteredEndpoints() {
 			continue
 		}
 		// Skip catch-all root routes (these are internal Fiber routes)
-		if route.Path == "/" && (route.Method == "POST" || route.Method == "PUT" ||
-			route.Method == "DELETE" || route.Method == "CONNECT" ||
-			route.Method == "OPTIONS" || route.Method == "TRACE" || route.Method == "PATCH") {
+		if route.Path == "/" && excludedRootMethods[route.Method] {
 			continue
 		}
 
@@ -210,7 +219,7 @@ func (s *FiberServer) LogRegisteredEndpoints() {
 		paths = append(paths, path)
 	}
 
-	// Simple sort - put / first, then everything else alphabetically
+	// Sort paths alphabetically, with "/" first
 	for i := 0; i < len(paths); i++ {
 		for j := i + 1; j < len(paths); j++ {
 			if paths[i] == "/" {

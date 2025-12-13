@@ -7,23 +7,22 @@ import (
 	"github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/port/output"
 )
 
-// IAM configures all routes for the user module
-type IamRoutes struct {
+// IAMRoutes configures all routes for the IAM module
+type IAMRoutes struct {
 	userHandler *UserHandler
 	middleware  *AuthMiddleware
 }
 
-// NewIamRoutes creates a new instance of UserRoutes
-func NewIamRoutes(userService input.UserService, tokenGenerator output.TokenGenerator) *IamRoutes {
-	return &IamRoutes{
+// NewIAMRoutes creates a new instance of IAMRoutes
+func NewIAMRoutes(userService input.UserService, tokenGenerator output.TokenGenerator) *IAMRoutes {
+	return &IAMRoutes{
 		userHandler: NewUserHandler(userService),
 		middleware:  NewAuthMiddleware(tokenGenerator),
 	}
 }
 
-// SetupRoutes registers all user routes with the Fiber app
-func (r *IamRoutes) SetupRoutes(app *fiber.App) {
-	// Create a route group for user endpoints
+// SetupRoutes registers all IAM routes with the Fiber app
+func (r *IAMRoutes) SetupRoutes(app *fiber.App) {
 	iam := app.Group("/v1/api/iam")
 
 	// Public routes (no authentication required)

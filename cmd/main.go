@@ -51,9 +51,9 @@ func main() {
 	httpServer.AddHealthCheck()
 
 	// Register module routes
-	// User module routes
-	userRoutes := userhttp.NewUserRoutes(userService, tokenGenerator)
-	httpServer.RegisterRoutes(userRoutes.SetupRoutes)
+	// IAM module routes
+	iamRoutes := userhttp.NewIamRoutes(userService, tokenGenerator)
+	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
 
 	// Resource module routes
 	resourceRoutes := resourcehttp.NewResourceRoutes(resourceService)

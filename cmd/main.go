@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	userusecase "github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/usecase"
-	userhttp "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/input/http"
-	userpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/output/persistence"
+	iamusecase "github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/usecase"
+	iamhttp "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/input/http"
+	iampersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/output/persistence"
 	resourceusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
 	resourcehttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
 	resourcepersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
@@ -29,8 +29,8 @@ func main() {
 	tokenGenerator := security.NewJWTTokenGenerator(config.JWTSecret, config.AppName)
 
 	// Initialize User module
-	userRepository := userpersistence.NewMemoryUserRepository()
-	userService := userusecase.NewUserService(
+	userRepository := iampersistence.NewMemoryUserRepository()
+	userService := iamusecase.NewUserService(
 		userRepository,
 		tokenGenerator,
 		config.TokenDuration,
@@ -52,7 +52,7 @@ func main() {
 
 	// Register module routes
 	// IAM module routes
-	iamRoutes := userhttp.NewIamRoutes(userService, tokenGenerator)
+	iamRoutes := iamhttp.NewIAMRoutes(userService, tokenGenerator)
 	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
 
 	// Resource module routes

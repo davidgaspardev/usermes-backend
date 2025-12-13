@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
-	"github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/port/output"
 )
 
 // JWTTokenGenerator implements the TokenGenerator interface using JWT
@@ -36,7 +34,7 @@ type JWTHeader struct {
 }
 
 // NewJWTTokenGenerator creates a new instance of JWTTokenGenerator
-func NewJWTTokenGenerator(secretKey, issuer string) output.TokenGenerator {
+func NewJWTTokenGenerator(secretKey, issuer string) *JWTTokenGenerator {
 	return &JWTTokenGenerator{
 		secretKey: []byte(secretKey),
 		issuer:    issuer,

@@ -25,7 +25,8 @@ func (r *ProductionRoutes) SetupRoutes(app *fiber.App) {
 	// Create a new resource in the specified plant
 	resources.Post("/resources/", r.resourceHandler.Create)
 	resources.Get("/resources/", r.resourceHandler.GetAll)
-	resources.Get("/resources/:res_code", r.resourceHandler.GetByCode)
+	resources.Get("/resources/:id", r.resourceHandler.GetByID)
+	resources.Get("/resources/codes/:res_code", r.resourceHandler.GetByCode)
 	resources.Get("/resources/:type", r.resourceHandler.GetByType)
 	resources.Get("/resources/shift/:shiftId", r.resourceHandler.GetByShiftID)
 	resources.Put("/resources/:id", r.resourceHandler.Update)

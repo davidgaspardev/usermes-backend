@@ -233,7 +233,7 @@ func (s *FiberServer) LogRegisteredEndpoints() {
 
 	for _, path := range paths {
 		for _, method := range routeMap[path] {
-			log.Printf("  [READY] %s %s", method, path)
+			log.Printf("  [READY] %-7s %s", method, path)
 		}
 	}
 }

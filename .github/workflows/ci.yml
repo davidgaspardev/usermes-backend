@@ -106,14 +106,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22.1"
-          cache: true
+          go-version-file: "go.mod"
+          cache: false
 
-      - name: Clean Go cache
-        run: |
-          go clean -cache -modcache -i -r
-          go mod download
-          go mod tidy
+      - name: Download dependencies
+        run: go mod download
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6

@@ -7,34 +7,33 @@ import (
 	"github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/port/output"
 )
 
-// UserRoutes configures all routes for the user module
-type UserRoutes struct {
-	handler    *UserHandler
-	middleware *AuthMiddleware
+// IAMRoutes configures all routes for the IAM module
+type IAMRoutes struct {
+	userHandler *UserHandler
+	middleware  *AuthMiddleware
 }
 
-// NewUserRoutes creates a new instance of UserRoutes
-func NewUserRoutes(userService input.UserService, tokenGenerator output.TokenGenerator) *UserRoutes {
-	return &UserRoutes{
-		handler:    NewUserHandler(userService),
-		middleware: NewAuthMiddleware(tokenGenerator),
+// NewIAMRoutes creates a new instance of IAMRoutes
+func NewIAMRoutes(userService input.UserService, tokenGenerator output.TokenGenerator) *IAMRoutes {
+	return &IAMRoutes{
+		userHandler: NewUserHandler(userService),
+		middleware:  NewAuthMiddleware(tokenGenerator),
 	}
 }
 
-// SetupRoutes registers all user routes with the Fiber app
-func (r *UserRoutes) SetupRoutes(app *fiber.App) {
-	// Create a route group for user endpoints
-	users := app.Group("/api/users")
+// SetupRoutes registers all IAM routes with the Fiber app
+func (r *IAMRoutes) SetupRoutes(app *fiber.App) {
+	iam := app.Group("/v1/api/iam")
 
 	// Public routes (no authentication required)
-	users.Post("/register", r.handler.Register)
-	users.Post("/login", r.handler.Login)
+	iam.Post("/user/register", r.userHandler.Register)
+	iam.Post("/user/login", r.userHandler.Login)
 
 	// Protected routes (authentication required)
-	users.Get("/me", r.middleware.Authenticate, r.handler.GetMe)
-	users.Get("/:id", r.middleware.Authenticate, r.handler.GetUserByID)
-	users.Put("/:id", r.middleware.Authenticate, r.handler.UpdateUser)
-	users.Post("/:id/change-password", r.middleware.Authenticate, r.handler.ChangePassword)
-	users.Post("/:id/deactivate", r.middleware.Authenticate, r.handler.DeactivateUser)
-	users.Post("/:id/activate", r.middleware.Authenticate, r.handler.ActivateUser)
+	iam.Get("/user/me", r.middleware.Authenticate, r.userHandler.GetMe)
+	iam.Get("/user/:id", r.middleware.Authenticate, r.userHandler.GetUserByID)
+	iam.Put("/user/:id", r.middleware.Authenticate, r.userHandler.UpdateUser)
+	iam.Post("/user/:id/change-password", r.middleware.Authenticate, r.userHandler.ChangePassword)
+	iam.Post("/user/:id/deactivate", r.middleware.Authenticate, r.userHandler.DeactivateUser)
+	iam.Post("/user/:id/activate", r.middleware.Authenticate, r.userHandler.ActivateUser)
 }

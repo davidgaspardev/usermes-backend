@@ -479,12 +479,6 @@ mkdir -p internal/modules/your-domain/your-module/{domain/{entity,valueobject,er
 
 3. **Remember the golden rule**: Use weak references (UUIDs) to other modules!
 
-## 📖 Documentation
-
-- [User Module](./internal/modules/iam/user/README.md)
-- [Plant Module](./internal/modules/organization/plant/README.md)
-- [Resource Module](./internal/modules/production/resource/README.md)
-
 ## 🤝 Contributing
 
 1. Follow the architecture principles

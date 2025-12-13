@@ -39,10 +39,12 @@ jobs:
       - name: Run tests with coverage (Business Logic Only)
         run: |
           go test -v -race -coverprofile=coverage.out -covermode=atomic \
-            ./internal/modules/user/domain/... \
-            ./internal/modules/user/application/... \
-            ./internal/modules/resource/domain/... \
-            ./internal/modules/resource/application/...
+            ./internal/modules/iam/domain/... \
+            ./internal/modules/iam/application/... \
+            ./internal/modules/organization/domain/... \
+            ./internal/modules/organization/application/... \
+            ./internal/modules/production/domain/... \
+            ./internal/modules/production/application/...
 
       - name: Calculate coverage
         id: coverage
@@ -107,11 +109,18 @@ jobs:
           go-version: "1.22.1"
           cache: true
 
+      - name: Clean Go cache
+        run: |
+          go clean -cache -modcache -i -r
+          go mod download
+          go mod tidy
+
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
           args: --timeout=5m
+          skip-cache: true
 
   build:
     name: Build

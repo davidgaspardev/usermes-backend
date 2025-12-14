@@ -63,15 +63,15 @@ graph TB
     UC --> VO
     UC --> LOGIC
 
-    style Domain rx:15px,ry:15px
-    style Application rx:15px,ry:15px
-    style Ports rx:15px,ry:15px
-    style Adapters rx:15px,ry:15px
+    style Domain rx:10px,ry:10px
+    style Application rx:10px,ry:10px
+    style Ports rx:10px,ry:10px
+    style Adapters rx:10px,ry:10px
     
-    style Domain fill:#e1f5e1
-    style Application fill:#e3f2fd
-    style Ports fill:#fff3e0
-    style Adapters fill:#fce4ec
+    style Domain fill:#646464
+    style Application fill:#646464
+    style Ports fill:#646464
+    style Adapters fill:#646464
 ```
 
 ## 📦 Module Structure
@@ -95,13 +95,13 @@ graph LR
     USER -.->|authenticates| PLANT
     PLANT -.->|owns| RES
 
-    style IAM rx:15px,ry:15px
-    style ORG rx:15px,ry:15px
-    style PROD rx:15px,ry:15px
+    style IAM rx:10px,ry:10px
+    style ORG rx:10px,ry:10px
+    style PROD rx:10px,ry:10px
     
-    style IAM fill:#e8eaf6
-    style ORG fill:#e0f2f1
-    style PROD fill:#fff3e0
+    style IAM fill:#646464
+    style ORG fill:#646464
+    style PROD fill:#646464
 ```
 
 ### Module Layers

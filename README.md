@@ -32,25 +32,25 @@ UserMes follows **Hexagonal Architecture** (Ports & Adapters) combined with **Mo
 ```mermaid
 graph TB
     subgraph Adapters["🔌 Adapters (Infrastructure)"]
-        HTTP[HTTP Handlers]
-        DB[Repositories]
-        JWT[JWT Security]
-        EXT[External Services]
+        HTTP(HTTP Handlers)
+        DB(Repositories)
+        JWT(JWT Security)
+        EXT(External Services)
     end
     
     subgraph Ports["🔗 Ports (Interfaces)"]
-        INPUT[Input Ports<br/>Use Case Interfaces]
-        OUTPUT[Output Ports<br/>Repository Interfaces]
+        INPUT(Input Ports<br/>Use Case Interfaces)
+        OUTPUT(Output Ports<br/>Repository Interfaces)
     end
     
     subgraph Application["⚙️ Application Layer"]
-        UC[Use Cases<br/>Business Logic Orchestration]
+        UC(Use Cases<br/>Business Logic Orchestration)
     end
     
     subgraph Domain["💎 Domain Layer"]
-        ENT[Entities]
-        VO[Value Objects]
-        LOGIC[Domain Logic]
+        ENT(Entities)
+        VO(Value Objects)
+        LOGIC(Domain Logic)
     end
     
     HTTP --> INPUT
@@ -62,6 +62,11 @@ graph TB
     UC --> ENT
     UC --> VO
     UC --> LOGIC
+
+    style Domain rx:15px,ry:15px
+    style Application rx:15px,ry:15px
+    style Ports rx:15px,ry:15px
+    style Adapters rx:15px,ry:15px
     
     style Domain fill:#e1f5e1
     style Application fill:#e3f2fd
@@ -76,19 +81,23 @@ UserMes is organized into **bounded contexts** (modules) following Domain-Driven
 ```mermaid
 graph LR
     subgraph IAM["🔐 IAM - Identity & Access Management"]
-        USER[User Module<br/>━━━━━━━━━━━━<br/>Authentication<br/>User Management<br/>JWT Tokens]
+        USER(User Module<br/>━━━━━━━━━━━━<br/>Authentication<br/>User Management<br/>JWT Tokens)
     end
     
     subgraph ORG["🏢 Organization - Business Structure"]
-        PLANT[Plant Module<br/>━━━━━━━━━━━━<br/>Manufacturing Facilities<br/>Multi-tenant Isolation<br/>Geographic Location]
+        PLANT(Plant Module<br/>━━━━━━━━━━━━<br/>Manufacturing Facilities<br/>Multi-tenant Isolation<br/>Geographic Location)
     end
     
     subgraph PROD["🏭 Production - Core MES"]
-        RES[Resource Module<br/>━━━━━━━━━━━━<br/>Machines & Equipment<br/>Stop Factor Tracking<br/>Plant-scoped Resources]
+        RES(Resource Module<br/>━━━━━━━━━━━━<br/>Machines & Equipment<br/>Stop Factor Tracking<br/>Plant-scoped Resources)
     end
     
     USER -.->|authenticates| PLANT
     PLANT -.->|owns| RES
+
+    style IAM rx:15px,ry:15px
+    style ORG rx:15px,ry:15px
+    style PROD rx:15px,ry:15px
     
     style IAM fill:#e8eaf6
     style ORG fill:#e0f2f1

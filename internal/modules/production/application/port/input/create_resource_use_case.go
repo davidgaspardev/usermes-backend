@@ -9,6 +9,7 @@ type CreateResourceCommand struct {
 	ResourceType string
 	Tags         []string
 	StopFactor   int16
+	WhoCreated   string
 }
 
 type CreateResourceUseCase interface {

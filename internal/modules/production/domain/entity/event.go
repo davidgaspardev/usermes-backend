@@ -16,21 +16,70 @@ type EventStatus string
 
 const (
 	Production EventStatus = "PRODUCTION"
-	Stop       EventStatus = "Stop"
+	Stop       EventStatus = "STOP"
 )
 
 type Event struct {
-	Type          EventType
-	Status        EventStatus
-	StopCode      string
-	ProdCode      string
-	ResCode       string
-	ProdQuantity  uint32
-	ScrapQuantity uint32
-	DateStart     time.Time
-	DateEnd       *time.Time
-	ShiftID       string
-	UserID        string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	eventType     EventType
+	status        EventStatus
+	statusCode    string
+	prodCode      string
+	resCode       string
+	prodQuantity  uint32
+	scrapQuantity uint32
+	dateStart     time.Time
+	dateEnd       *time.Time
+	shiftID       string
+	userID        string
+	createdAt     time.Time
+	updatedAt     time.Time
+}
+
+func NewEvent(
+	eventType EventType,
+	status EventStatus,
+	statusCode string,
+	prodCode string,
+	resCode string,
+	prodQuantity uint32,
+	scrapQuantity uint32,
+	dateStart time.Time,
+	shiftID string,
+	userID string,
+) *Event {
+	time := time.Now()
+	return &Event{
+		eventType:     eventType,
+		status:        status,
+		statusCode:    statusCode,
+		prodCode:      prodCode,
+		resCode:       resCode,
+		prodQuantity:  prodQuantity,
+		scrapQuantity: scrapQuantity,
+		dateStart:     dateStart,
+		dateEnd:       nil,
+		shiftID:       shiftID,
+		userID:        userID,
+		createdAt:     time,
+		updatedAt:     time,
+	}
+}
+
+func NewEventResourceCreated(
+	resCode string,
+	shiftID string,
+	userID string,
+) *Event {
+	return NewEvent(
+		ResourceCreated,
+		Stop,
+		"",
+		"",
+		resCode,
+		0,
+		0,
+		time.Now(),
+		shiftID,
+		userID,
+	)
 }

@@ -5,6 +5,8 @@ import (
 
 	"github.com/davidgaspardev/usermes-backend/internal/modules/production/application/port/input"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/production/application/port/output"
+	"github.com/davidgaspardev/usermes-backend/internal/modules/production/domain/entity"
+	"github.com/davidgaspardev/usermes-backend/internal/modules/production/domain/errors"
 )
 
 type createResourceUseCaseImpl struct {
@@ -23,5 +25,34 @@ func NewCreateResourceUseCase(
 }
 
 func (u *createResourceUseCaseImpl) Execute(ctx context.Context, command *input.CreateResourceCommand) error {
+	if exists, err := u.resourceRepository.ExistsByCode(ctx, command.Code); err != nil {
+		return err
+	} else if exists {
+		return errors.ErrResourceAlreadyExists
+	}
+
+	resource := entity.NewResource(
+		command.PlantCode,
+		command.Code,
+		command.ShiftID,
+		command.ResourceType,
+		command.StopFactor,
+		command.Tags,
+	)
+	event := entity.NewEventResourceCreated(
+		resource.Code(),
+		*command.ShiftID,
+		command.WhoCreated,
+	)
+
+	if err := u.resourceRepository.Save(ctx, resource); err != nil {
+		return err
+	}
+
+	if err := u.eventRepository.Create(event); err != nil {
+		u.resourceRepository.Delete(ctx, resource.ID())
+		return err
+	}
+
 	return nil
 }

@@ -3,7 +3,6 @@ package persistence
 import (
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
-	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/errors"
 )
 
 type locationRepositoryInMemory struct {
@@ -28,7 +27,7 @@ func (r *locationRepositoryInMemory) FindTree(rootCode string) (*entity.Location
 		}
 	}
 
-	return nil, errors.ErrLocationTreeNotFound
+	return nil, nil
 }
 
 func (r *locationRepositoryInMemory) FindByCode(code string) (*entity.Location, error) {
@@ -38,5 +37,5 @@ func (r *locationRepositoryInMemory) FindByCode(code string) (*entity.Location, 
 		}
 	}
 
-	return nil, errors.ErrLocationNotFound
+	return nil, nil
 }

@@ -14,5 +14,5 @@ type AddLocationCommand struct {
 }
 
 type AddLocationUseCase interface {
-	Execute(ctx *context.Context, command AddLocationCommand) (*entity.Location, error)
+	Execute(ctx context.Context, command AddLocationCommand) (*entity.Location, error)
 }

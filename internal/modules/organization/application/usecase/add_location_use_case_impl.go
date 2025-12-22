@@ -13,13 +13,13 @@ type addLocationUseCaseImpl struct {
 	locationRepository output.LocationRepository
 }
 
-func NewAddLocationUseCaseImpl(locationRepository output.LocationRepository) input.AddLocationUseCase {
+func NewAddLocationUseCase(locationRepository output.LocationRepository) input.AddLocationUseCase {
 	return &addLocationUseCaseImpl{
 		locationRepository: locationRepository,
 	}
 }
 
-func (uc *addLocationUseCaseImpl) Execute(ctx *context.Context, command input.AddLocationCommand) (*entity.Location, error) {
+func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.AddLocationCommand) (*entity.Location, error) {
 	if !validateCommand(&command) {
 		return nil, errors.ErrInvalidLocationCommand
 	}

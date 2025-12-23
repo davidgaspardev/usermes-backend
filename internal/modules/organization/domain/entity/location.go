@@ -2,8 +2,6 @@ package entity
 
 import (
 	"time"
-
-	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/errors"
 )
 
 type Location struct {
@@ -40,6 +38,9 @@ func (l *Location) Name() string {
 }
 
 func (l *Location) ParentCode() string {
+	if l.parent == nil {
+		return ""
+	}
 	return l.parent.code
 }
 
@@ -47,24 +48,30 @@ func (l *Location) Children() []*Location {
 	return l.children
 }
 
-func (l *Location) FindByCode(code string) (*Location, error) {
+func (l *Location) FindByCode(code string) *Location {
+	if l.code == code {
+		return l
+	}
+
 	if l.children == nil {
-		return nil, errors.ErrLocationNotFound
+		return nil
 	}
 
 	for _, child := range l.children {
 		if child.code == code {
-			return child, nil
+			return child
 		} else {
-			locationFound, err := child.FindByCode(code)
-			if err != nil {
-				return nil, err
-			}
-			return locationFound, nil
+			locationFound := child.FindByCode(code)
+			return locationFound
 		}
 	}
 
-	return nil, nil
+	return nil
+}
+
+func (l *Location) ExistsByLocation(code string) bool {
+	location := l.FindByCode(code)
+	return location != nil
 }
 
 func (l *Location) AddChild(location *Location) {

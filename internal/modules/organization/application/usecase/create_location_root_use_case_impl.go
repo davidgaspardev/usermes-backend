@@ -22,12 +22,12 @@ func NewCreateLocationRootUseCase(
 }
 
 func (uc *createLocationRootUseCaseImpl) Execute(ctx context.Context, command input.CreateLocationRootCommand) (*entity.Location, error) {
-	locationExists, err := uc.locationRepository.FindByCode(command.Code)
+	locationExists, err := uc.locationRepository.ExistsByCode(command.Code)
 	if err != nil {
 		return nil, err
 	}
 
-	if locationExists != nil {
+	if locationExists {
 		return nil, errors.ErrLocationAlreadyExists
 	}
 

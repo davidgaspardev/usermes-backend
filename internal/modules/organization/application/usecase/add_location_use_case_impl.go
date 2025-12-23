@@ -20,7 +20,7 @@ func NewAddLocationUseCase(locationRepository output.LocationRepository) input.A
 }
 
 func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.AddLocationCommand) (*entity.Location, error) {
-	if !validateCommand(&command) {
+	if !isCommandValid(&command) {
 		return nil, errors.ErrInvalidLocationCommand
 	}
 
@@ -33,11 +33,11 @@ func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.Add
 		return nil, errors.ErrLocationTreeNotFound
 	}
 
-	parentLocation, err := locationTree.FindByCode(command.ParentCode)
-	if err != nil {
-		return nil, err
+	if locationAlreadyExists := locationTree.ExistsByLocation(command.Code); locationAlreadyExists {
+		return nil, errors.ErrLocationAlreadyExists
 	}
 
+	parentLocation := locationTree.FindByCode(command.ParentCode)
 	if parentLocation == nil {
 		return nil, errors.ErrLocationNotFound
 	}
@@ -56,7 +56,7 @@ func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.Add
 	return locationTree, nil
 }
 
-func validateCommand(command *input.AddLocationCommand) bool {
+func isCommandValid(command *input.AddLocationCommand) bool {
 	return command.Code != "" &&
 		command.Name != "" &&
 		command.ParentCode != "" &&

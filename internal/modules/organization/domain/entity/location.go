@@ -62,7 +62,9 @@ func (l *Location) FindByCode(code string) *Location {
 			return child
 		} else {
 			locationFound := child.FindByCode(code)
-			return locationFound
+			if locationFound != nil {
+				return locationFound
+			}
 		}
 	}
 

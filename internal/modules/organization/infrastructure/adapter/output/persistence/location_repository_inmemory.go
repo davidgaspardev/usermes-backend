@@ -5,37 +5,86 @@ import (
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
 )
 
+type LocationRecord struct {
+	Code       string
+	Name       string
+	ParentCode string
+}
+
 type locationRepositoryInMemory struct {
-	locations []*entity.Location
+	locations []LocationRecord
 }
 
 func NewLocationRepositoryInMemory() output.LocationRepository {
 	return &locationRepositoryInMemory{
-		locations: make([]*entity.Location, 0),
+		locations: make([]LocationRecord, 0),
 	}
 }
 
 func (r *locationRepositoryInMemory) Create(location *entity.Location) error {
-	r.locations = append(r.locations, location)
+	r.locations = append(r.locations, LocationRecord{
+		Code:       location.Code(),
+		Name:       location.Name(),
+		ParentCode: location.ParentCode(),
+	})
 	return nil
 }
 
 func (r *locationRepositoryInMemory) FindTree(rootCode string) (*entity.Location, error) {
 	for _, location := range r.locations {
-		if location.Code() == rootCode && location.ParentCode() == "" {
-			return location, nil
+		if location.Code == rootCode && location.ParentCode == "" {
+			return r.buildLocationTree(rootCode), nil
 		}
 	}
 
 	return nil, nil
 }
 
-func (r *locationRepositoryInMemory) FindByCode(code string) (*entity.Location, error) {
+func (r *locationRepositoryInMemory) buildLocationTree(rootCode string) *entity.Location {
+	var root *entity.Location
+
+	// Encontra o location raiz para este parentCode
 	for _, location := range r.locations {
-		if location.Code() == code {
-			return location, nil
+		if location.Code == rootCode {
+			root = entity.NewLocation(
+				location.Code,
+				location.Name,
+				nil,
+			)
+			break
 		}
 	}
 
-	return nil, nil
+	if root == nil {
+		return nil
+	}
+
+	// Constrói a árvore de filhos recursivamente
+	r.buildChildren(root)
+
+	return root
+}
+
+func (r *locationRepositoryInMemory) buildChildren(parent *entity.Location) {
+	for _, location := range r.locations {
+		if location.ParentCode == parent.Code() {
+			childCopy := entity.NewLocation(
+				location.Code,
+				location.Name,
+				parent,
+			)
+			r.buildChildren(childCopy)
+			parent.AddChild(childCopy)
+		}
+	}
+}
+
+func (r *locationRepositoryInMemory) ExistsByCode(code string) (bool, error) {
+	for _, location := range r.locations {
+		if location.Code == code {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

@@ -9,6 +9,8 @@ import (
 	iamusecase "github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/usecase"
 	iamhttp "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/input/http"
 	iampersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/output/persistence"
+	organizationhttp "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/input/http"
+	organizationpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/output/persistence"
 	productionusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
 	productionhttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
 	productionpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
@@ -36,6 +38,9 @@ func main() {
 		config.TokenDuration,
 	)
 
+	// Initialize Organization module
+	locationRepository := organizationpersistence.NewLocationRepositoryInMemory()
+
 	// Initialize Resource module
 	resourceRepository := productionpersistence.NewMemoryResourceRepository()
 	resourceService := productionusecase.NewResourceService(resourceRepository)
@@ -54,6 +59,10 @@ func main() {
 	// IAM module routes
 	iamRoutes := iamhttp.NewIAMRoutes(userService, tokenGenerator)
 	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
+
+	// Organization module routes
+	organizationRoutes := organizationhttp.NewOrganizationRoutes(locationRepository)
+	httpServer.RegisterRoutes(organizationRoutes.SetupRoutes)
 
 	// Production module routes
 	productionRoutes := productionhttp.NewProductionRoutes(resourceService)

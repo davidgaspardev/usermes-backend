@@ -38,6 +38,32 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		return err
 	}
 
-	response := dto.ToLocationRootResponse(locationRoot)
+	response := dto.ToLocationResponse(locationRoot)
+	return c.Status(fiber.StatusCreated).JSON(response)
+}
+
+func (h *LocationHandler) Add(c *fiber.Ctx) error {
+	var req dto.AddLocationRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
+			"invalid_request",
+			"Invalid request body",
+		))
+	}
+
+	command := input.AddLocationCommand{
+		Code:       req.Code,
+		Name:       req.Name,
+		ParentCode: req.ParentCode,
+		RootCode:   req.RootCode,
+	}
+
+	location, err := usecase.NewAddLocationUseCase(h.locationRepository).Execute(c.Context(), command)
+	if err != nil {
+		return err
+	}
+
+	response := dto.ToLocationResponse(location)
 	return c.Status(fiber.StatusCreated).JSON(response)
 }

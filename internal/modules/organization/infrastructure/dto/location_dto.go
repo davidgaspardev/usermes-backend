@@ -3,18 +3,32 @@ package dto
 import "github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
 
 type CreateLocationRootRequest struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
+	Code string `json:"code" validate:"required"`
+	Name string `json:"name" validate:"required"`
 }
 
-type LocationRootResponse struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
+type AddLocationRequest struct {
+	Code       string `json:"code" validate:"required"`
+	Name       string `json:"name" validate:"required"`
+	ParentCode string `json:"parent_code" validate:"required"`
+	RootCode   string `json:"root_code" validate:"required"`
 }
 
-func ToLocationRootResponse(locationRoot *entity.Location) LocationRootResponse {
-	return LocationRootResponse{
-		Code: locationRoot.Code(),
-		Name: locationRoot.Name(),
+type LocationResponse struct {
+	Code     string             `json:"code"`
+	Name     string             `json:"name"`
+	Children []LocationResponse `json:"children"`
+}
+
+func ToLocationResponse(location *entity.Location) LocationResponse {
+	children := make([]LocationResponse, len(location.Children()))
+	for i, child := range location.Children() {
+		children[i] = ToLocationResponse(child)
+	}
+
+	return LocationResponse{
+		Code:     location.Code(),
+		Name:     location.Name(),
+		Children: children,
 	}
 }

@@ -21,4 +21,5 @@ func (o *OrganizationRoutes) SetupRoutes(app *fiber.App) {
 	locationRoutes := app.Group("/v1/api/organization/locations")
 
 	locationRoutes.Post("/", o.locationHandler.Create)
+	locationRoutes.Post("/add", o.locationHandler.Add)
 }

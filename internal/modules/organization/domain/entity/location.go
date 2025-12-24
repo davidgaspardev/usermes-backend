@@ -60,11 +60,10 @@ func (l *Location) FindByCode(code string) *Location {
 	for _, child := range l.children {
 		if child.code == code {
 			return child
-		} else {
-			locationFound := child.FindByCode(code)
-			if locationFound != nil {
-				return locationFound
-			}
+		}
+		locationFound := child.FindByCode(code)
+		if locationFound != nil {
+			return locationFound
 		}
 	}
 

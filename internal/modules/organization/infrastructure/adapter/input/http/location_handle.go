@@ -55,6 +55,7 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 	command := input.AddLocationCommand{
 		Code:       req.Code,
 		Name:       req.Name,
+		Kind:       req.Kind,
 		ParentCode: req.ParentCode,
 		RootCode:   req.RootCode,
 	}

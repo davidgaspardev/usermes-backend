@@ -45,6 +45,7 @@ func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.Add
 	location := entity.NewLocation(
 		command.Code,
 		command.Name,
+		entity.LocationKind(command.Kind),
 		parentLocation,
 	)
 	parentLocation.AddChild(location)
@@ -62,5 +63,7 @@ func isCommandValid(command *input.AddLocationCommand) bool {
 		command.ParentCode != "" &&
 		command.RootCode != "" &&
 		command.Code != command.RootCode &&
-		command.Code != command.ParentCode
+		command.Code != command.ParentCode &&
+		entity.IsValidLocationKind(command.Kind) &&
+		command.Kind != string(entity.LocationKindPlant)
 }

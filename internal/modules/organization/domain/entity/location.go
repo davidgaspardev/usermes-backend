@@ -4,20 +4,31 @@ import (
 	"time"
 )
 
+type LocationKind string
+
+const (
+	LocationKindPlant   LocationKind = "PLANT"
+	LocationKindArea    LocationKind = "AREA"
+	LocationKindLine    LocationKind = "LINE"
+	LocationKindSection LocationKind = "SECTION"
+)
+
 type Location struct {
 	code      string
 	name      string
+	kind      LocationKind
 	parent    *Location
 	children  []*Location
 	createdAt time.Time
 	updatedAt time.Time
 }
 
-func NewLocation(code string, name string, parent *Location) *Location {
+func NewLocation(code string, name string, kind LocationKind, parent *Location) *Location {
 	now := time.Now()
 	return &Location{
 		code:      code,
 		name:      name,
+		kind:      kind,
 		parent:    parent,
 		children:  nil,
 		createdAt: now,
@@ -26,7 +37,7 @@ func NewLocation(code string, name string, parent *Location) *Location {
 }
 
 func NewRootLocation(code string, name string) *Location {
-	return NewLocation(code, name, nil)
+	return NewLocation(code, name, LocationKindPlant, nil)
 }
 
 func (l *Location) Code() string {
@@ -35,6 +46,10 @@ func (l *Location) Code() string {
 
 func (l *Location) Name() string {
 	return l.name
+}
+
+func (l *Location) Kind() LocationKind {
+	return l.kind
 }
 
 func (l *Location) ParentCode() string {
@@ -73,6 +88,15 @@ func (l *Location) FindByCode(code string) *Location {
 func (l *Location) ExistsByCode(code string) bool {
 	location := l.FindByCode(code)
 	return location != nil
+}
+
+func IsValidLocationKind(kind string) bool {
+	switch LocationKind(kind) {
+	case LocationKindPlant, LocationKindArea, LocationKindLine, LocationKindSection:
+		return true
+	default:
+		return false
+	}
 }
 
 func (l *Location) AddChild(location *Location) {

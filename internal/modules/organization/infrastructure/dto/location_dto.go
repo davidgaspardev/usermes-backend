@@ -10,6 +10,7 @@ type CreateLocationRootRequest struct {
 type AddLocationRequest struct {
 	Code       string `json:"code" validate:"required"`
 	Name       string `json:"name" validate:"required"`
+	Kind       string `json:"kind" validate:"required"`
 	ParentCode string `json:"parent_code" validate:"required"`
 	RootCode   string `json:"root_code" validate:"required"`
 }
@@ -17,6 +18,7 @@ type AddLocationRequest struct {
 type LocationResponse struct {
 	Code     string             `json:"code"`
 	Name     string             `json:"name"`
+	Kind     string             `json:"kind"`
 	Children []LocationResponse `json:"children"`
 }
 
@@ -29,6 +31,7 @@ func ToLocationResponse(location *entity.Location) LocationResponse {
 	return LocationResponse{
 		Code:     location.Code(),
 		Name:     location.Name(),
+		Kind:     string(location.Kind()),
 		Children: children,
 	}
 }

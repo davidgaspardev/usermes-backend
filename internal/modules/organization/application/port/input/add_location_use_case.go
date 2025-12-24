@@ -9,6 +9,7 @@ import (
 type AddLocationCommand struct {
 	Code       string
 	Name       string
+	Kind       string
 	ParentCode string
 	RootCode   string
 }

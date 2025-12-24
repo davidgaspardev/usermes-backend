@@ -8,6 +8,7 @@ import (
 type LocationRecord struct {
 	Code       string
 	Name       string
+	Kind       string
 	ParentCode string
 }
 
@@ -25,6 +26,7 @@ func (r *locationRepositoryInMemory) Create(location *entity.Location) error {
 	r.locations = append(r.locations, LocationRecord{
 		Code:       location.Code(),
 		Name:       location.Name(),
+		Kind:       string(location.Kind()),
 		ParentCode: location.ParentCode(),
 	})
 	return nil
@@ -49,6 +51,7 @@ func (r *locationRepositoryInMemory) buildLocationTree(rootCode string) *entity.
 			root = entity.NewLocation(
 				location.Code,
 				location.Name,
+				entity.LocationKind(location.Kind),
 				nil,
 			)
 			break
@@ -71,6 +74,7 @@ func (r *locationRepositoryInMemory) buildChildren(parent *entity.Location) {
 			childCopy := entity.NewLocation(
 				location.Code,
 				location.Name,
+				entity.LocationKind(location.Kind),
 				parent,
 			)
 			r.buildChildren(childCopy)

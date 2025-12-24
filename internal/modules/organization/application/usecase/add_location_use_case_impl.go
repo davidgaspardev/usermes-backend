@@ -33,7 +33,7 @@ func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.Add
 		return nil, errors.ErrLocationTreeNotFound
 	}
 
-	if locationAlreadyExists := locationTree.ExistsByLocation(command.Code); locationAlreadyExists {
+	if locationAlreadyExists := locationTree.ExistsByCode(command.Code); locationAlreadyExists {
 		return nil, errors.ErrLocationAlreadyExists
 	}
 

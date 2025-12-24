@@ -71,7 +71,7 @@ func (l *Location) FindByCode(code string) *Location {
 	return nil
 }
 
-func (l *Location) ExistsByLocation(code string) bool {
+func (l *Location) ExistsByCode(code string) bool {
 	location := l.FindByCode(code)
 	return location != nil
 }

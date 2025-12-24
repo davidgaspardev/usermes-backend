@@ -76,10 +76,5 @@ func (l *Location) ExistsByCode(code string) bool {
 }
 
 func (l *Location) AddChild(location *Location) {
-	if l.children == nil {
-		l.children = make([]*Location, 1)
-		l.children[0] = location
-	} else {
-		l.children = append(l.children, location)
-	}
+	l.children = append(l.children, location)
 }

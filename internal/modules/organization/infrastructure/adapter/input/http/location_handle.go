@@ -68,3 +68,13 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 	response := dto.ToLocationResponse(location)
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
+
+func (h *LocationHandler) GetAll(c *fiber.Ctx) error {
+	locations, err := usecase.NewGetAllLocationsUseCase(h.locationRepository).Execute(c.Context())
+	if err != nil {
+		return err
+	}
+
+	response := dto.ToAllLocationsResponse(locations)
+	return c.Status(fiber.StatusOK).JSON(response)
+}

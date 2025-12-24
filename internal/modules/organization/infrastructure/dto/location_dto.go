@@ -35,3 +35,17 @@ func ToLocationResponse(location *entity.Location) LocationResponse {
 		Children: children,
 	}
 }
+
+type AllLocationsResponse struct {
+	Locations []LocationResponse `json:"locations"`
+}
+
+func ToAllLocationsResponse(locations []entity.Location) AllLocationsResponse {
+	locationsResponse := make([]LocationResponse, len(locations))
+	for i, location := range locations {
+		locationsResponse[i] = ToLocationResponse(&location)
+	}
+	return AllLocationsResponse{
+		Locations: locationsResponse,
+	}
+}

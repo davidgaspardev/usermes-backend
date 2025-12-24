@@ -92,3 +92,20 @@ func (r *locationRepositoryInMemory) ExistsByCode(code string) (bool, error) {
 
 	return false, nil
 }
+
+func (r *locationRepositoryInMemory) GetAll() ([]entity.Location, error) {
+	var locations = []entity.Location{}
+
+	for _, location := range r.locations {
+		if location.ParentCode == "" {
+			locationTree, err := r.FindTree(location.Code)
+			if err != nil {
+				return nil, err
+			}
+
+			locations = append(locations, *locationTree)
+		}
+	}
+
+	return locations, nil
+}

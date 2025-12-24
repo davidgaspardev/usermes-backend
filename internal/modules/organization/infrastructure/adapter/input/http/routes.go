@@ -22,4 +22,5 @@ func (o *OrganizationRoutes) SetupRoutes(app *fiber.App) {
 
 	locationRoutes.Post("/", o.locationHandler.Create)
 	locationRoutes.Post("/add", o.locationHandler.Add)
+	locationRoutes.Get("/", o.locationHandler.GetAll)
 }

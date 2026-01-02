@@ -26,6 +26,13 @@ type AddLocationRequest struct {
 	RootCode   string `json:"root_code" validate:"required"`
 }
 
+func (r *AddLocationRequest) Validate() error {
+	if r.Code == "" || r.Name == "" || r.Kind == "" || r.ParentCode == "" || r.RootCode == "" {
+		return errors.New("code, name, kind, parent_code, and root_code are required")
+	}
+	return nil
+}
+
 type LocationResponse struct {
 	Code     string             `json:"code"`
 	Name     string             `json:"name"`

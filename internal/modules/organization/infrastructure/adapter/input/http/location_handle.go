@@ -28,6 +28,14 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		))
 	}
 
+	// Validate request
+	if err := req.Validate(); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
+			"validation_error",
+			err.Error(),
+		))
+	}
+
 	command := input.CreateLocationRootCommand{
 		Code: req.Code,
 		Name: req.Name,

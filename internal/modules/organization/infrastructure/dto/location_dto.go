@@ -1,10 +1,21 @@
 package dto
 
-import "github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
+import (
+	"errors"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
+)
 
 type CreateLocationRootRequest struct {
 	Code string `json:"code" validate:"required"`
 	Name string `json:"name" validate:"required"`
+}
+
+func (r *CreateLocationRootRequest) Validate() error {
+	if r.Code == "" || r.Name == "" {
+		return errors.New("code and name are required")
+	}
+	return nil
 }
 
 type AddLocationRequest struct {

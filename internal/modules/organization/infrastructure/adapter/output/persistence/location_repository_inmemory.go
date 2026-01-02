@@ -62,7 +62,6 @@ func (r *locationRepositoryInMemory) buildLocationTree(rootCode string) *entity.
 		return nil
 	}
 
-	// Constrói a árvore de filhos recursivamente
 	r.buildChildren(root)
 
 	return root

@@ -37,7 +37,7 @@ type LocationResponse struct {
 	Code     string             `json:"code"`
 	Name     string             `json:"name"`
 	Kind     string             `json:"kind"`
-	Children []LocationResponse `json:"children"`
+	Children []LocationResponse `json:"children,omitempty"`
 }
 
 func ToLocationResponse(location *entity.Location) LocationResponse {

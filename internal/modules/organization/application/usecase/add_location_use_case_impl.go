@@ -48,11 +48,12 @@ func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.Add
 		entity.LocationKind(command.Kind),
 		parentLocation,
 	)
-	parentLocation.AddChild(location)
 
 	if err := uc.locationRepository.Create(location); err != nil {
 		return nil, err
 	}
+
+	parentLocation.AddChild(location)
 
 	return locationTree, nil
 }

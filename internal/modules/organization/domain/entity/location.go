@@ -14,13 +14,13 @@ const (
 )
 
 type Location struct {
+	createdAt time.Time
+	updatedAt time.Time
+	parent    *Location
+	children  []*Location
 	code      string
 	name      string
 	kind      LocationKind
-	parent    *Location
-	children  []*Location
-	createdAt time.Time
-	updatedAt time.Time
 }
 
 func NewLocation(code string, name string, kind LocationKind, parent *Location) *Location {

@@ -23,4 +23,13 @@ var (
 
 	// ErrInvalidStopFactor is returned when the stop factor is invalid
 	ErrInvalidStopFactor = errors.New("invalid stop factor: must be non-negative")
+
+	// ErrShiftCalendarNotFound is returned when a shift calendar is not found
+	ErrShiftCalendarNotFound = errors.New("shift calendar not found")
+
+	// ErrShiftCalendarAlreadyExists is returned when a shift calendar with the same code already exists
+	ErrShiftCalendarAlreadyExists = errors.New("shift calendar with this code already exists")
+
+	// ErrShiftNotFound is returned when a shift is not found in a calendar
+	ErrShiftNotFound = errors.New("shift not found")
 )

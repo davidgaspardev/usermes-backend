@@ -14,6 +14,7 @@ import (
 	productionusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
 	productionhttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
 	productionpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
+	productionseeder "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/seeder"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/http/server"
 	"github.com/davidgaspardev/usermes-backend/internal/shared/infrastructure/security"
 )
@@ -44,6 +45,14 @@ func main() {
 	// Initialize Resource module
 	resourceRepository := productionpersistence.NewMemoryResourceRepository()
 	resourceService := productionusecase.NewResourceService(resourceRepository)
+
+	// Initialize Shift Template repository and seed default templates
+	shiftTemplateRepository := productionpersistence.NewMemoryShiftTemplateRepository()
+	shiftRepository := productionpersistence.NewMemoryShiftRepository()
+	if err := productionseeder.SeedDefaultShiftTemplates(shiftTemplateRepository); err != nil {
+		log.Fatalf("Failed to seed default shift templates: %v", err)
+	}
+	_ = shiftRepository // available for use case wiring
 
 	// Initialize HTTP server
 	serverConfig := server.DefaultConfig()

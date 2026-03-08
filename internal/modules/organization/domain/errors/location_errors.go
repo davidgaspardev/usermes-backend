@@ -2,6 +2,7 @@ package errors
 
 import "errors"
 
+// Location domain errors.
 var (
 	ErrLocationAlreadyExists  = errors.New("location already exists")
 	ErrLocationTreeNotFound   = errors.New("location tree not found")

@@ -5,6 +5,7 @@ import (
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
 )
 
+// LocationRecord is the in-memory representation of a persisted location.
 type LocationRecord struct {
 	Code       string
 	Name       string
@@ -16,6 +17,7 @@ type locationRepositoryInMemory struct {
 	locations []LocationRecord
 }
 
+// NewLocationRepositoryInMemory creates a new in-memory LocationRepository.
 func NewLocationRepositoryInMemory() output.LocationRepository {
 	return &locationRepositoryInMemory{
 		locations: make([]LocationRecord, 0),

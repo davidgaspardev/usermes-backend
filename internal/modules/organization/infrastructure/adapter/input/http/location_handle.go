@@ -9,16 +9,19 @@ import (
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/dto"
 )
 
+// LocationHandler handles HTTP requests for location operations.
 type LocationHandler struct {
 	locationRepository output.LocationRepository
 }
 
+// NewLocationHandler creates a new LocationHandler with the given repository.
 func NewLocationHandler(locationRepository output.LocationRepository) *LocationHandler {
 	return &LocationHandler{
 		locationRepository: locationRepository,
 	}
 }
 
+// Create handles POST requests to create a root location.
 func (h *LocationHandler) Create(c *fiber.Ctx) error {
 	var req dto.CreateLocationRootRequest
 
@@ -51,6 +54,7 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
+// Add handles POST requests to add a child location to an existing tree.
 func (h *LocationHandler) Add(c *fiber.Ctx) error {
 	var req dto.AddLocationRequest
 
@@ -86,6 +90,7 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
+// GetAll handles GET requests to retrieve all locations.
 func (h *LocationHandler) GetAll(c *fiber.Ctx) error {
 	locations, err := usecase.NewGetAllLocationsUseCase(h.locationRepository).Execute(c.Context())
 	if err != nil {

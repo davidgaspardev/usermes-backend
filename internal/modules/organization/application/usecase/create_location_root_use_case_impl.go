@@ -13,6 +13,7 @@ type createLocationRootUseCaseImpl struct {
 	locationRepository output.LocationRepository
 }
 
+// NewCreateLocationRootUseCase creates a new CreateLocationRootUseCase instance.
 func NewCreateLocationRootUseCase(
 	locationRepository output.LocationRepository,
 ) input.CreateLocationRootUseCase {

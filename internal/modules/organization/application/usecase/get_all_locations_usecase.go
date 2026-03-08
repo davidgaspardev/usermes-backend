@@ -12,6 +12,7 @@ type getAllLocationsUseCase struct {
 	locationRepo output.LocationRepository
 }
 
+// NewGetAllLocationsUseCase creates a new GetAllLocationsUseCase instance.
 func NewGetAllLocationsUseCase(locationRepo output.LocationRepository) input.GetAllLocationsUseCase {
 	return &getAllLocationsUseCase{
 		locationRepo: locationRepo,

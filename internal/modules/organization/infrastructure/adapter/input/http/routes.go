@@ -6,10 +6,12 @@ import (
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 )
 
+// OrganizationRoutes registers HTTP routes for the organization module.
 type OrganizationRoutes struct {
 	locationHandler *LocationHandler
 }
 
+// NewOrganizationRoutes creates a new OrganizationRoutes with the given location repository.
 func NewOrganizationRoutes(
 	locationHandler output.LocationRepository,
 ) *OrganizationRoutes {
@@ -18,6 +20,7 @@ func NewOrganizationRoutes(
 	}
 }
 
+// SetupRoutes registers all organization routes on the given Fiber app.
 func (o *OrganizationRoutes) SetupRoutes(app *fiber.App) {
 	locationRoutes := app.Group("/v1/api/organization/locations")
 

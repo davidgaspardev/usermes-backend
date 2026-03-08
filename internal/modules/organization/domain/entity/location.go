@@ -4,8 +4,10 @@ import (
 	"time"
 )
 
+// LocationKind represents the type of a location in the organization hierarchy.
 type LocationKind string
 
+// Valid LocationKind values for the organization hierarchy.
 const (
 	LocationKindPlant   LocationKind = "PLANT"
 	LocationKindArea    LocationKind = "AREA"
@@ -13,16 +15,18 @@ const (
 	LocationKindSection LocationKind = "SECTION"
 )
 
+// Location represents a node in the organization location tree.
 type Location struct {
 	createdAt time.Time
 	updatedAt time.Time
 	parent    *Location
-	children  []*Location
 	code      string
 	name      string
 	kind      LocationKind
+	children  []*Location
 }
 
+// NewLocation creates a new Location with the given attributes.
 func NewLocation(code string, name string, kind LocationKind, parent *Location) *Location {
 	now := time.Now()
 	return &Location{
@@ -36,22 +40,27 @@ func NewLocation(code string, name string, kind LocationKind, parent *Location) 
 	}
 }
 
+// NewRootLocation creates a new root Location (plant level) with no parent.
 func NewRootLocation(code string, name string) *Location {
 	return NewLocation(code, name, LocationKindPlant, nil)
 }
 
+// Code returns the location's unique code.
 func (l *Location) Code() string {
 	return l.code
 }
 
+// Name returns the location's display name.
 func (l *Location) Name() string {
 	return l.name
 }
 
+// Kind returns the location's kind (plant, area, line, section).
 func (l *Location) Kind() LocationKind {
 	return l.kind
 }
 
+// ParentCode returns the code of the parent location, or empty string if root.
 func (l *Location) ParentCode() string {
 	if l.parent == nil {
 		return ""
@@ -59,10 +68,12 @@ func (l *Location) ParentCode() string {
 	return l.parent.code
 }
 
+// Children returns the direct child locations.
 func (l *Location) Children() []*Location {
 	return l.children
 }
 
+// FindByCode searches for a location by code within this subtree.
 func (l *Location) FindByCode(code string) *Location {
 	if l.code == code {
 		return l
@@ -85,11 +96,13 @@ func (l *Location) FindByCode(code string) *Location {
 	return nil
 }
 
+// ExistsByCode reports whether a location with the given code exists in this subtree.
 func (l *Location) ExistsByCode(code string) bool {
 	location := l.FindByCode(code)
 	return location != nil
 }
 
+// IsValidLocationKind reports whether the given string is a valid LocationKind value.
 func IsValidLocationKind(kind string) bool {
 	switch LocationKind(kind) {
 	case LocationKindPlant, LocationKindArea, LocationKindLine, LocationKindSection:
@@ -99,6 +112,7 @@ func IsValidLocationKind(kind string) bool {
 	}
 }
 
+// AddChild appends a child location to this location's children list.
 func (l *Location) AddChild(location *Location) {
 	l.children = append(l.children, location)
 }

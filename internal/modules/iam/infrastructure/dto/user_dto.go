@@ -11,7 +11,7 @@ import (
 // RegisterRequest represents the request body for user registration
 type RegisterRequest struct {
 	Email    string `json:"email"`
-	Password string `json:"password"`
+	Password string `json:"password"` //nolint:gosec // intentional: request DTO receives user-provided password
 	Username string `json:"username"`
 	Name     string `json:"name"`
 }
@@ -19,7 +19,7 @@ type RegisterRequest struct {
 // LoginRequest represents the request body for user login
 type LoginRequest struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Password string `json:"password"` //nolint:gosec // intentional: request DTO receives user-provided password
 }
 
 // UpdateUserRequest represents the request body for updating user information

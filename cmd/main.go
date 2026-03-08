@@ -81,7 +81,7 @@ func main() {
 // Config holds the application configuration
 type Config struct {
 	AppName       string
-	JWTSecret     string
+	JWTSecret     string //nolint:gosec // intentional: config struct holds the secret by design
 	TokenDuration time.Duration
 	ServerPort    int
 }

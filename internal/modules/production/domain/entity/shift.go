@@ -6,28 +6,26 @@ import (
 	"github.com/google/uuid"
 )
 
-// Shift is a concrete occurrence of a ShiftTemplate on a specific date/time range.
+// Shift is a concrete occurrence of a ShiftPattern on a specific date/time range.
 // Its ID is stored on the production Event to link the event to a shift period.
 type Shift struct {
-	startAt      time.Time
-	endAt        time.Time
-	createdAt    time.Time
-	calendarCode string
-	name         string
-	templateID   uuid.UUID
-	id           uuid.UUID
+	startAt   time.Time
+	endAt     time.Time
+	createdAt time.Time
+	name      string
+	patternID uuid.UUID
+	id        uuid.UUID
 }
 
-// NewShift creates a Shift instance from a ShiftTemplate with concrete start and end timestamps.
-func NewShift(template *ShiftTemplate, calendarCode string, startAt, endAt time.Time) *Shift {
+// NewShift creates a Shift instance from a ShiftPattern ID with concrete start and end timestamps.
+func NewShift(patternID uuid.UUID, name string, startAt, endAt time.Time) *Shift {
 	return &Shift{
-		id:           uuid.New(),
-		templateID:   template.id,
-		calendarCode: calendarCode,
-		name:         template.name,
-		startAt:      startAt,
-		endAt:        endAt,
-		createdAt:    time.Now(),
+		id:        uuid.New(),
+		patternID: patternID,
+		name:      name,
+		startAt:   startAt,
+		endAt:     endAt,
+		createdAt: time.Now(),
 	}
 }
 
@@ -36,17 +34,12 @@ func (s *Shift) ID() uuid.UUID {
 	return s.id
 }
 
-// TemplateID returns the ID of the ShiftTemplate this instance was created from.
-func (s *Shift) TemplateID() uuid.UUID {
-	return s.templateID
+// PatternID returns the ID of the ShiftPattern this instance was created from.
+func (s *Shift) PatternID() uuid.UUID {
+	return s.patternID
 }
 
-// CalendarCode returns the code of the ShiftCalendar this shift belongs to.
-func (s *Shift) CalendarCode() string {
-	return s.calendarCode
-}
-
-// Name returns the shift's display name (inherited from its template).
+// Name returns the shift's display name (inherited from its pattern entry).
 func (s *Shift) Name() string {
 	return s.name
 }

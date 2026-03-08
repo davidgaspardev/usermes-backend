@@ -1,0 +1,18 @@
+package input
+
+import (
+	"context"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
+)
+
+// CreateLocationRootCommand holds the input data for creating a root location.
+type CreateLocationRootCommand struct {
+	Code string
+	Name string
+}
+
+// CreateLocationRootUseCase defines the use case for creating a root location.
+type CreateLocationRootUseCase interface {
+	Execute(ctx context.Context, command CreateLocationRootCommand) (*entity.Location, error)
+}

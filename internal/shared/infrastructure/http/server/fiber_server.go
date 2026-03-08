@@ -161,7 +161,7 @@ func (s *FiberServer) Shutdown() error {
 	return s.app.Shutdown()
 }
 
-// Health adds a health check endpoint
+// AddHealthCheck registers a health check endpoint at /health.
 func (s *FiberServer) AddHealthCheck() {
 	s.app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{

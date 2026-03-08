@@ -9,6 +9,8 @@ import (
 	iamusecase "github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/usecase"
 	iamhttp "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/input/http"
 	iampersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/output/persistence"
+	organizationhttp "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/input/http"
+	organizationpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/output/persistence"
 	productionusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
 	productionhttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
 	productionpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
@@ -36,6 +38,9 @@ func main() {
 		config.TokenDuration,
 	)
 
+	// Initialize Organization module
+	locationRepository := organizationpersistence.NewLocationRepositoryInMemory()
+
 	// Initialize Resource module
 	resourceRepository := productionpersistence.NewMemoryResourceRepository()
 	resourceService := productionusecase.NewResourceService(resourceRepository)
@@ -55,6 +60,10 @@ func main() {
 	iamRoutes := iamhttp.NewIAMRoutes(userService, tokenGenerator)
 	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
 
+	// Organization module routes
+	organizationRoutes := organizationhttp.NewOrganizationRoutes(locationRepository)
+	httpServer.RegisterRoutes(organizationRoutes.SetupRoutes)
+
 	// Production module routes
 	productionRoutes := productionhttp.NewProductionRoutes(resourceService)
 	httpServer.RegisterRoutes(productionRoutes.SetupRoutes)
@@ -72,7 +81,7 @@ func main() {
 // Config holds the application configuration
 type Config struct {
 	AppName       string
-	JWTSecret     string
+	JWTSecret     string //nolint:gosec // intentional: config struct holds the secret by design
 	TokenDuration time.Duration
 	ServerPort    int
 }
@@ -99,7 +108,7 @@ func loadConfig() Config {
 		if p, valid := parseValidPort(portStr); valid {
 			port = p
 		} else {
-			log.Printf("Warning: Invalid PORT value '%s' (must be 1-65535), using default port %d", portStr, DefaultServerPort)
+			log.Printf("Warning: Invalid PORT value %q (must be 1-65535), using default port %d", portStr, DefaultServerPort) //nolint:gosec // %q escapes all control characters, preventing log injection
 		}
 	}
 

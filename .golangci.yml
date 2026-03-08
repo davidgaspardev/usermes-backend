@@ -35,30 +35,31 @@ linters:
     # Common mistakes
     - bodyclose
 
-linters-settings:
-  govet:
-    enable-all: true
-    disable:
-      - shadow
+  settings:
+    govet:
+      enable-all: true
+      disable:
+        - shadow
 
-  revive:
-    rules:
-      - name: exported
-        disabled: false
+    revive:
+      rules:
+        - name: exported
+          disabled: false
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
 
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-        - gosec
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gosec
 
-    - path: cmd/
-      linters:
-        - revive
+      - path: cmd/
+        linters:
+          - revive
 
 output:
   formats:

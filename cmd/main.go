@@ -108,7 +108,8 @@ func loadConfig() Config {
 		if p, valid := parseValidPort(portStr); valid {
 			port = p
 		} else {
-			log.Printf("Warning: Invalid PORT value %q (must be 1-65535), using default port %d", portStr, DefaultServerPort)
+			log.Printf("Warning: Invalid PORT value %q (must be 1-65535), using default port %d", portStr, DefaultServerPort) //nolint:gosec // %q escapes all control characters, preventing log injection
+		}
 	}
 
 	return Config{

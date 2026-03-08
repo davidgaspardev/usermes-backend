@@ -14,6 +14,7 @@ type createResourceUseCaseImpl struct {
 	eventRepository    output.EventRepository
 }
 
+// NewCreateResourceUseCase creates a new CreateResourceUseCase implementation.
 func NewCreateResourceUseCase(
 	resourceRepository output.ResourceRepository,
 	eventRepository output.EventRepository,
@@ -50,7 +51,9 @@ func (u *createResourceUseCaseImpl) Execute(ctx context.Context, command *input.
 	}
 
 	if err := u.eventRepository.Create(event); err != nil {
-		u.resourceRepository.Delete(ctx, resource.ID())
+		if deleteErr := u.resourceRepository.Delete(ctx, resource.ID()); deleteErr != nil {
+			return deleteErr
+		}
 		return err
 	}
 

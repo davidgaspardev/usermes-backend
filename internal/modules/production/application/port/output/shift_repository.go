@@ -1,8 +1,9 @@
 package output
 
 import (
-	"github.com/davidgaspardev/usermes-backend/internal/modules/production/domain/entity"
 	"github.com/google/uuid"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/production/domain/entity"
 )
 
 // ShiftRepository defines the persistence contract for shift instances.

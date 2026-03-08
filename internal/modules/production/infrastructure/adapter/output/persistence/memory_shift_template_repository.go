@@ -1,9 +1,10 @@
 package persistence
 
 import (
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/production/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/production/domain/entity"
-	"github.com/google/uuid"
 )
 
 type memoryShiftTemplateRepository struct {

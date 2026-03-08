@@ -46,10 +46,6 @@ linters:
         - name: exported
           disabled: false
 
-issues:
-  max-issues-per-linter: 0
-  max-same-issues: 0
-
   exclusions:
     rules:
       - path: _test\.go
@@ -60,6 +56,10 @@ issues:
       - path: cmd/
         linters:
           - revive
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
 
 output:
   formats:

@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/gofiber/fiber/v2"
+
+	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 )
 
 type OrganizationRoutes struct {

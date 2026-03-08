@@ -1,11 +1,12 @@
 package http
 
 import (
+	"github.com/gofiber/fiber/v2"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/input"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/usecase"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/dto"
-	"github.com/gofiber/fiber/v2"
 )
 
 type LocationHandler struct {

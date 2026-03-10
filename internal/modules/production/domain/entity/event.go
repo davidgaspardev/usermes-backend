@@ -12,6 +12,13 @@ const (
 	OperatorSignOut         EventType = "OPERATOR_SIGN_OUT"
 	OperatorSignInWithItem  EventType = "OPERATOR_SIGN_IN_WITH_ITEM"
 	OperatorSignOutWithItem EventType = "OPERATOR_SIGN_OUT_WITH_ITEM"
+	SwapOperator            EventType = "SWAP_OPERATOR"
+	InsertStop              EventType = "INSERT_STOP"
+	OperatorSetProduction   EventType = "OPERATOR_SET_PRODUTION"
+	OperatorChangeItem      EventType = "OPERATOR_CHANGE_ITEM"
+	ChangeShift             EventType = "CHANGE_SHIFT"
+	OperatorRemoveItem      EventType = "OPERATOR_REMOVE_ITEM"
+	OperatorAddItem         EventType = "OPERATOR_ADD_ITEM"
 )
 
 // EventStatus represents the production status recorded by an event.
@@ -69,6 +76,27 @@ func NewEvent(
 		createdAt:     time,
 		updatedAt:     time,
 	}
+}
+
+// NewEventChangeShift closes the current event at the shift boundary and opens a new one under the
+// next shift. It carries over status, statusCode, prodCode, resCode, userID, and quantities from
+// the previous event. The caller must persist both the updated prev and the returned event.
+func NewEventChangeShift(prev *Event, newShiftID string, boundaryTime time.Time) *Event {
+	prev.dateEnd = &boundaryTime
+	prev.updatedAt = boundaryTime
+
+	return NewEvent(
+		ChangeShift,
+		prev.status,
+		prev.statusCode,
+		prev.prodCode,
+		prev.resCode,
+		0,
+		0,
+		boundaryTime,
+		newShiftID,
+		prev.userID,
+	)
 }
 
 // NewEventResourceCreated creates a resource-created event for the given resource and shift.

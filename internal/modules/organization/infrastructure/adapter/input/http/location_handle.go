@@ -11,13 +11,18 @@ import (
 
 // LocationHandler handles HTTP requests for location operations.
 type LocationHandler struct {
-	locationRepository output.LocationRepository
+	locationRepository     output.LocationRepository
+	shiftPatternRepository output.ShiftPatternRepository
 }
 
-// NewLocationHandler creates a new LocationHandler with the given repository.
-func NewLocationHandler(locationRepository output.LocationRepository) *LocationHandler {
+// NewLocationHandler creates a new LocationHandler with the given repositories.
+func NewLocationHandler(
+	locationRepository output.LocationRepository,
+	shiftPatternRepository output.ShiftPatternRepository,
+) *LocationHandler {
 	return &LocationHandler{
-		locationRepository: locationRepository,
+		locationRepository:     locationRepository,
+		shiftPatternRepository: shiftPatternRepository,
 	}
 }
 
@@ -45,7 +50,7 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		Name: req.Name,
 	}
 
-	locationRoot, err := usecase.NewCreateLocationRootUseCase(h.locationRepository).Execute(c.Context(), command)
+	locationRoot, err := usecase.NewCreateLocationRootUseCase(h.locationRepository, h.shiftPatternRepository).Execute(c.Context(), command)
 	if err != nil {
 		return err
 	}
@@ -81,7 +86,7 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 		RootCode:   req.RootCode,
 	}
 
-	location, err := usecase.NewAddLocationUseCase(h.locationRepository).Execute(c.Context(), command)
+	location, err := usecase.NewAddLocationUseCase(h.locationRepository, h.shiftPatternRepository).Execute(c.Context(), command)
 	if err != nil {
 		return err
 	}

@@ -2,10 +2,12 @@ package entity
 
 import (
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestNewRootLocation(t *testing.T) {
-	loc := NewRootLocation("PLANT01", "Plant One")
+	loc := NewRootLocation("PLANT01", "Plant One", uuid.UUID{})
 
 	if loc == nil {
 		t.Fatal("Expected location, got nil")
@@ -28,8 +30,8 @@ func TestNewRootLocation(t *testing.T) {
 }
 
 func TestNewLocation(t *testing.T) {
-	root := NewRootLocation("PLANT01", "Plant One")
-	child := NewLocation("AREA01", "Area One", LocationKindArea, root)
+	root := NewRootLocation("PLANT01", "Plant One", uuid.UUID{})
+	child := NewLocation("AREA01", "Area One", LocationKindArea, root, uuid.UUID{})
 
 	if child.Code() != "AREA01" {
 		t.Errorf("Expected code AREA01, got %s", child.Code())
@@ -42,9 +44,18 @@ func TestNewLocation(t *testing.T) {
 	}
 }
 
+func TestNewLocation_WithShiftPattern(t *testing.T) {
+	patternID := uuid.New()
+	loc := NewRootLocation("PLANT01", "Plant One", patternID)
+
+	if loc.ShiftPatternID() != patternID {
+		t.Errorf("Expected shiftPatternID %v, got %v", patternID, loc.ShiftPatternID())
+	}
+}
+
 func TestLocation_AddChild(t *testing.T) {
-	root := NewRootLocation("PLANT01", "Plant One")
-	child := NewLocation("AREA01", "Area One", LocationKindArea, root)
+	root := NewRootLocation("PLANT01", "Plant One", uuid.UUID{})
+	child := NewLocation("AREA01", "Area One", LocationKindArea, root, uuid.UUID{})
 	root.AddChild(child)
 
 	if len(root.Children()) != 1 {
@@ -56,9 +67,9 @@ func TestLocation_AddChild(t *testing.T) {
 }
 
 func TestLocation_FindByCode(t *testing.T) {
-	root := NewRootLocation("PLANT01", "Plant One")
-	area := NewLocation("AREA01", "Area One", LocationKindArea, root)
-	line := NewLocation("LINE01", "Line One", LocationKindLine, area)
+	root := NewRootLocation("PLANT01", "Plant One", uuid.UUID{})
+	area := NewLocation("AREA01", "Area One", LocationKindArea, root, uuid.UUID{})
+	line := NewLocation("LINE01", "Line One", LocationKindLine, area, uuid.UUID{})
 	root.AddChild(area)
 	area.AddChild(line)
 
@@ -92,8 +103,8 @@ func TestLocation_FindByCode(t *testing.T) {
 }
 
 func TestLocation_ExistsByCode(t *testing.T) {
-	root := NewRootLocation("PLANT01", "Plant One")
-	area := NewLocation("AREA01", "Area One", LocationKindArea, root)
+	root := NewRootLocation("PLANT01", "Plant One", uuid.UUID{})
+	area := NewLocation("AREA01", "Area One", LocationKindArea, root, uuid.UUID{})
 	root.AddChild(area)
 
 	if !root.ExistsByCode("PLANT01") {
@@ -130,7 +141,7 @@ func TestIsValidLocationKind(t *testing.T) {
 }
 
 func TestLocation_FindByCode_NoChildren(t *testing.T) {
-	root := NewRootLocation("PLANT01", "Plant One")
+	root := NewRootLocation("PLANT01", "Plant One", uuid.UUID{})
 	found := root.FindByCode("AREA01")
 	if found != nil {
 		t.Error("Expected nil when no children exist")

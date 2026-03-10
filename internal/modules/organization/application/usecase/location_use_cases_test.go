@@ -5,16 +5,28 @@ import (
 	"testing"
 
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/input"
+	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/output/persistence"
+	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/seeder"
 )
+
+// seededShiftPatternRepo returns an in-memory shift pattern repo pre-loaded with the default pattern.
+func seededShiftPatternRepo(t *testing.T) output.ShiftPatternRepository {
+	t.Helper()
+	repo := persistence.NewMemoryShiftPatternRepository()
+	if err := seeder.SeedDefaultShiftPatterns(repo); err != nil {
+		t.Fatalf("failed to seed shift patterns: %v", err)
+	}
+	return repo
+}
 
 func TestCreateLocationRootUseCase_Execute(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("creates root location successfully", func(t *testing.T) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		uc := NewCreateLocationRootUseCase(repo)
+		uc := NewCreateLocationRootUseCase(repo, seededShiftPatternRepo(t))
 
 		loc, err := uc.Execute(ctx, input.CreateLocationRootCommand{
 			Code: "PLANT01",
@@ -30,11 +42,14 @@ func TestCreateLocationRootUseCase_Execute(t *testing.T) {
 		if loc.Code() != "PLANT01" {
 			t.Errorf("Expected code PLANT01, got %s", loc.Code())
 		}
+		if loc.ShiftPatternID().String() == "00000000-0000-0000-0000-000000000000" {
+			t.Error("Expected non-zero ShiftPatternID (default should be assigned)")
+		}
 	})
 
 	t.Run("returns error when location already exists", func(t *testing.T) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		uc := NewCreateLocationRootUseCase(repo)
+		uc := NewCreateLocationRootUseCase(repo, seededShiftPatternRepo(t))
 		cmd := input.CreateLocationRootCommand{Code: "PLANT01", Name: "Plant One"}
 
 		_, err := uc.Execute(ctx, cmd)
@@ -54,7 +69,8 @@ func TestAddLocationUseCase_Execute(t *testing.T) {
 
 	setup := func() (input.AddLocationUseCase, input.CreateLocationRootUseCase) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		return NewAddLocationUseCase(repo), NewCreateLocationRootUseCase(repo)
+		spRepo := seededShiftPatternRepo(t)
+		return NewAddLocationUseCase(repo, spRepo), NewCreateLocationRootUseCase(repo, spRepo)
 	}
 
 	t.Run("adds child location successfully", func(t *testing.T) {
@@ -193,7 +209,8 @@ func TestGetAllLocationsUseCase_Execute(t *testing.T) {
 
 	t.Run("returns all root locations", func(t *testing.T) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		createUC := NewCreateLocationRootUseCase(repo)
+		spRepo := seededShiftPatternRepo(t)
+		createUC := NewCreateLocationRootUseCase(repo, spRepo)
 		getAllUC := NewGetAllLocationsUseCase(repo)
 
 		_, err := createUC.Execute(ctx, input.CreateLocationRootCommand{Code: "PLANT01", Name: "Plant One"})

@@ -5,6 +5,7 @@ import (
 
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
+	domainerrors "github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/errors"
 )
 
 type memoryShiftPatternRepository struct {
@@ -30,6 +31,13 @@ func (r *memoryShiftPatternRepository) FindByID(id uuid.UUID) (*entity.ShiftPatt
 		}
 	}
 	return nil, nil
+}
+
+func (r *memoryShiftPatternRepository) GetDefault() (*entity.ShiftPattern, error) {
+	if len(r.patterns) == 0 {
+		return nil, domainerrors.ErrShiftPatternNotFound
+	}
+	return r.patterns[0], nil
 }
 
 func (r *memoryShiftPatternRepository) GetAll() ([]*entity.ShiftPattern, error) {

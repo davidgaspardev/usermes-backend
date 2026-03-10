@@ -1,16 +1,19 @@
 package persistence
 
 import (
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
 )
 
 // LocationRecord is the in-memory representation of a persisted location.
 type LocationRecord struct {
-	Code       string
-	Name       string
-	Kind       string
-	ParentCode string
+	Code           string
+	Name           string
+	Kind           string
+	ParentCode     string
+	ShiftPatternID uuid.UUID
 }
 
 type locationRepositoryInMemory struct {
@@ -26,10 +29,11 @@ func NewLocationRepositoryInMemory() output.LocationRepository {
 
 func (r *locationRepositoryInMemory) Create(location *entity.Location) error {
 	r.locations = append(r.locations, LocationRecord{
-		Code:       location.Code(),
-		Name:       location.Name(),
-		Kind:       string(location.Kind()),
-		ParentCode: location.ParentCode(),
+		Code:           location.Code(),
+		Name:           location.Name(),
+		Kind:           string(location.Kind()),
+		ParentCode:     location.ParentCode(),
+		ShiftPatternID: location.ShiftPatternID(),
 	})
 	return nil
 }
@@ -55,6 +59,7 @@ func (r *locationRepositoryInMemory) buildLocationTree(rootCode string) *entity.
 				location.Name,
 				entity.LocationKind(location.Kind),
 				nil,
+				location.ShiftPatternID,
 			)
 			break
 		}
@@ -77,6 +82,7 @@ func (r *locationRepositoryInMemory) buildChildren(parent *entity.Location) {
 				location.Name,
 				entity.LocationKind(location.Kind),
 				parent,
+				location.ShiftPatternID,
 			)
 			r.buildChildren(childCopy)
 			parent.AddChild(childCopy)

@@ -72,7 +72,7 @@ func main() {
 	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
 
 	// Organization module routes
-	organizationRoutes := organizationhttp.NewOrganizationRoutes(locationRepository)
+	organizationRoutes := organizationhttp.NewOrganizationRoutes(locationRepository, shiftPatternRepository)
 	httpServer.RegisterRoutes(organizationRoutes.SetupRoutes)
 
 	// Production module routes

@@ -10,13 +10,18 @@ import (
 )
 
 type addLocationUseCaseImpl struct {
-	locationRepository output.LocationRepository
+	locationRepository     output.LocationRepository
+	shiftPatternRepository output.ShiftPatternRepository
 }
 
 // NewAddLocationUseCase creates a new AddLocationUseCase instance.
-func NewAddLocationUseCase(locationRepository output.LocationRepository) input.AddLocationUseCase {
+func NewAddLocationUseCase(
+	locationRepository output.LocationRepository,
+	shiftPatternRepository output.ShiftPatternRepository,
+) input.AddLocationUseCase {
 	return &addLocationUseCaseImpl{
-		locationRepository: locationRepository,
+		locationRepository:     locationRepository,
+		shiftPatternRepository: shiftPatternRepository,
 	}
 }
 
@@ -43,11 +48,17 @@ func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.Add
 		return nil, errors.ErrLocationNotFound
 	}
 
+	shiftPatternID, err := resolveShiftPatternID(command.ShiftPatternID, uc.shiftPatternRepository)
+	if err != nil {
+		return nil, err
+	}
+
 	location := entity.NewLocation(
 		command.Code,
 		command.Name,
 		entity.LocationKind(command.Kind),
 		parentLocation,
+		shiftPatternID,
 	)
 
 	if err := uc.locationRepository.Create(location); err != nil {

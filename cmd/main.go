@@ -11,6 +11,7 @@ import (
 	iampersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/output/persistence"
 	organizationhttp "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/input/http"
 	organizationpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/output/persistence"
+	organizationseeder "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/seeder"
 	productionusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
 	productionhttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
 	productionpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
@@ -44,6 +45,16 @@ func main() {
 	// Initialize Resource module
 	resourceRepository := productionpersistence.NewMemoryResourceRepository()
 	resourceService := productionusecase.NewResourceService(resourceRepository)
+
+	// Initialize Shift Pattern repository (Organization) and seed default patterns
+	shiftPatternRepository := organizationpersistence.NewMemoryShiftPatternRepository()
+	if err := organizationseeder.SeedDefaultShiftPatterns(shiftPatternRepository); err != nil {
+		log.Fatalf("Failed to seed default shift patterns: %v", err)
+	}
+
+	// Initialize Shift instance repository (Production)
+	shiftRepository := productionpersistence.NewMemoryShiftRepository()
+	_ = shiftRepository // available for use case wiring
 
 	// Initialize HTTP server
 	serverConfig := server.DefaultConfig()

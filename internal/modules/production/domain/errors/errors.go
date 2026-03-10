@@ -23,4 +23,7 @@ var (
 
 	// ErrInvalidStopFactor is returned when the stop factor is invalid
 	ErrInvalidStopFactor = errors.New("invalid stop factor: must be non-negative")
+
+	// ErrShiftNotFound is returned when a shift instance is not found
+	ErrShiftNotFound = errors.New("shift not found")
 )

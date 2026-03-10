@@ -45,8 +45,9 @@ func NewLocation(code string, name string, kind LocationKind, parent *Location, 
 }
 
 // NewRootLocation creates a new root Location (plant level) with no parent.
-func NewRootLocation(code string, name string, shiftPatternID uuid.UUID) *Location {
-	return NewLocation(code, name, LocationKindPlant, nil, shiftPatternID)
+// Plants do not operate shifts, so no shift pattern is assigned.
+func NewRootLocation(code string, name string) *Location {
+	return NewLocation(code, name, LocationKindPlant, nil, uuid.UUID{})
 }
 
 // Code returns the location's unique code.

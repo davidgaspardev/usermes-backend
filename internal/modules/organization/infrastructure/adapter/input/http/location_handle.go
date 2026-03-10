@@ -50,7 +50,7 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		Name: req.Name,
 	}
 
-	locationRoot, err := usecase.NewCreateLocationRootUseCase(h.locationRepository, h.shiftPatternRepository).Execute(c.Context(), command)
+	locationRoot, err := usecase.NewCreateLocationRootUseCase(h.locationRepository).Execute(c.Context(), command)
 	if err != nil {
 		return err
 	}

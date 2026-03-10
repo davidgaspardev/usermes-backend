@@ -26,7 +26,7 @@ func TestCreateLocationRootUseCase_Execute(t *testing.T) {
 
 	t.Run("creates root location successfully", func(t *testing.T) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		uc := NewCreateLocationRootUseCase(repo, seededShiftPatternRepo(t))
+		uc := NewCreateLocationRootUseCase(repo)
 
 		loc, err := uc.Execute(ctx, input.CreateLocationRootCommand{
 			Code: "PLANT01",
@@ -42,14 +42,15 @@ func TestCreateLocationRootUseCase_Execute(t *testing.T) {
 		if loc.Code() != "PLANT01" {
 			t.Errorf("Expected code PLANT01, got %s", loc.Code())
 		}
-		if loc.ShiftPatternID().String() == "00000000-0000-0000-0000-000000000000" {
-			t.Error("Expected non-zero ShiftPatternID (default should be assigned)")
+		// Plants have no shift pattern
+		if loc.ShiftPatternID().String() != "00000000-0000-0000-0000-000000000000" {
+			t.Error("Expected zero ShiftPatternID for plant location")
 		}
 	})
 
 	t.Run("returns error when location already exists", func(t *testing.T) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		uc := NewCreateLocationRootUseCase(repo, seededShiftPatternRepo(t))
+		uc := NewCreateLocationRootUseCase(repo)
 		cmd := input.CreateLocationRootCommand{Code: "PLANT01", Name: "Plant One"}
 
 		_, err := uc.Execute(ctx, cmd)
@@ -69,8 +70,7 @@ func TestAddLocationUseCase_Execute(t *testing.T) {
 
 	setup := func() (input.AddLocationUseCase, input.CreateLocationRootUseCase) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		spRepo := seededShiftPatternRepo(t)
-		return NewAddLocationUseCase(repo, spRepo), NewCreateLocationRootUseCase(repo, spRepo)
+		return NewAddLocationUseCase(repo, seededShiftPatternRepo(t)), NewCreateLocationRootUseCase(repo)
 	}
 
 	t.Run("adds child location successfully", func(t *testing.T) {
@@ -209,8 +209,7 @@ func TestGetAllLocationsUseCase_Execute(t *testing.T) {
 
 	t.Run("returns all root locations", func(t *testing.T) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		spRepo := seededShiftPatternRepo(t)
-		createUC := NewCreateLocationRootUseCase(repo, spRepo)
+		createUC := NewCreateLocationRootUseCase(repo)
 		getAllUC := NewGetAllLocationsUseCase(repo)
 
 		_, err := createUC.Execute(ctx, input.CreateLocationRootCommand{Code: "PLANT01", Name: "Plant One"})

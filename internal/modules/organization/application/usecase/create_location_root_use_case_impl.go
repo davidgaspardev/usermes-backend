@@ -12,19 +12,12 @@ import (
 )
 
 type createLocationRootUseCaseImpl struct {
-	locationRepository     output.LocationRepository
-	shiftPatternRepository output.ShiftPatternRepository
+	locationRepository output.LocationRepository
 }
 
 // NewCreateLocationRootUseCase creates a new CreateLocationRootUseCase instance.
-func NewCreateLocationRootUseCase(
-	locationRepository output.LocationRepository,
-	shiftPatternRepository output.ShiftPatternRepository,
-) input.CreateLocationRootUseCase {
-	return &createLocationRootUseCaseImpl{
-		locationRepository:     locationRepository,
-		shiftPatternRepository: shiftPatternRepository,
-	}
+func NewCreateLocationRootUseCase(locationRepository output.LocationRepository) input.CreateLocationRootUseCase {
+	return &createLocationRootUseCaseImpl{locationRepository: locationRepository}
 }
 
 func (uc *createLocationRootUseCaseImpl) Execute(ctx context.Context, command input.CreateLocationRootCommand) (*entity.Location, error) {
@@ -37,12 +30,7 @@ func (uc *createLocationRootUseCaseImpl) Execute(ctx context.Context, command in
 		return nil, errors.ErrLocationAlreadyExists
 	}
 
-	shiftPatternID, err := resolveShiftPatternID(command.ShiftPatternID, uc.shiftPatternRepository)
-	if err != nil {
-		return nil, err
-	}
-
-	location := entity.NewRootLocation(command.Code, command.Name, shiftPatternID)
+	location := entity.NewRootLocation(command.Code, command.Name)
 	if err := uc.locationRepository.Create(location); err != nil {
 		return nil, err
 	}

@@ -1,11 +1,15 @@
 info:
-  name: Create Root Location
+  name: Create resources
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
-  url: "{{baseURL}}/v1/api/organization/locations/"
+  url: "{{baseURL}}/v1/api/production/locations/:location_code/resources/"
+  params:
+    - name: location_code
+      value: PLANT-01
+      type: path
   headers:
     - name: Content-Type
       value: application/json
@@ -15,8 +19,11 @@ http:
     type: json
     data: |-
       {
-        "code": "PLANT-01",
-        "name": "Plant 01"
+        "code": "RES-01",
+        "type": "MACHINE",
+        "stop_factor": 0,
+        "shift_id": null,
+        "tags": []
       }
   auth: inherit
 

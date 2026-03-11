@@ -91,6 +91,18 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(dto.ToLocationResponse(location))
 }
 
+// GetByCode handles GET requests to retrieve a location tree by its root code.
+func (h *LocationHandler) GetByCode(c *fiber.Ctx) error {
+	code := c.Params("location_code")
+
+	location, err := usecase.NewGetLocationByCodeUseCase(h.locationRepository).Execute(c.Context(), code)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.ToLocationResponse(location))
+}
+
 // GetAll handles GET requests to retrieve all locations.
 func (h *LocationHandler) GetAll(c *fiber.Ctx) error {
 	locations, err := usecase.NewGetAllLocationsUseCase(h.locationRepository).Execute(c.Context())

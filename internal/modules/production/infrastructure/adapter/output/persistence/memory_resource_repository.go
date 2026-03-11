@@ -184,28 +184,3 @@ func (r *MemoryResourceRepository) FindByType(ctx context.Context, resourceType 
 	return filtered[offset:end], nil
 }
 
-// FindByShiftID retrieves all resources assigned to a specific shift
-func (r *MemoryResourceRepository) FindByShiftID(ctx context.Context, shiftID string, limit, offset int) ([]*entity.Resource, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	// Filter resources by shift ID
-	filtered := make([]*entity.Resource, 0)
-	for _, resource := range r.resources {
-		if resource.ShiftID() != nil && *resource.ShiftID() == shiftID {
-			filtered = append(filtered, resource)
-		}
-	}
-
-	// Apply pagination
-	if offset >= len(filtered) {
-		return []*entity.Resource{}, nil
-	}
-
-	end := offset + limit
-	if limit == 0 || end > len(filtered) {
-		end = len(filtered)
-	}
-
-	return filtered[offset:end], nil
-}

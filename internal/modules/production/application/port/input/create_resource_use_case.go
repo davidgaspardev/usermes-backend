@@ -4,8 +4,7 @@ import "context"
 
 // CreateResourceCommand holds the input data for creating a new resource.
 type CreateResourceCommand struct {
-	ShiftID      *string
-	PlantCode    string
+	LocationCode string
 	Code         string
 	ResourceType string
 	WhoCreated   string

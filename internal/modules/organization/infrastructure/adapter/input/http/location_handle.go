@@ -37,7 +37,6 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		))
 	}
 
-	// Validate request
 	if err := req.Validate(); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"validation_error",
@@ -55,8 +54,7 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		return err
 	}
 
-	response := dto.ToLocationResponse(locationRoot)
-	return c.Status(fiber.StatusCreated).JSON(response)
+	return c.Status(fiber.StatusCreated).JSON(dto.ToLocationResponse(locationRoot))
 }
 
 // Add handles POST requests to add a child location to an existing tree.
@@ -70,7 +68,6 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 		))
 	}
 
-	// Validate request
 	if err := req.Validate(); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"validation_error",
@@ -91,8 +88,7 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 		return err
 	}
 
-	response := dto.ToLocationResponse(location)
-	return c.Status(fiber.StatusCreated).JSON(response)
+	return c.Status(fiber.StatusCreated).JSON(dto.ToLocationResponse(location))
 }
 
 // GetAll handles GET requests to retrieve all locations.
@@ -102,6 +98,5 @@ func (h *LocationHandler) GetAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	response := dto.ToAllLocationsResponse(locations)
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(dto.ToAllLocationsResponse(locations))
 }

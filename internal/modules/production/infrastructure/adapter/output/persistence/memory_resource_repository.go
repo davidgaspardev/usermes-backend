@@ -183,4 +183,3 @@ func (r *MemoryResourceRepository) FindByType(ctx context.Context, resourceType 
 
 	return filtered[offset:end], nil
 }
-

@@ -3,6 +3,8 @@ package dto
 import (
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
 )
 
@@ -39,10 +41,11 @@ func (r *AddLocationRequest) Validate() error {
 
 // LocationResponse is the JSON response for a single location node.
 type LocationResponse struct {
-	Code     string             `json:"code"`
-	Name     string             `json:"name"`
-	Kind     string             `json:"kind"`
-	Children []LocationResponse `json:"children,omitempty"`
+	Code           string             `json:"code"`
+	Name           string             `json:"name"`
+	Kind           string             `json:"kind"`
+	ShiftPatternID string             `json:"shift_pattern_id,omitempty"`
+	Children       []LocationResponse `json:"children,omitempty"`
 }
 
 // ToLocationResponse converts a Location entity to a LocationResponse DTO.
@@ -52,12 +55,18 @@ func ToLocationResponse(location *entity.Location) LocationResponse {
 		children[i] = ToLocationResponse(child)
 	}
 
-	return LocationResponse{
+	resp := LocationResponse{
 		Code:     location.Code(),
 		Name:     location.Name(),
 		Kind:     string(location.Kind()),
 		Children: children,
 	}
+
+	if id := location.ShiftPatternID(); id != (uuid.UUID{}) {
+		resp.ShiftPatternID = id.String()
+	}
+
+	return resp
 }
 
 // AllLocationsResponse is the JSON response for a list of location trees.

@@ -27,47 +27,38 @@ func NewResourceService(repository output.ResourceRepository) input.ResourceServ
 // Create creates a new resource
 func (s *ResourceServiceImpl) Create(
 	ctx context.Context,
-	plantCode string,
+	locationCode string,
 	code string,
-	shiftID *string,
 	resourceType string,
 	stopFactor int16,
 	tags []string,
 ) (*entity.Resource, error) {
-	// Validate plant code
-	plantCode = strings.ToUpper(strings.TrimSpace(plantCode))
-	if plantCode == "" {
+	locationCode = strings.ToUpper(strings.TrimSpace(locationCode))
+	if locationCode == "" {
 		return nil, errors.ErrInvalidCode
 	}
 
-	// Validate code
 	if err := s.validateCode(code); err != nil {
 		return nil, err
 	}
 
-	// Validate resource type
 	if err := s.validateResourceType(resourceType); err != nil {
 		return nil, err
 	}
 
-	// Validate stop factor
 	if err := s.validateStopFactor(stopFactor); err != nil {
 		return nil, err
 	}
 
-	// Normalize code
 	code = strings.ToUpper(strings.TrimSpace(code))
 
-	// Check if code already exists in this plant
 	existing, err := s.repository.FindByCode(ctx, code)
-	if err == nil && existing != nil && existing.PlantCode() == plantCode {
+	if err == nil && existing != nil && existing.LocationCode() == locationCode {
 		return nil, errors.ErrResourceCodeAlreadyExists
 	}
 
-	// Create resource
-	resource := entity.NewResource(plantCode, code, shiftID, resourceType, stopFactor, tags)
+	resource := entity.NewResource(locationCode, code, resourceType, stopFactor, tags)
 
-	// Save resource
 	if err := s.repository.Save(ctx, resource); err != nil {
 		return nil, err
 	}
@@ -79,50 +70,41 @@ func (s *ResourceServiceImpl) Create(
 func (s *ResourceServiceImpl) Update(
 	ctx context.Context,
 	id uuid.UUID,
-	plantCode string,
+	locationCode string,
 	code string,
-	shiftID *string,
 	resourceType string,
 	stopFactor int16,
 	tags []string,
 ) (*entity.Resource, error) {
-	// Validate plant code
-	plantCode = strings.ToUpper(strings.TrimSpace(plantCode))
-	if plantCode == "" {
+	locationCode = strings.ToUpper(strings.TrimSpace(locationCode))
+	if locationCode == "" {
 		return nil, errors.ErrInvalidCode
 	}
 
-	// Validate code
 	if err := s.validateCode(code); err != nil {
 		return nil, err
 	}
 
-	// Validate resource type
 	if err := s.validateResourceType(resourceType); err != nil {
 		return nil, err
 	}
 
-	// Validate stop factor
 	if err := s.validateStopFactor(stopFactor); err != nil {
 		return nil, err
 	}
 
-	// Normalize code
 	code = strings.ToUpper(strings.TrimSpace(code))
 
-	// Find existing resource
 	resource, err := s.repository.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update resource (including plant code if changed)
-	if resource.PlantCode() != plantCode {
-		resource.UpdatePlantCode(plantCode)
+	if resource.LocationCode() != locationCode {
+		resource.UpdateLocationCode(locationCode)
 	}
-	resource.Update(code, shiftID, resourceType, stopFactor, tags)
+	resource.Update(code, resourceType, stopFactor, tags)
 
-	// Save changes
 	if err := s.repository.Update(ctx, resource); err != nil {
 		return nil, err
 	}
@@ -132,13 +114,10 @@ func (s *ResourceServiceImpl) Update(
 
 // Delete deletes a resource by ID
 func (s *ResourceServiceImpl) Delete(ctx context.Context, id uuid.UUID) error {
-	// Check if resource exists
 	_, err := s.repository.FindByID(ctx, id)
 	if err != nil {
 		return err
 	}
-
-	// Delete resource
 	return s.repository.Delete(ctx, id)
 }
 
@@ -147,9 +126,9 @@ func (s *ResourceServiceImpl) GetByID(ctx context.Context, id uuid.UUID) (*entit
 	return s.repository.FindByID(ctx, id)
 }
 
-// GetByCode retrieves a resource by code within a plant
-func (s *ResourceServiceImpl) GetByCode(ctx context.Context, plantCode, code string) (*entity.Resource, error) {
-	plantCode = strings.ToUpper(strings.TrimSpace(plantCode))
+// GetByCode retrieves a resource by code within a location
+func (s *ResourceServiceImpl) GetByCode(ctx context.Context, locationCode, code string) (*entity.Resource, error) {
+	locationCode = strings.ToUpper(strings.TrimSpace(locationCode))
 	code = strings.ToUpper(strings.TrimSpace(code))
 
 	resource, err := s.repository.FindByCode(ctx, code)
@@ -157,32 +136,30 @@ func (s *ResourceServiceImpl) GetByCode(ctx context.Context, plantCode, code str
 		return nil, err
 	}
 
-	// Verify resource belongs to the specified plant
-	if resource.PlantCode() != plantCode {
+	if resource.LocationCode() != locationCode {
 		return nil, errors.ErrResourceNotFound
 	}
 
 	return resource, nil
 }
 
-// GetByPlant retrieves all resources for a specific plant
-func (s *ResourceServiceImpl) GetByPlant(ctx context.Context, plantCode string, limit, offset int) ([]*entity.Resource, error) {
-	plantCode = strings.ToUpper(strings.TrimSpace(plantCode))
+// GetByLocation retrieves all resources for a specific location
+func (s *ResourceServiceImpl) GetByLocation(ctx context.Context, locationCode string, limit, offset int) ([]*entity.Resource, error) {
+	locationCode = strings.ToUpper(strings.TrimSpace(locationCode))
 
 	allResources, err := s.repository.FindAll(ctx, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 
-	// Filter by plant code
-	plantResources := make([]*entity.Resource, 0)
+	result := make([]*entity.Resource, 0)
 	for _, resource := range allResources {
-		if resource.PlantCode() == plantCode {
-			plantResources = append(plantResources, resource)
+		if resource.LocationCode() == locationCode {
+			result = append(result, resource)
 		}
 	}
 
-	return plantResources, nil
+	return result, nil
 }
 
 // GetAll retrieves all resources with pagination
@@ -195,36 +172,22 @@ func (s *ResourceServiceImpl) GetByType(ctx context.Context, resourceType string
 	return s.repository.FindByType(ctx, resourceType, limit, offset)
 }
 
-// GetByShiftID retrieves all resources assigned to a specific shift
-func (s *ResourceServiceImpl) GetByShiftID(ctx context.Context, shiftID string, limit, offset int) ([]*entity.Resource, error) {
-	return s.repository.FindByShiftID(ctx, shiftID, limit, offset)
-}
-
-// validateCode validates the resource code
 func (s *ResourceServiceImpl) validateCode(code string) error {
 	code = strings.TrimSpace(code)
-	if code == "" {
-		return errors.ErrInvalidCode
-	}
-	if len(code) < 2 || len(code) > 50 {
+	if code == "" || len(code) < 2 || len(code) > 50 {
 		return errors.ErrInvalidCode
 	}
 	return nil
 }
 
-// validateResourceType validates the resource type
 func (s *ResourceServiceImpl) validateResourceType(resourceType string) error {
 	resourceType = strings.TrimSpace(resourceType)
-	if resourceType == "" {
-		return errors.ErrInvalidType
-	}
-	if len(resourceType) < 2 || len(resourceType) > 50 {
+	if resourceType == "" || len(resourceType) < 2 || len(resourceType) > 50 {
 		return errors.ErrInvalidType
 	}
 	return nil
 }
 
-// validateStopFactor validates the stop factor
 func (s *ResourceServiceImpl) validateStopFactor(stopFactor int16) error {
 	if stopFactor < 0 {
 		return errors.ErrInvalidStopFactor

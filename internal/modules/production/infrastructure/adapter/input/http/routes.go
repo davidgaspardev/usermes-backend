@@ -20,15 +20,13 @@ func NewProductionRoutes(resourceService input.ResourceService) *ProductionRoute
 
 // SetupRoutes registers all production routes with the Fiber app
 func (r *ProductionRoutes) SetupRoutes(app *fiber.App) {
-	resources := app.Group("/v1/api/production/plants/:plant_code")
+	resources := app.Group("/v1/api/production/locations/:location_code")
 
-	// Create a new resource in the specified plant
 	resources.Post("/resources/", r.resourceHandler.Create)
 	resources.Get("/resources/", r.resourceHandler.GetAll)
 	resources.Get("/resources/:id", r.resourceHandler.GetByID)
 	resources.Get("/resources/code/:res_code", r.resourceHandler.GetByCode)
 	resources.Get("/resources/type/:type", r.resourceHandler.GetByType)
-	resources.Get("/resources/shift/:shiftId", r.resourceHandler.GetByShiftID)
 	resources.Put("/resources/:id", r.resourceHandler.Update)
 	resources.Delete("/resources/:id", r.resourceHandler.Delete)
 }

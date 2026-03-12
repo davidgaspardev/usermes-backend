@@ -1,0 +1,27 @@
+info:
+  name: Create Root Location
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseURL}}/v1/api/organization/locations/"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "code": "PLANT-01",
+        "name": "Plant 01"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

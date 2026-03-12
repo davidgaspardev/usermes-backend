@@ -11,12 +11,13 @@ type OrganizationRoutes struct {
 	locationHandler *LocationHandler
 }
 
-// NewOrganizationRoutes creates a new OrganizationRoutes with the given location repository.
+// NewOrganizationRoutes creates a new OrganizationRoutes with the given repositories.
 func NewOrganizationRoutes(
-	locationHandler output.LocationRepository,
+	locationRepository output.LocationRepository,
+	shiftPatternRepository output.ShiftPatternRepository,
 ) *OrganizationRoutes {
 	return &OrganizationRoutes{
-		locationHandler: NewLocationHandler(locationHandler),
+		locationHandler: NewLocationHandler(locationRepository, shiftPatternRepository),
 	}
 }
 
@@ -27,4 +28,5 @@ func (o *OrganizationRoutes) SetupRoutes(app *fiber.App) {
 	locationRoutes.Post("/", o.locationHandler.Create)
 	locationRoutes.Post("/add", o.locationHandler.Add)
 	locationRoutes.Get("/", o.locationHandler.GetAll)
+	locationRoutes.Get("/:location_code", o.locationHandler.GetByCode)
 }

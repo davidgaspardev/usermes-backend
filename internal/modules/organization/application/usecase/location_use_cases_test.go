@@ -5,9 +5,21 @@ import (
 	"testing"
 
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/input"
+	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/errors"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/output/persistence"
+	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/seeder"
 )
+
+// seededShiftPatternRepo returns an in-memory shift pattern repo pre-loaded with the default pattern.
+func seededShiftPatternRepo(t *testing.T) output.ShiftPatternRepository {
+	t.Helper()
+	repo := persistence.NewMemoryShiftPatternRepository()
+	if err := seeder.SeedDefaultShiftPatterns(repo); err != nil {
+		t.Fatalf("failed to seed shift patterns: %v", err)
+	}
+	return repo
+}
 
 func TestCreateLocationRootUseCase_Execute(t *testing.T) {
 	ctx := context.Background()
@@ -29,6 +41,10 @@ func TestCreateLocationRootUseCase_Execute(t *testing.T) {
 		}
 		if loc.Code() != "PLANT01" {
 			t.Errorf("Expected code PLANT01, got %s", loc.Code())
+		}
+		// Plants have no shift pattern
+		if loc.ShiftPatternID().String() != "00000000-0000-0000-0000-000000000000" {
+			t.Error("Expected zero ShiftPatternID for plant location")
 		}
 	})
 
@@ -54,7 +70,7 @@ func TestAddLocationUseCase_Execute(t *testing.T) {
 
 	setup := func() (input.AddLocationUseCase, input.CreateLocationRootUseCase) {
 		repo := persistence.NewLocationRepositoryInMemory()
-		return NewAddLocationUseCase(repo), NewCreateLocationRootUseCase(repo)
+		return NewAddLocationUseCase(repo, seededShiftPatternRepo(t)), NewCreateLocationRootUseCase(repo)
 	}
 
 	t.Run("adds child location successfully", func(t *testing.T) {

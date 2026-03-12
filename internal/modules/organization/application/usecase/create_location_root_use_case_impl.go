@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/input"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
@@ -14,12 +16,8 @@ type createLocationRootUseCaseImpl struct {
 }
 
 // NewCreateLocationRootUseCase creates a new CreateLocationRootUseCase instance.
-func NewCreateLocationRootUseCase(
-	locationRepository output.LocationRepository,
-) input.CreateLocationRootUseCase {
-	return &createLocationRootUseCaseImpl{
-		locationRepository: locationRepository,
-	}
+func NewCreateLocationRootUseCase(locationRepository output.LocationRepository) input.CreateLocationRootUseCase {
+	return &createLocationRootUseCaseImpl{locationRepository: locationRepository}
 }
 
 func (uc *createLocationRootUseCaseImpl) Execute(ctx context.Context, command input.CreateLocationRootCommand) (*entity.Location, error) {
@@ -32,13 +30,22 @@ func (uc *createLocationRootUseCaseImpl) Execute(ctx context.Context, command in
 		return nil, errors.ErrLocationAlreadyExists
 	}
 
-	location := entity.NewRootLocation(
-		command.Code,
-		command.Name,
-	)
+	location := entity.NewRootLocation(command.Code, command.Name)
 	if err := uc.locationRepository.Create(location); err != nil {
 		return nil, err
 	}
 
 	return location, nil
+}
+
+// resolveShiftPatternID returns the given ID when provided, otherwise fetches the default pattern.
+func resolveShiftPatternID(id *uuid.UUID, repo output.ShiftPatternRepository) (uuid.UUID, error) {
+	if id != nil {
+		return *id, nil
+	}
+	pattern, err := repo.GetDefault()
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+	return pattern.ID(), nil
 }

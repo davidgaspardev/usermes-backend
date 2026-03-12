@@ -33,16 +33,15 @@ func (u *createResourceUseCaseImpl) Execute(ctx context.Context, command *input.
 	}
 
 	resource := entity.NewResource(
-		command.PlantCode,
+		command.LocationCode,
 		command.Code,
-		command.ShiftID,
 		command.ResourceType,
 		command.StopFactor,
 		command.Tags,
 	)
 	event := entity.NewEventResourceCreated(
 		resource.Code(),
-		*command.ShiftID,
+		"",
 		command.WhoCreated,
 	)
 

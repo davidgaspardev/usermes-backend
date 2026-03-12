@@ -2,6 +2,8 @@ package entity
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // LocationKind represents the type of a location in the organization hierarchy.
@@ -17,32 +19,35 @@ const (
 
 // Location represents a node in the organization location tree.
 type Location struct {
-	createdAt time.Time
-	updatedAt time.Time
-	parent    *Location
-	code      string
-	name      string
-	kind      LocationKind
-	children  []*Location
+	createdAt      time.Time
+	updatedAt      time.Time
+	parent         *Location
+	code           string
+	name           string
+	kind           LocationKind
+	children       []*Location
+	shiftPatternID uuid.UUID
 }
 
 // NewLocation creates a new Location with the given attributes.
-func NewLocation(code string, name string, kind LocationKind, parent *Location) *Location {
+func NewLocation(code string, name string, kind LocationKind, parent *Location, shiftPatternID uuid.UUID) *Location {
 	now := time.Now()
 	return &Location{
-		code:      code,
-		name:      name,
-		kind:      kind,
-		parent:    parent,
-		children:  nil,
-		createdAt: now,
-		updatedAt: now,
+		code:           code,
+		name:           name,
+		kind:           kind,
+		parent:         parent,
+		children:       nil,
+		shiftPatternID: shiftPatternID,
+		createdAt:      now,
+		updatedAt:      now,
 	}
 }
 
 // NewRootLocation creates a new root Location (plant level) with no parent.
+// Plants do not operate shifts, so no shift pattern is assigned.
 func NewRootLocation(code string, name string) *Location {
-	return NewLocation(code, name, LocationKindPlant, nil)
+	return NewLocation(code, name, LocationKindPlant, nil, uuid.UUID{})
 }
 
 // Code returns the location's unique code.
@@ -110,6 +115,11 @@ func IsValidLocationKind(kind string) bool {
 	default:
 		return false
 	}
+}
+
+// ShiftPatternID returns the shift pattern assigned to this location.
+func (l *Location) ShiftPatternID() uuid.UUID {
+	return l.shiftPatternID
 }
 
 // AddChild appends a child location to this location's children list.

@@ -11,13 +11,18 @@ import (
 
 // LocationHandler handles HTTP requests for location operations.
 type LocationHandler struct {
-	locationRepository output.LocationRepository
+	locationRepository     output.LocationRepository
+	shiftPatternRepository output.ShiftPatternRepository
 }
 
-// NewLocationHandler creates a new LocationHandler with the given repository.
-func NewLocationHandler(locationRepository output.LocationRepository) *LocationHandler {
+// NewLocationHandler creates a new LocationHandler with the given repositories.
+func NewLocationHandler(
+	locationRepository output.LocationRepository,
+	shiftPatternRepository output.ShiftPatternRepository,
+) *LocationHandler {
 	return &LocationHandler{
-		locationRepository: locationRepository,
+		locationRepository:     locationRepository,
+		shiftPatternRepository: shiftPatternRepository,
 	}
 }
 
@@ -32,7 +37,6 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		))
 	}
 
-	// Validate request
 	if err := req.Validate(); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"validation_error",
@@ -50,8 +54,7 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		return err
 	}
 
-	response := dto.ToLocationResponse(locationRoot)
-	return c.Status(fiber.StatusCreated).JSON(response)
+	return c.Status(fiber.StatusCreated).JSON(dto.ToLocationResponse(locationRoot))
 }
 
 // Add handles POST requests to add a child location to an existing tree.
@@ -65,7 +68,6 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 		))
 	}
 
-	// Validate request
 	if err := req.Validate(); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"validation_error",
@@ -81,13 +83,24 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 		RootCode:   req.RootCode,
 	}
 
-	location, err := usecase.NewAddLocationUseCase(h.locationRepository).Execute(c.Context(), command)
+	location, err := usecase.NewAddLocationUseCase(h.locationRepository, h.shiftPatternRepository).Execute(c.Context(), command)
 	if err != nil {
 		return err
 	}
 
-	response := dto.ToLocationResponse(location)
-	return c.Status(fiber.StatusCreated).JSON(response)
+	return c.Status(fiber.StatusCreated).JSON(dto.ToLocationResponse(location))
+}
+
+// GetByCode handles GET requests to retrieve a location tree by its root code.
+func (h *LocationHandler) GetByCode(c *fiber.Ctx) error {
+	code := c.Params("location_code")
+
+	location, err := usecase.NewGetLocationByCodeUseCase(h.locationRepository).Execute(c.Context(), code)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.ToLocationResponse(location))
 }
 
 // GetAll handles GET requests to retrieve all locations.
@@ -97,6 +110,5 @@ func (h *LocationHandler) GetAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	response := dto.ToAllLocationsResponse(locations)
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(dto.ToAllLocationsResponse(locations))
 }

@@ -24,12 +24,11 @@ func NewResourceHandler(service input.ResourceService) *ResourceHandler {
 
 // Create handles the creation of a new resource
 func (h *ResourceHandler) Create(c *fiber.Ctx) error {
-	// Get plant code from URL parameter
-	plantCode := c.Params("plant_code")
-	if plantCode == "" {
+	locationCode := c.Params("location_code")
+	if locationCode == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"invalid_request",
-			"Plant code is required in URL",
+			"Location code is required in URL",
 		))
 	}
 
@@ -42,13 +41,12 @@ func (h *ResourceHandler) Create(c *fiber.Ctx) error {
 		))
 	}
 
-	resource, err := h.service.Create(c.Context(), plantCode, req.Code, req.ShiftID, req.Type, req.StopFactor, req.Tags)
+	resource, err := h.service.Create(c.Context(), locationCode, req.Code, req.Type, req.StopFactor, req.Tags)
 	if err != nil {
 		return h.handleError(c, err)
 	}
 
-	response := dto.ToResourceResponse(resource)
-	return c.Status(fiber.StatusCreated).JSON(response)
+	return c.Status(fiber.StatusCreated).JSON(dto.ToResourceResponse(resource))
 }
 
 // GetByID handles retrieving a resource by ID
@@ -67,22 +65,20 @@ func (h *ResourceHandler) GetByID(c *fiber.Ctx) error {
 		return h.handleError(c, err)
 	}
 
-	response := dto.ToResourceResponse(resource)
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(dto.ToResourceResponse(resource))
 }
 
 // GetByCode handles retrieving a resource by code
 func (h *ResourceHandler) GetByCode(c *fiber.Ctx) error {
-	// Get plant code from URL parameter
-	plantCode := c.Params("plant_code")
-	if plantCode == "" {
+	locationCode := c.Params("location_code")
+	if locationCode == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"invalid_request",
-			"Plant code is required in URL",
+			"Location code is required in URL",
 		))
 	}
 
-	code := c.Params("code")
+	code := c.Params("res_code")
 	if code == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"invalid_code",
@@ -90,13 +86,12 @@ func (h *ResourceHandler) GetByCode(c *fiber.Ctx) error {
 		))
 	}
 
-	resource, err := h.service.GetByCode(c.Context(), plantCode, code)
+	resource, err := h.service.GetByCode(c.Context(), locationCode, code)
 	if err != nil {
 		return h.handleError(c, err)
 	}
 
-	response := dto.ToResourceResponse(resource)
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(dto.ToResourceResponse(resource))
 }
 
 // GetAll handles retrieving all resources with pagination
@@ -109,8 +104,7 @@ func (h *ResourceHandler) GetAll(c *fiber.Ctx) error {
 		return h.handleError(c, err)
 	}
 
-	response := dto.ToResourceListResponse(resources, limit, offset)
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(dto.ToResourceListResponse(resources, limit, offset))
 }
 
 // GetByType handles retrieving resources by type
@@ -128,21 +122,6 @@ func (h *ResourceHandler) GetByType(c *fiber.Ctx) error {
 	})
 }
 
-// GetByShiftID handles retrieving resources by shift ID
-func (h *ResourceHandler) GetByShiftID(c *fiber.Ctx) error {
-	shiftID := c.Params("shiftId")
-	if shiftID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
-			"invalid_shift_id",
-			"Shift ID is required",
-		))
-	}
-
-	return h.getResourcesWithPagination(c, func(limit, offset int) ([]*entity.Resource, error) {
-		return h.service.GetByShiftID(c.Context(), shiftID, limit, offset)
-	})
-}
-
 // getResourcesWithPagination is a helper function to handle pagination logic
 func (h *ResourceHandler) getResourcesWithPagination(
 	c *fiber.Ctx,
@@ -156,18 +135,16 @@ func (h *ResourceHandler) getResourcesWithPagination(
 		return h.handleError(c, err)
 	}
 
-	response := dto.ToResourceListResponse(resources, limit, offset)
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(dto.ToResourceListResponse(resources, limit, offset))
 }
 
 // Update handles updating an existing resource
 func (h *ResourceHandler) Update(c *fiber.Ctx) error {
-	// Get plant code from URL parameter
-	plantCode := c.Params("plant_code")
-	if plantCode == "" {
+	locationCode := c.Params("location_code")
+	if locationCode == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"invalid_request",
-			"Plant code is required in URL",
+			"Location code is required in URL",
 		))
 	}
 
@@ -188,13 +165,12 @@ func (h *ResourceHandler) Update(c *fiber.Ctx) error {
 		))
 	}
 
-	resource, err := h.service.Update(c.Context(), id, plantCode, req.Code, req.ShiftID, req.Type, req.StopFactor, req.Tags)
+	resource, err := h.service.Update(c.Context(), id, locationCode, req.Code, req.Type, req.StopFactor, req.Tags)
 	if err != nil {
 		return h.handleError(c, err)
 	}
 
-	response := dto.ToResourceResponse(resource)
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(dto.ToResourceResponse(resource))
 }
 
 // Delete handles deleting a resource

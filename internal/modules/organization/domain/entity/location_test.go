@@ -2,6 +2,8 @@ package entity
 
 import (
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestNewRootLocation(t *testing.T) {
@@ -29,7 +31,7 @@ func TestNewRootLocation(t *testing.T) {
 
 func TestNewLocation(t *testing.T) {
 	root := NewRootLocation("PLANT01", "Plant One")
-	child := NewLocation("AREA01", "Area One", LocationKindArea, root)
+	child := NewLocation("AREA01", "Area One", LocationKindArea, root, uuid.UUID{})
 
 	if child.Code() != "AREA01" {
 		t.Errorf("Expected code AREA01, got %s", child.Code())
@@ -42,9 +44,23 @@ func TestNewLocation(t *testing.T) {
 	}
 }
 
+func TestNewLocation_WithShiftPattern(t *testing.T) {
+	patternID := uuid.New()
+	root := NewRootLocation("PLANT01", "Plant One")
+	area := NewLocation("AREA01", "Area One", LocationKindArea, root, patternID)
+
+	if area.ShiftPatternID() != patternID {
+		t.Errorf("Expected shiftPatternID %v, got %v", patternID, area.ShiftPatternID())
+	}
+	// Plant should have zero shift pattern ID
+	if root.ShiftPatternID() != (uuid.UUID{}) {
+		t.Error("Expected zero ShiftPatternID for plant")
+	}
+}
+
 func TestLocation_AddChild(t *testing.T) {
 	root := NewRootLocation("PLANT01", "Plant One")
-	child := NewLocation("AREA01", "Area One", LocationKindArea, root)
+	child := NewLocation("AREA01", "Area One", LocationKindArea, root, uuid.UUID{})
 	root.AddChild(child)
 
 	if len(root.Children()) != 1 {
@@ -57,8 +73,8 @@ func TestLocation_AddChild(t *testing.T) {
 
 func TestLocation_FindByCode(t *testing.T) {
 	root := NewRootLocation("PLANT01", "Plant One")
-	area := NewLocation("AREA01", "Area One", LocationKindArea, root)
-	line := NewLocation("LINE01", "Line One", LocationKindLine, area)
+	area := NewLocation("AREA01", "Area One", LocationKindArea, root, uuid.UUID{})
+	line := NewLocation("LINE01", "Line One", LocationKindLine, area, uuid.UUID{})
 	root.AddChild(area)
 	area.AddChild(line)
 
@@ -93,7 +109,7 @@ func TestLocation_FindByCode(t *testing.T) {
 
 func TestLocation_ExistsByCode(t *testing.T) {
 	root := NewRootLocation("PLANT01", "Plant One")
-	area := NewLocation("AREA01", "Area One", LocationKindArea, root)
+	area := NewLocation("AREA01", "Area One", LocationKindArea, root, uuid.UUID{})
 	root.AddChild(area)
 
 	if !root.ExistsByCode("PLANT01") {

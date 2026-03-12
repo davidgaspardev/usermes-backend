@@ -30,7 +30,7 @@ func TestResourceService_Create(t *testing.T) { //nolint:gocyclo
 		resourceType := "machine"
 		stopFactor := int16(5)
 
-		resource, err := service.Create(ctx, "SP01", code, nil, resourceType, stopFactor, nil)
+		resource, err := service.Create(ctx, "PLANT-01", code, resourceType, stopFactor, nil)
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
 		}
@@ -46,27 +46,8 @@ func TestResourceService_Create(t *testing.T) { //nolint:gocyclo
 		}
 	})
 
-	t.Run("with shift ID", func(t *testing.T) {
-		code := "RES002"
-		shiftID := "shift123"
-		resourceType := "tool"
-		stopFactor := int16(3)
-
-		resource, err := service.Create(ctx, "SP01", code, &shiftID, resourceType, stopFactor, nil)
-		if err != nil {
-			t.Fatalf("Expected no error, got %v", err)
-		}
-
-		if resource.ShiftID() == nil {
-			t.Fatal("Expected shiftID to be set")
-		}
-		if *resource.ShiftID() != shiftID {
-			t.Errorf("Expected shiftID %s, got %s", shiftID, *resource.ShiftID())
-		}
-	})
-
 	t.Run("invalid code - empty", func(t *testing.T) {
-		_, err := service.Create(ctx, "SP01", "", nil, "machine", 5, nil)
+		_, err := service.Create(ctx, "PLANT-01", "", "machine", 5, nil)
 		if err == nil {
 			t.Fatal("Expected error for empty code")
 		}
@@ -77,7 +58,7 @@ func TestResourceService_Create(t *testing.T) { //nolint:gocyclo
 
 	t.Run("invalid code - too long", func(t *testing.T) {
 		longCode := "THISISAVERYLONGCODETHATEXCEEDSFIFTYCHARACTERSLIMIT123456789"
-		_, err := service.Create(ctx, "SP01", longCode, nil, "machine", 5, nil)
+		_, err := service.Create(ctx, "PLANT-01", longCode, "machine", 5, nil)
 		if err == nil {
 			t.Fatal("Expected error for code too long")
 		}
@@ -87,7 +68,7 @@ func TestResourceService_Create(t *testing.T) { //nolint:gocyclo
 	})
 
 	t.Run("invalid type - empty", func(t *testing.T) {
-		_, err := service.Create(ctx, "SP01", "RES003", nil, "", 5, nil)
+		_, err := service.Create(ctx, "PLANT-01", "RES003", "", 5, nil)
 		if err == nil {
 			t.Fatal("Expected error for empty type")
 		}
@@ -98,7 +79,7 @@ func TestResourceService_Create(t *testing.T) { //nolint:gocyclo
 
 	t.Run("invalid type - too long", func(t *testing.T) {
 		longType := "THISISAVERYLONGTYPETHATEXCEEDSFIFTYCHARACTERSLIMIT1234567890"
-		_, err := service.Create(ctx, "SP01", "RES004", nil, longType, 5, nil)
+		_, err := service.Create(ctx, "PLANT-01", "RES004", longType, 5, nil)
 		if err == nil {
 			t.Fatal("Expected error for type too long")
 		}
@@ -108,7 +89,7 @@ func TestResourceService_Create(t *testing.T) { //nolint:gocyclo
 	})
 
 	t.Run("invalid stopFactor - negative", func(t *testing.T) {
-		_, err := service.Create(ctx, "SP01", "RES005", nil, "machine", -1, nil)
+		_, err := service.Create(ctx, "PLANT-01", "RES005", "machine", -1, nil)
 		if err == nil {
 			t.Fatal("Expected error for negative stopFactor")
 		}
@@ -119,14 +100,12 @@ func TestResourceService_Create(t *testing.T) { //nolint:gocyclo
 
 	t.Run("duplicate code", func(t *testing.T) {
 		code := "RES006"
-		// Create first resource
-		_, err := service.Create(ctx, "SP01", code, nil, "machine", 5, nil)
+		_, err := service.Create(ctx, "PLANT-01", code, "machine", 5, nil)
 		if err != nil {
 			t.Fatalf("Expected no error on first create, got %v", err)
 		}
 
-		// Try to create with same code
-		_, err = service.Create(ctx, "SP01", code, nil, "tool", 3, nil)
+		_, err = service.Create(ctx, "PLANT-01", code, "tool", 3, nil)
 		if err == nil {
 			t.Fatal("Expected error for duplicate code")
 		}
@@ -141,8 +120,7 @@ func TestResourceService_Update(t *testing.T) {
 	service := NewResourceService(repo)
 	ctx := context.Background()
 
-	// Create initial resource
-	initialResource, err := service.Create(ctx, "SP01", "RES100", nil, "machine", 5, nil)
+	initialResource, err := service.Create(ctx, "PLANT-01", "RES100", "machine", 5, nil)
 	if err != nil {
 		t.Fatalf("Failed to create initial resource: %v", err)
 	}
@@ -152,7 +130,7 @@ func TestResourceService_Update(t *testing.T) {
 		newType := "tool"
 		newStopFactor := int16(10)
 
-		updated, err := service.Update(ctx, initialResource.ID(), "SP01", newCode, nil, newType, newStopFactor, nil)
+		updated, err := service.Update(ctx, initialResource.ID(), "PLANT-01", newCode, newType, newStopFactor, nil)
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
 		}
@@ -169,7 +147,7 @@ func TestResourceService_Update(t *testing.T) {
 	})
 
 	t.Run("update with invalid code", func(t *testing.T) {
-		_, err := service.Update(ctx, initialResource.ID(), "SP01", "", nil, "machine", 5, nil)
+		_, err := service.Update(ctx, initialResource.ID(), "PLANT-01", "", "machine", 5, nil)
 		if err == nil {
 			t.Fatal("Expected error for invalid code")
 		}
@@ -179,7 +157,7 @@ func TestResourceService_Update(t *testing.T) {
 	})
 
 	t.Run("update with invalid type", func(t *testing.T) {
-		_, err := service.Update(ctx, initialResource.ID(), "SP01", "RES103", nil, "", 5, nil)
+		_, err := service.Update(ctx, initialResource.ID(), "PLANT-01", "RES103", "", 5, nil)
 		if err == nil {
 			t.Fatal("Expected error for invalid type")
 		}
@@ -189,7 +167,7 @@ func TestResourceService_Update(t *testing.T) {
 	})
 
 	t.Run("update with invalid stopFactor", func(t *testing.T) {
-		_, err := service.Update(ctx, initialResource.ID(), "SP01", "RES104", nil, "machine", -5, nil)
+		_, err := service.Update(ctx, initialResource.ID(), "PLANT-01", "RES104", "machine", -5, nil)
 		if err == nil {
 			t.Fatal("Expected error for invalid stopFactor")
 		}
@@ -205,7 +183,7 @@ func TestResourceService_Delete(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("successful delete", func(t *testing.T) {
-		resource, err := service.Create(ctx, "SP01", "RES200", nil, "machine", 5, nil)
+		resource, err := service.Create(ctx, "PLANT-01", "RES200", "machine", 5, nil)
 		if err != nil {
 			t.Fatalf("Failed to create resource: %v", err)
 		}
@@ -215,7 +193,6 @@ func TestResourceService_Delete(t *testing.T) {
 			t.Fatalf("Expected no error, got %v", err)
 		}
 
-		// Verify deletion
 		_, err = service.GetByID(ctx, resource.ID())
 		if err == nil {
 			t.Error("Expected error for deleted resource")
@@ -237,7 +214,7 @@ func TestResourceService_GetByID(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("get existing resource", func(t *testing.T) {
-		created, err := service.Create(ctx, "SP01", "RES300", nil, "machine", 5, nil)
+		created, err := service.Create(ctx, "PLANT-01", "RES300", "machine", 5, nil)
 		if err != nil {
 			t.Fatalf("Failed to create resource: %v", err)
 		}
@@ -270,12 +247,12 @@ func TestResourceService_GetByCode(t *testing.T) {
 
 	t.Run("get existing resource by code", func(t *testing.T) {
 		code := "RES400"
-		created, err := service.Create(ctx, "SP01", code, nil, "machine", 5, nil)
+		created, err := service.Create(ctx, "PLANT-01", code, "machine", 5, nil)
 		if err != nil {
 			t.Fatalf("Failed to create resource: %v", err)
 		}
 
-		found, err := service.GetByCode(ctx, "SP01", code)
+		found, err := service.GetByCode(ctx, "PLANT-01", code)
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
 		}
@@ -291,7 +268,7 @@ func TestResourceService_GetByCode(t *testing.T) {
 	})
 
 	t.Run("get non-existent resource by code", func(t *testing.T) {
-		_, err := service.GetByCode(ctx, "SP01", "NONEXISTENT")
+		_, err := service.GetByCode(ctx, "PLANT-01", "NONEXISTENT")
 		if err == nil {
 			t.Fatal("Expected error for non-existent resource")
 		}
@@ -303,10 +280,9 @@ func TestResourceService_GetAll(t *testing.T) {
 	service := NewResourceService(repo)
 	ctx := context.Background()
 
-	// Create multiple resources
 	for i := 0; i < 5; i++ {
 		code := "RES500" + string(rune('A'+i))
-		_, err := service.Create(ctx, "SP01", code, nil, "machine", int16(i), nil) // nolint:gosec
+		_, err := service.Create(ctx, "PLANT-01", code, "machine", int16(i), nil) // nolint:gosec
 		if err != nil {
 			t.Fatalf("Failed to create resource: %v", err)
 		}
@@ -338,14 +314,13 @@ func TestResourceService_GetByType(t *testing.T) {
 	service := NewResourceService(repo)
 	ctx := context.Background()
 
-	// Create resources with different types
-	if _, err := service.Create(ctx, "SP01", "RES600", nil, "machine", 1, nil); err != nil {
+	if _, err := service.Create(ctx, "PLANT-01", "RES600", "machine", 1, nil); err != nil {
 		t.Fatalf("Failed to create resource: %v", err)
 	}
-	if _, err := service.Create(ctx, "SP01", "RES601", nil, "machine", 2, nil); err != nil {
+	if _, err := service.Create(ctx, "PLANT-01", "RES601", "machine", 2, nil); err != nil {
 		t.Fatalf("Failed to create resource: %v", err)
 	}
-	if _, err := service.Create(ctx, "SP01", "RES602", nil, "tool", 3, nil); err != nil {
+	if _, err := service.Create(ctx, "PLANT-01", "RES602", "tool", 3, nil); err != nil {
 		t.Fatalf("Failed to create resource: %v", err)
 	}
 
@@ -370,54 +345,12 @@ func TestResourceService_GetByType(t *testing.T) {
 	})
 }
 
-func TestResourceService_GetByShiftID(t *testing.T) {
-	repo := persistence.NewMemoryResourceRepository()
-	service := NewResourceService(repo)
-	ctx := context.Background()
-
-	// Create resources with different shift IDs
-	shiftID1 := "shift001"
-	shiftID2 := "shift002"
-	if _, err := service.Create(ctx, "SP01", "RES700", &shiftID1, "machine", 1, nil); err != nil {
-		t.Fatalf("Failed to create resource: %v", err)
-	}
-	if _, err := service.Create(ctx, "SP01", "RES701", &shiftID1, "machine", 2, nil); err != nil {
-		t.Fatalf("Failed to create resource: %v", err)
-	}
-	if _, err := service.Create(ctx, "SP01", "RES702", &shiftID2, "tool", 3, nil); err != nil {
-		t.Fatalf("Failed to create resource: %v", err)
-	}
-	if _, err := service.Create(ctx, "SP01", "RES703", nil, "tool", 4, nil); err != nil {
-		t.Fatalf("Failed to create resource: %v", err)
-	}
-
-	t.Run("get by existing shift ID", func(t *testing.T) {
-		resources, err := service.GetByShiftID(ctx, shiftID1, 10, 0)
-		if err != nil {
-			t.Fatalf("Expected no error, got %v", err)
-		}
-		if len(resources) != 2 {
-			t.Errorf("Expected 2 resources, got %d", len(resources))
-		}
-	})
-
-	t.Run("get by non-existent shift ID", func(t *testing.T) {
-		resources, err := service.GetByShiftID(ctx, "nonexistent", 10, 0)
-		if err != nil {
-			t.Fatalf("Expected no error, got %v", err)
-		}
-		if len(resources) != 0 {
-			t.Errorf("Expected 0 resources, got %d", len(resources))
-		}
-	})
-}
-
 func TestResourceService_UpdatedAt(t *testing.T) {
 	repo := persistence.NewMemoryResourceRepository()
 	service := NewResourceService(repo)
 	ctx := context.Background()
 
-	resource, err := service.Create(ctx, "SP01", "RES800", nil, "machine", 5, nil)
+	resource, err := service.Create(ctx, "PLANT-01", "RES800", "machine", 5, nil)
 	if err != nil {
 		t.Fatalf("Failed to create resource: %v", err)
 	}
@@ -425,10 +358,9 @@ func TestResourceService_UpdatedAt(t *testing.T) {
 	createdAt := resource.CreatedAt()
 	updatedAt := resource.UpdatedAt()
 
-	// Small delay to ensure time difference
 	time.Sleep(10 * time.Millisecond)
 
-	updated, err := service.Update(ctx, resource.ID(), "SP01", "RES801", nil, "machine", 5, nil)
+	updated, err := service.Update(ctx, resource.ID(), "PLANT-01", "RES801", "machine", 5, nil)
 	if err != nil {
 		t.Fatalf("Failed to update resource: %v", err)
 	}

@@ -41,9 +41,6 @@ func (r *stubResourceRepo) FindAll(_ context.Context, _, _ int) ([]*entity.Resou
 func (r *stubResourceRepo) FindByType(_ context.Context, _ string, _, _ int) ([]*entity.Resource, error) {
 	return nil, nil
 }
-func (r *stubResourceRepo) FindByShiftID(_ context.Context, _ string, _, _ int) ([]*entity.Resource, error) {
-	return nil, nil
-}
 
 // --- stub event repository ---
 
@@ -58,11 +55,9 @@ func (r *stubEventRepo) UpdateCurrent(_ *entity.Event) error                 { r
 // --- helpers ---
 
 func validCommand() *input.CreateResourceCommand {
-	shiftID := "shift-001"
 	return &input.CreateResourceCommand{
-		PlantCode:    "SP01",
+		LocationCode: "PLANT-01",
 		Code:         "MACHINE-001",
-		ShiftID:      &shiftID,
 		ResourceType: "CNC",
 		StopFactor:   10,
 		WhoCreated:   "user-001",

@@ -5,15 +5,19 @@ import (
 
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/entity"
+	domainerrors "github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/errors"
 )
 
 // LocationRecord is the in-memory representation of a persisted location.
+// CreatedAt and UpdatedAt are stored as Unix milliseconds.
 type LocationRecord struct {
 	Code           string
 	Name           string
 	Kind           string
 	ParentCode     string
 	ShiftPatternID uuid.UUID
+	CreatedAt      uint64 // Unix ms
+	UpdatedAt      uint64 // Unix ms
 }
 
 type locationRepositoryInMemory struct {
@@ -34,6 +38,8 @@ func (r *locationRepositoryInMemory) Create(location *entity.Location) error {
 		Kind:           string(location.Kind()),
 		ParentCode:     location.ParentCode(),
 		ShiftPatternID: location.ShiftPatternID(),
+		CreatedAt:      uint64(location.CreatedAt().UnixMilli()),
+		UpdatedAt:      uint64(location.UpdatedAt().UnixMilli()),
 	})
 	return nil
 }
@@ -88,6 +94,33 @@ func (r *locationRepositoryInMemory) buildChildren(parent *entity.Location) {
 			parent.AddChild(childCopy)
 		}
 	}
+}
+
+func (r *locationRepositoryInMemory) Update(location *entity.Location) error {
+	for i, loc := range r.locations {
+		if loc.Code == location.Code() {
+			r.locations[i].ShiftPatternID = location.ShiftPatternID()
+			r.locations[i].Name = location.Name()
+			r.locations[i].UpdatedAt = uint64(location.UpdatedAt().UnixMilli())
+			return nil
+		}
+	}
+	return domainerrors.ErrLocationNotFound
+}
+
+func (r *locationRepositoryInMemory) FindByCode(code string) (*entity.Location, error) {
+	for _, loc := range r.locations {
+		if loc.Code == code {
+			return entity.NewLocation(
+				loc.Code,
+				loc.Name,
+				entity.LocationKind(loc.Kind),
+				nil,
+				loc.ShiftPatternID,
+			), nil
+		}
+	}
+	return nil, nil
 }
 
 func (r *locationRepositoryInMemory) ExistsByCode(code string) (bool, error) {

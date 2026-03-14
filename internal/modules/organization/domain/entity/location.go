@@ -126,3 +126,19 @@ func (l *Location) ShiftPatternID() uuid.UUID {
 func (l *Location) AddChild(location *Location) {
 	l.children = append(l.children, location)
 }
+
+// CreatedAt returns the location creation timestamp.
+func (l *Location) CreatedAt() time.Time {
+	return l.createdAt
+}
+
+// UpdatedAt returns the last update timestamp.
+func (l *Location) UpdatedAt() time.Time {
+	return l.updatedAt
+}
+
+// AssignShiftPattern sets the shift pattern for this location.
+func (l *Location) AssignShiftPattern(shiftPatternID uuid.UUID) {
+	l.shiftPatternID = shiftPatternID
+	l.updatedAt = time.Now()
+}

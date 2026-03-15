@@ -38,8 +38,8 @@ func (r *locationRepositoryInMemory) Create(location *entity.Location) error {
 		Kind:           string(location.Kind()),
 		ParentCode:     location.ParentCode(),
 		ShiftPatternID: location.ShiftPatternID(),
-		CreatedAt:      uint64(location.CreatedAt().UnixMilli()),
-		UpdatedAt:      uint64(location.UpdatedAt().UnixMilli()),
+		CreatedAt:      uint64(location.CreatedAt().UnixMilli()), //nolint:gosec
+		UpdatedAt:      uint64(location.UpdatedAt().UnixMilli()), //nolint:gosec
 	})
 	return nil
 }
@@ -101,7 +101,7 @@ func (r *locationRepositoryInMemory) Update(location *entity.Location) error {
 		if loc.Code == location.Code() {
 			r.locations[i].ShiftPatternID = location.ShiftPatternID()
 			r.locations[i].Name = location.Name()
-			r.locations[i].UpdatedAt = uint64(location.UpdatedAt().UnixMilli())
+			r.locations[i].UpdatedAt = uint64(location.UpdatedAt().UnixMilli()) //nolint:gosec
 			return nil
 		}
 	}

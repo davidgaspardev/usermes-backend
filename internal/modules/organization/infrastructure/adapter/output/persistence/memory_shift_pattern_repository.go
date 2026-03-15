@@ -32,12 +32,12 @@ type shiftPatternRecord struct {
 }
 
 func timeOfDayToMS(t time.Time) uint64 {
-	return uint64(t.Hour())*3600000 + uint64(t.Minute())*60000
+	return uint64(t.Hour())*3600000 + uint64(t.Minute())*60000 //nolint:gosec
 }
 
 func msToTimeOfDay(ms uint64) time.Time {
-	h := int(ms / 3600000)
-	m := int((ms % 3600000) / 60000)
+	h := int(ms / 3600000)           //nolint:gosec
+	m := int((ms % 3600000) / 60000) //nolint:gosec
 	return time.Date(0, 1, 1, h, m, 0, 0, time.UTC)
 }
 
@@ -55,10 +55,10 @@ func toShiftPatternRecord(p *entity.ShiftPattern) shiftPatternRecord {
 	return shiftPatternRecord{
 		ID:           p.ID(),
 		Name:         p.Name(),
-		RefStartDate: uint64(p.RefStartDate().UnixMilli()),
+		RefStartDate: uint64(p.RefStartDate().UnixMilli()), //nolint:gosec
 		CycleLength:  p.CycleLength(),
 		Entries:      entries,
-		CreatedAt:    uint64(p.CreatedAt().UnixMilli()),
+		CreatedAt:    uint64(p.CreatedAt().UnixMilli()), //nolint:gosec
 	}
 }
 

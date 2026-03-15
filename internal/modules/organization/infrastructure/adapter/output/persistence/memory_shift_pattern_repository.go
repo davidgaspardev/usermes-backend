@@ -23,12 +23,12 @@ type shiftEntryRecord struct {
 // shiftPatternRecord is the storage representation of a shift pattern.
 // All time fields are stored as Unix milliseconds.
 type shiftPatternRecord struct {
-	ID           uuid.UUID
 	Name         string
-	RefStartDate uint64 // Unix ms
-	CycleLength  int
 	Entries      []shiftEntryRecord
-	CreatedAt    uint64 // Unix ms
+	RefStartDate uint64
+	CycleLength  int
+	CreatedAt    uint64
+	ID           uuid.UUID
 }
 
 func timeOfDayToMS(t time.Time) uint64 {
@@ -63,8 +63,8 @@ func toShiftPatternRecord(p *entity.ShiftPattern) shiftPatternRecord {
 }
 
 func fromShiftPatternRecord(rec shiftPatternRecord) *entity.ShiftPattern {
-	refStart := time.UnixMilli(int64(rec.RefStartDate)).UTC()
-	createdAt := time.UnixMilli(int64(rec.CreatedAt)).UTC()
+	refStart := time.UnixMilli(int64(rec.RefStartDate)).UTC() //nolint:gosec
+	createdAt := time.UnixMilli(int64(rec.CreatedAt)).UTC()   //nolint:gosec
 
 	p := entity.ReconstructShiftPattern(rec.ID, rec.Name, refStart, rec.CycleLength, createdAt)
 	for _, e := range rec.Entries {

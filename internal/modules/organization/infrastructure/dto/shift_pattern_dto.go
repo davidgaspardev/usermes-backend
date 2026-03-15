@@ -19,9 +19,9 @@ type ShiftEntryRequest struct {
 // CreateShiftPatternRequest is the request body for creating a shift pattern.
 type CreateShiftPatternRequest struct {
 	Name         string              `json:"name"`
-	RefStartDate string              `json:"ref_start_date"` // "YYYY-MM-DD"
-	CycleLength  int                 `json:"cycle_length"`
+	RefStartDate string              `json:"ref_start_date"`
 	Entries      []ShiftEntryRequest `json:"entries"`
+	CycleLength  int                 `json:"cycle_length"`
 }
 
 // Validate validates the create shift pattern request.
@@ -57,8 +57,8 @@ func (r *CreateShiftPatternRequest) ParseRefStartDate() (time.Time, error) {
 // UpdateShiftPatternRequest is the request body for updating a shift pattern.
 type UpdateShiftPatternRequest struct {
 	Name        string              `json:"name"`
-	CycleLength int                 `json:"cycle_length"`
 	Entries     []ShiftEntryRequest `json:"entries"`
+	CycleLength int                 `json:"cycle_length"`
 }
 
 // Validate validates the update shift pattern request.
@@ -96,9 +96,9 @@ type ShiftPatternResponse struct {
 	ID           string               `json:"id"`
 	Name         string               `json:"name"`
 	RefStartDate string               `json:"ref_start_date"`
-	CycleLength  int                  `json:"cycle_length"`
-	Entries      []ShiftEntryResponse `json:"entries"`
 	CreatedAt    string               `json:"created_at"`
+	Entries      []ShiftEntryResponse `json:"entries"`
+	CycleLength  int                  `json:"cycle_length"`
 }
 
 // ToShiftPatternResponse converts a ShiftPattern entity to a ShiftPatternResponse DTO.

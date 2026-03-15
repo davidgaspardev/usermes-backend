@@ -11,11 +11,11 @@ import (
 // ShiftEntry is a single shift slot within a ShiftPattern cycle.
 // Multiple entries can share the same DayIndex, representing concurrent shifts on that day.
 type ShiftEntry struct {
+	startTime time.Time
+	endTime   time.Time
 	name      string
-	startTime time.Time // time-of-day; zero for off days
-	endTime   time.Time // time-of-day; zero for off days
-	dayIndex  int       // 0-based day position within the cycle (0 = first day of cycle)
-	isOff     bool      // true for rest/off days
+	dayIndex  int
+	isOff     bool
 }
 
 // NewShiftEntry creates a working ShiftEntry at the given day position in the cycle.

@@ -175,10 +175,11 @@ func TestUpdateShiftPatternUseCase_Execute(t *testing.T) {
 			{DayIndex: 0, Name: "Day", StartTime: mustParseHHMM("08:00"), EndTime: mustParseHHMM("16:00")},
 		}
 		cmd := input.UpdateShiftPatternCommand{
-			ID:          existing.ID(),
-			Name:        "Updated",
-			CycleLength: 1,
-			Entries:     newEntries,
+			ID:           existing.ID(),
+			Name:         "Updated",
+			RefStartDate: existing.RefStartDate(),
+			CycleLength:  1,
+			Entries:      newEntries,
 		}
 
 		updated, err := NewUpdateShiftPatternUseCase(repo).Execute(ctx, cmd)
@@ -209,10 +210,11 @@ func TestUpdateShiftPatternUseCase_Execute(t *testing.T) {
 		repo := persistence.NewMemoryShiftPatternRepository()
 
 		_, err := NewUpdateShiftPatternUseCase(repo).Execute(ctx, input.UpdateShiftPatternCommand{
-			ID:          uuid.New(),
-			Name:        "X",
-			CycleLength: 1,
-			Entries:     []input.ShiftEntryCommand{{DayIndex: 0, Name: "S", StartTime: mustParseHHMM("06:00"), EndTime: mustParseHHMM("14:00")}},
+			ID:           uuid.New(),
+			Name:         "X",
+			RefStartDate: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
+			CycleLength:  1,
+			Entries:      []input.ShiftEntryCommand{{DayIndex: 0, Name: "S", StartTime: mustParseHHMM("06:00"), EndTime: mustParseHHMM("14:00")}},
 		})
 		if err != domainerrors.ErrShiftPatternNotFound {
 			t.Errorf("expected ErrShiftPatternNotFound, got %v", err)

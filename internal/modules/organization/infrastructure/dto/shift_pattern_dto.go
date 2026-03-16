@@ -11,8 +11,8 @@ import (
 // Days with no entries are implicitly off — there is no need to declare off days.
 type ShiftEntryRequest struct {
 	Name      string `json:"name"`
-	StartTime string `json:"start_time"` // "HH:MM"
-	EndTime   string `json:"end_time"`   // "HH:MM"
+	StartTime string `json:"start_time"` // ISO 8601 "HH:MM:SS"
+	EndTime   string `json:"end_time"`   // ISO 8601 "HH:MM:SS"
 	DayIndex  int    `json:"day_index"`  // 0-based day position within the cycle
 }
 
@@ -56,15 +56,19 @@ func (r *CreateShiftPatternRequest) ParseRefStartDate() (time.Time, error) {
 
 // UpdateShiftPatternRequest is the request body for updating a shift pattern.
 type UpdateShiftPatternRequest struct {
-	Name        string              `json:"name"`
-	Entries     []ShiftEntryRequest `json:"entries"`
-	CycleLength int                 `json:"cycle_length"`
+	Name         string              `json:"name"`
+	RefStartDate string              `json:"ref_start_date"`
+	Entries      []ShiftEntryRequest `json:"entries"`
+	CycleLength  int                 `json:"cycle_length"`
 }
 
 // Validate validates the update shift pattern request.
 func (r *UpdateShiftPatternRequest) Validate() error {
 	if r.Name == "" {
 		return errors.New("name is required")
+	}
+	if r.RefStartDate == "" {
+		return errors.New("ref_start_date is required")
 	}
 	if r.CycleLength < 1 {
 		return errors.New("cycle_length must be >= 1")
@@ -81,6 +85,11 @@ func (r *UpdateShiftPatternRequest) Validate() error {
 		}
 	}
 	return nil
+}
+
+// ParseRefStartDate parses the ref_start_date field into a time.Time value.
+func (r *UpdateShiftPatternRequest) ParseRefStartDate() (time.Time, error) {
+	return time.Parse("2006-01-02", r.RefStartDate)
 }
 
 // ShiftEntryResponse is the JSON response for a single shift entry.
@@ -108,8 +117,8 @@ func ToShiftPatternResponse(p *entity.ShiftPattern) ShiftPatternResponse {
 		entries[i] = ShiftEntryResponse{
 			DayIndex:  e.DayIndex(),
 			Name:      e.Name(),
-			StartTime: e.StartTime().Format("15:04"),
-			EndTime:   e.EndTime().Format("15:04"),
+			StartTime: e.StartTime().Format("15:04:05"),
+			EndTime:   e.EndTime().Format("15:04:05"),
 		}
 	}
 

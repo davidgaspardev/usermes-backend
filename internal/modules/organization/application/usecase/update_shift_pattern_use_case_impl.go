@@ -19,7 +19,7 @@ func NewUpdateShiftPatternUseCase(repo output.ShiftPatternRepository) input.Upda
 }
 
 func (uc *updateShiftPatternUseCaseImpl) Execute(ctx context.Context, command input.UpdateShiftPatternCommand) (*entity.ShiftPattern, error) {
-	if command.Name == "" || command.CycleLength < 1 || len(command.Entries) == 0 {
+	if command.Name == "" || command.CycleLength < 1 || len(command.Entries) == 0 || command.RefStartDate.IsZero() {
 		return nil, domainerrors.ErrInvalidShiftPatternCommand
 	}
 
@@ -32,6 +32,7 @@ func (uc *updateShiftPatternUseCaseImpl) Execute(ctx context.Context, command in
 	}
 
 	pattern.SetName(command.Name)
+	pattern.SetRefStartDate(command.RefStartDate)
 	pattern.SetCycleLength(command.CycleLength)
 
 	entries := make([]*entity.ShiftEntry, len(command.Entries))

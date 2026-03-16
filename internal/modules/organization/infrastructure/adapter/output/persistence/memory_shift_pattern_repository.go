@@ -11,11 +11,11 @@ import (
 )
 
 // shiftEntryRecord is the storage representation of a shift entry.
-// startTime and endTime are stored as milliseconds since midnight.
+// StartTime is stored as milliseconds since midnight; Duration is the shift length in ms.
 type shiftEntryRecord struct {
 	Name      string
 	StartTime uint64 // ms since midnight
-	EndTime   uint64 // ms since midnight
+	Duration  uint64 // shift length in ms
 	DayIndex  int
 	IsOff     bool
 }
@@ -32,13 +32,35 @@ type shiftPatternRecord struct {
 }
 
 func timeOfDayToMS(t time.Time) uint64 {
-	return uint64(t.Hour())*3600000 + uint64(t.Minute())*60000 //nolint:gosec
+	return uint64(t.Hour())*3_600_000 + uint64(t.Minute())*60_000 + uint64(t.Second())*1_000 //nolint:gosec
 }
 
 func msToTimeOfDay(ms uint64) time.Time {
-	h := int(ms / 3600000)           //nolint:gosec
-	m := int((ms % 3600000) / 60000) //nolint:gosec
-	return time.Date(0, 1, 1, h, m, 0, 0, time.UTC)
+	h := int(ms / 3_600_000)             //nolint:gosec
+	m := int((ms % 3_600_000) / 60_000)  //nolint:gosec
+	s := int((ms % 60_000) / 1_000)      //nolint:gosec
+	return time.Date(0, 1, 1, h, m, s, 0, time.UTC)
+}
+
+// durationMS computes the duration between two time-of-day values in milliseconds.
+// Overnight shifts (end < start) are handled correctly by wrapping around 24 h.
+// A full-day shift (start == end) is treated as exactly 24 h.
+func durationMS(start, end time.Time) uint64 {
+	const dayMS = int64(24 * 3_600_000)
+	startMS := int64(timeOfDayToMS(start)) //nolint:gosec
+	endMS := int64(timeOfDayToMS(end))     //nolint:gosec
+	dur := (endMS - startMS + dayMS) % dayMS
+	if dur == 0 {
+		dur = dayMS
+	}
+	return uint64(dur) //nolint:gosec
+}
+
+// endFromDuration reconstructs the end time-of-day from a start time and duration in ms.
+func endFromDuration(start time.Time, dur uint64) time.Time {
+	const dayMS = uint64(24 * 3_600_000)
+	endMS := (timeOfDayToMS(start) + dur) % dayMS
+	return msToTimeOfDay(endMS)
 }
 
 func toShiftPatternRecord(p *entity.ShiftPattern) shiftPatternRecord {
@@ -47,7 +69,7 @@ func toShiftPatternRecord(p *entity.ShiftPattern) shiftPatternRecord {
 		entries[i] = shiftEntryRecord{
 			Name:      e.Name(),
 			StartTime: timeOfDayToMS(e.StartTime()),
-			EndTime:   timeOfDayToMS(e.EndTime()),
+			Duration:  durationMS(e.StartTime(), e.EndTime()),
 			DayIndex:  e.DayIndex(),
 			IsOff:     e.IsOff(),
 		}
@@ -71,7 +93,9 @@ func fromShiftPatternRecord(rec shiftPatternRecord) *entity.ShiftPattern {
 		if e.IsOff {
 			p.AddEntry(entity.NewDayOffEntry(e.DayIndex))
 		} else {
-			p.AddEntry(entity.NewShiftEntry(e.DayIndex, e.Name, msToTimeOfDay(e.StartTime), msToTimeOfDay(e.EndTime)))
+			start := msToTimeOfDay(e.StartTime)
+			end := endFromDuration(start, e.Duration)
+			p.AddEntry(entity.NewShiftEntry(e.DayIndex, e.Name, start, end))
 		}
 	}
 	return p

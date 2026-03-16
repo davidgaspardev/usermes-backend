@@ -199,3 +199,8 @@ func (p *ShiftPattern) SetCycleLength(cycleLength int) {
 func (p *ShiftPattern) SetEntries(entries []*ShiftEntry) {
 	p.entries = entries
 }
+
+// SetRefStartDate updates the anchor date from which the cycle is calculated.
+func (p *ShiftPattern) SetRefStartDate(refStartDate time.Time) {
+	p.refStartDate = refStartDate
+}

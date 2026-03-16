@@ -126,6 +126,14 @@ func (h *ShiftPatternHandler) Update(c *fiber.Ctx) error {
 		))
 	}
 
+	refStartDate, err := req.ParseRefStartDate()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
+			"validation_error",
+			"ref_start_date must be in YYYY-MM-DD format",
+		))
+	}
+
 	entries, err := parseEntryCommands(req.Entries)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
@@ -135,10 +143,11 @@ func (h *ShiftPatternHandler) Update(c *fiber.Ctx) error {
 	}
 
 	command := input.UpdateShiftPatternCommand{
-		ID:          id,
-		Name:        req.Name,
-		CycleLength: req.CycleLength,
-		Entries:     entries,
+		ID:           id,
+		Name:         req.Name,
+		RefStartDate: refStartDate,
+		CycleLength:  req.CycleLength,
+		Entries:      entries,
 	}
 
 	pattern, err := usecase.NewUpdateShiftPatternUseCase(h.shiftPatternRepository).Execute(c.Context(), command)
@@ -171,17 +180,17 @@ func parseID(c *fiber.Ctx) (uuid.UUID, error) {
 }
 
 // parseEntryCommands converts DTO entry requests into use-case commands,
-// parsing "HH:MM" strings into time.Time values at the HTTP boundary.
+// parsing ISO 8601 "HH:MM:SS" strings into time.Time values at the HTTP boundary.
 func parseEntryCommands(entries []dto.ShiftEntryRequest) ([]input.ShiftEntryCommand, error) {
 	cmds := make([]input.ShiftEntryCommand, len(entries))
 	for i, e := range entries {
-		startTime, err := time.Parse("15:04", e.StartTime)
+		startTime, err := time.Parse("15:04:05", e.StartTime)
 		if err != nil {
-			return nil, fiber.NewError(fiber.StatusBadRequest, "each entry start_time must be in HH:MM format")
+			return nil, fiber.NewError(fiber.StatusBadRequest, "each entry start_time must be in HH:MM:SS format")
 		}
-		endTime, err := time.Parse("15:04", e.EndTime)
+		endTime, err := time.Parse("15:04:05", e.EndTime)
 		if err != nil {
-			return nil, fiber.NewError(fiber.StatusBadRequest, "each entry end_time must be in HH:MM format")
+			return nil, fiber.NewError(fiber.StatusBadRequest, "each entry end_time must be in HH:MM:SS format")
 		}
 		cmds[i] = input.ShiftEntryCommand{
 			DayIndex:  e.DayIndex,

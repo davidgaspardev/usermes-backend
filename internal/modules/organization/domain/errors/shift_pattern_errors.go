@@ -12,4 +12,7 @@ var (
 
 	// ErrShiftEntryIsOff is returned when trying to compute times for an off-day entry.
 	ErrShiftEntryIsOff = errors.New("cannot compute times for an off-day entry")
+
+	// ErrInvalidShiftPatternCommand is returned when the command to create a shift pattern is invalid.
+	ErrInvalidShiftPatternCommand = errors.New("invalid shift pattern command: name and entries are required")
 )

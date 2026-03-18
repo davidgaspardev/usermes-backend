@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,18 +8,18 @@ import (
 	organizationerrors "github.com/davidgaspardev/usermes-backend/internal/modules/organization/domain/errors"
 )
 
-// ShiftEntry is a single slot in a ShiftPattern sequence.
-// It represents one day's shift assignment within the rotating cycle.
+// ShiftEntry is a single shift slot within a ShiftPattern cycle.
+// Multiple entries can share the same DayIndex, representing concurrent shifts on that day.
 type ShiftEntry struct {
+	startTime time.Time
+	endTime   time.Time
 	name      string
-	startTime string // "HH:MM", empty when IsOff
-	endTime   string // "HH:MM", empty when IsOff
-	dayIndex  int    // 0-based position in the sequence
-	isOff     bool   // true for rest/off days
+	dayIndex  int
+	isOff     bool
 }
 
-// NewShiftEntry creates a working ShiftEntry at the given position in the sequence.
-func NewShiftEntry(dayIndex int, name, startTime, endTime string) *ShiftEntry {
+// NewShiftEntry creates a working ShiftEntry at the given day position in the cycle.
+func NewShiftEntry(dayIndex int, name string, startTime, endTime time.Time) *ShiftEntry {
 	return &ShiftEntry{
 		dayIndex:  dayIndex,
 		name:      name,
@@ -30,7 +29,7 @@ func NewShiftEntry(dayIndex int, name, startTime, endTime string) *ShiftEntry {
 	}
 }
 
-// NewDayOffEntry creates a rest-day ShiftEntry at the given position in the sequence.
+// NewDayOffEntry creates a rest-day ShiftEntry at the given day position in the cycle.
 func NewDayOffEntry(dayIndex int) *ShiftEntry {
 	return &ShiftEntry{
 		dayIndex: dayIndex,
@@ -39,23 +38,23 @@ func NewDayOffEntry(dayIndex int) *ShiftEntry {
 	}
 }
 
-// DayIndex returns the 0-based position of this entry in its pattern sequence.
+// DayIndex returns the 0-based day position of this entry within its pattern cycle.
 func (e *ShiftEntry) DayIndex() int {
 	return e.dayIndex
 }
 
-// Name returns the shift entry's display name (e.g. "Morning", "Night", "Off").
+// Name returns the shift entry's display name (e.g. "Shift 1", "Night", "Off").
 func (e *ShiftEntry) Name() string {
 	return e.name
 }
 
-// StartTime returns the start time in "HH:MM" format (empty for off days).
-func (e *ShiftEntry) StartTime() string {
+// StartTime returns the start time-of-day (zero value for off days).
+func (e *ShiftEntry) StartTime() time.Time {
 	return e.startTime
 }
 
-// EndTime returns the end time in "HH:MM" format (empty for off days).
-func (e *ShiftEntry) EndTime() string {
+// EndTime returns the end time-of-day (zero value for off days).
+func (e *ShiftEntry) EndTime() time.Time {
 	return e.endTime
 }
 
@@ -73,19 +72,9 @@ func (e *ShiftEntry) TimesForDate(date time.Time) (startAt, endAt time.Time, err
 		return time.Time{}, time.Time{}, organizationerrors.ErrShiftEntryIsOff
 	}
 
-	startH, startM, err := parseHHMM(e.startTime)
-	if err != nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("invalid startTime %q: %w", e.startTime, err)
-	}
-
-	endH, endM, err := parseHHMM(e.endTime)
-	if err != nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("invalid endTime %q: %w", e.endTime, err)
-	}
-
 	loc := date.Location()
-	startAt = time.Date(date.Year(), date.Month(), date.Day(), startH, startM, 0, 0, loc)
-	endAt = time.Date(date.Year(), date.Month(), date.Day(), endH, endM, 0, 0, loc)
+	startAt = time.Date(date.Year(), date.Month(), date.Day(), e.startTime.Hour(), e.startTime.Minute(), 0, 0, loc)
+	endAt = time.Date(date.Year(), date.Month(), date.Day(), e.endTime.Hour(), e.endTime.Minute(), 0, 0, loc)
 
 	// overnight shift: end must be strictly after start
 	if !endAt.After(startAt) {
@@ -95,31 +84,43 @@ func (e *ShiftEntry) TimesForDate(date time.Time) (startAt, endAt time.Time, err
 	return startAt, endAt, nil
 }
 
-// parseHHMM parses a "HH:MM" string into hour and minute integers.
-func parseHHMM(s string) (hour, min int, err error) {
-	_, err = fmt.Sscanf(s, "%d:%d", &hour, &min)
-	return
-}
-
-// ShiftPattern is a rotating sequence of ShiftEntry items anchored to a reference date.
-// The period length is derived from the number of entries (7 = weekly, 15 = quinzenal, 30 = monthly, etc.).
-// Use EntryForDate to resolve which ShiftEntry applies to any given calendar date.
+// ShiftPattern is a rotating schedule anchored to a reference date.
+// CycleLength defines how many days are in one full rotation.
+// Each day in the cycle (0-based index) can hold multiple ShiftEntry items,
+// representing concurrent shifts (e.g. Shift 1, Shift 2, Shift 3 on the same day).
+// Use EntriesForDate to resolve which shifts apply to any given calendar date.
 type ShiftPattern struct {
 	refStartDate time.Time
 	createdAt    time.Time
 	name         string
 	entries      []*ShiftEntry
 	id           uuid.UUID
+	cycleLength  int // explicit cycle length in days
 }
 
-// NewShiftPattern creates a new ShiftPattern anchored to the given reference start date.
-func NewShiftPattern(name string, refStartDate time.Time) *ShiftPattern {
+// NewShiftPattern creates a new ShiftPattern with the given name, reference start date,
+// and explicit cycle length.
+func NewShiftPattern(name string, refStartDate time.Time, cycleLength int) *ShiftPattern {
 	return &ShiftPattern{
 		id:           uuid.New(),
 		name:         name,
 		refStartDate: refStartDate,
+		cycleLength:  cycleLength,
 		entries:      nil,
 		createdAt:    time.Now(),
+	}
+}
+
+// ReconstructShiftPattern rebuilds a ShiftPattern from stored values without
+// generating a new ID or resetting timestamps. Used by the persistence layer.
+func ReconstructShiftPattern(id uuid.UUID, name string, refStartDate time.Time, cycleLength int, createdAt time.Time) *ShiftPattern {
+	return &ShiftPattern{
+		id:           id,
+		name:         name,
+		refStartDate: refStartDate,
+		cycleLength:  cycleLength,
+		entries:      nil,
+		createdAt:    createdAt,
 	}
 }
 
@@ -138,26 +139,26 @@ func (p *ShiftPattern) RefStartDate() time.Time {
 	return p.refStartDate
 }
 
-// PeriodDays returns the length of the rotation cycle (number of entries).
-func (p *ShiftPattern) PeriodDays() int {
-	return len(p.entries)
+// CycleLength returns the number of days in one full rotation cycle.
+func (p *ShiftPattern) CycleLength() int {
+	return p.cycleLength
 }
 
-// Entries returns the ordered sequence of shift entries in this pattern.
+// Entries returns all shift entries across the entire cycle.
 func (p *ShiftPattern) Entries() []*ShiftEntry {
 	return p.entries
 }
 
-// AddEntry appends a ShiftEntry to the sequence.
+// AddEntry appends a ShiftEntry to the pattern.
 func (p *ShiftPattern) AddEntry(entry *ShiftEntry) {
 	p.entries = append(p.entries, entry)
 }
 
-// EntryForDate returns the ShiftEntry that applies to the given calendar date,
-// computed as (days since refStartDate) modulo PeriodDays.
-// Returns nil if the pattern has no entries.
-func (p *ShiftPattern) EntryForDate(date time.Time) *ShiftEntry {
-	if len(p.entries) == 0 {
+// EntriesForDate returns all ShiftEntry items that apply to the given calendar date.
+// The day offset within the cycle is computed as (days since refStartDate) modulo CycleLength.
+// Returns nil if the pattern has no entries or cycleLength is zero.
+func (p *ShiftPattern) EntriesForDate(date time.Time) []*ShiftEntry {
+	if len(p.entries) == 0 || p.cycleLength == 0 {
 		return nil
 	}
 
@@ -165,21 +166,41 @@ func (p *ShiftPattern) EntryForDate(date time.Time) *ShiftEntry {
 	d := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
 
 	daysSince := int(d.Sub(ref).Hours() / 24)
-
-	if daysSince < 0 {
-		// date is before the reference: wrap the cycle backwards
-		mod := (-daysSince) % len(p.entries)
-		if mod == 0 {
-			daysSince = 0
-		} else {
-			daysSince = len(p.entries) - mod
-		}
+	dayOffset := daysSince % p.cycleLength
+	if dayOffset < 0 {
+		dayOffset += p.cycleLength
 	}
 
-	return p.entries[daysSince%len(p.entries)]
+	var result []*ShiftEntry
+	for _, e := range p.entries {
+		if e.dayIndex == dayOffset {
+			result = append(result, e)
+		}
+	}
+	return result
 }
 
 // CreatedAt returns the shift pattern creation timestamp.
 func (p *ShiftPattern) CreatedAt() time.Time {
 	return p.createdAt
+}
+
+// SetName updates the shift pattern name.
+func (p *ShiftPattern) SetName(name string) {
+	p.name = name
+}
+
+// SetCycleLength updates the cycle length.
+func (p *ShiftPattern) SetCycleLength(cycleLength int) {
+	p.cycleLength = cycleLength
+}
+
+// SetEntries replaces the full set of shift entries.
+func (p *ShiftPattern) SetEntries(entries []*ShiftEntry) {
+	p.entries = entries
+}
+
+// SetRefStartDate updates the anchor date from which the cycle is calculated.
+func (p *ShiftPattern) SetRefStartDate(refStartDate time.Time) {
+	p.refStartDate = refStartDate
 }

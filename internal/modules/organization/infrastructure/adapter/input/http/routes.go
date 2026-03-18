@@ -8,7 +8,8 @@ import (
 
 // OrganizationRoutes registers HTTP routes for the organization module.
 type OrganizationRoutes struct {
-	locationHandler *LocationHandler
+	locationHandler     *LocationHandler
+	shiftPatternHandler *ShiftPatternHandler
 }
 
 // NewOrganizationRoutes creates a new OrganizationRoutes with the given repositories.
@@ -17,7 +18,8 @@ func NewOrganizationRoutes(
 	shiftPatternRepository output.ShiftPatternRepository,
 ) *OrganizationRoutes {
 	return &OrganizationRoutes{
-		locationHandler: NewLocationHandler(locationRepository, shiftPatternRepository),
+		locationHandler:     NewLocationHandler(locationRepository, shiftPatternRepository),
+		shiftPatternHandler: NewShiftPatternHandler(locationRepository, shiftPatternRepository),
 	}
 }
 
@@ -29,4 +31,11 @@ func (o *OrganizationRoutes) SetupRoutes(app *fiber.App) {
 	locationRoutes.Post("/add", o.locationHandler.Add)
 	locationRoutes.Get("/", o.locationHandler.GetAll)
 	locationRoutes.Get("/:location_code", o.locationHandler.GetByCode)
+	locationRoutes.Post("/:location_code/shift-patterns", o.shiftPatternHandler.Create)
+
+	shiftPatternRoutes := app.Group("/v1/api/organization/shift-patterns")
+
+	shiftPatternRoutes.Get("/:id", o.shiftPatternHandler.GetByID)
+	shiftPatternRoutes.Put("/:id", o.shiftPatternHandler.Update)
+	shiftPatternRoutes.Delete("/:id", o.shiftPatternHandler.Delete)
 }

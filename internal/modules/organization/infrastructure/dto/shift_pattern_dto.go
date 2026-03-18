@@ -11,8 +11,8 @@ import (
 // Days with no entries are implicitly off — there is no need to declare off days.
 type ShiftEntryRequest struct {
 	Name      string `json:"name"`
-	StartTime string `json:"start_time"` // ISO 8601 "HH:MM:SS"
-	EndTime   string `json:"end_time"`   // ISO 8601 "HH:MM:SS"
+	StartTime string `json:"start_time"` // ISO 8601 RFC3339, e.g. "2024-01-01T06:00:00Z"
+	EndTime   string `json:"end_time"`   // ISO 8601 RFC3339, e.g. "2024-01-01T14:00:00Z"
 	DayIndex  int    `json:"day_index"`  // 0-based day position within the cycle
 }
 
@@ -51,7 +51,11 @@ func (r *CreateShiftPatternRequest) Validate() error {
 
 // ParseRefStartDate parses the ref_start_date field into a time.Time value.
 func (r *CreateShiftPatternRequest) ParseRefStartDate() (time.Time, error) {
-	return time.Parse("2006-01-02", r.RefStartDate)
+	t, err := time.Parse(time.RFC3339, r.RefStartDate)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC), nil
 }
 
 // UpdateShiftPatternRequest is the request body for updating a shift pattern.
@@ -89,7 +93,11 @@ func (r *UpdateShiftPatternRequest) Validate() error {
 
 // ParseRefStartDate parses the ref_start_date field into a time.Time value.
 func (r *UpdateShiftPatternRequest) ParseRefStartDate() (time.Time, error) {
-	return time.Parse("2006-01-02", r.RefStartDate)
+	t, err := time.Parse(time.RFC3339, r.RefStartDate)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC), nil
 }
 
 // ShiftEntryResponse is the JSON response for a single shift entry.
@@ -117,17 +125,17 @@ func ToShiftPatternResponse(p *entity.ShiftPattern) ShiftPatternResponse {
 		entries[i] = ShiftEntryResponse{
 			DayIndex:  e.DayIndex(),
 			Name:      e.Name(),
-			StartTime: e.StartTime().Format("15:04:05"),
-			EndTime:   e.EndTime().Format("15:04:05"),
+			StartTime: e.StartTime().UTC().Format(time.RFC3339),
+			EndTime:   e.EndTime().UTC().Format(time.RFC3339),
 		}
 	}
 
 	return ShiftPatternResponse{
 		ID:           p.ID().String(),
 		Name:         p.Name(),
-		RefStartDate: p.RefStartDate().Format("2006-01-02"),
+		RefStartDate: p.RefStartDate().UTC().Format(time.RFC3339),
 		CycleLength:  p.CycleLength(),
 		Entries:      entries,
-		CreatedAt:    p.CreatedAt().Format(time.RFC3339),
+		CreatedAt:    p.CreatedAt().UTC().Format(time.RFC3339),
 	}
 }

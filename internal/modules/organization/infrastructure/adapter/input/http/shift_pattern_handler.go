@@ -54,7 +54,7 @@ func (h *ShiftPatternHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"validation_error",
-			"ref_start_date must be in YYYY-MM-DD format",
+			`ref_start_date must be ISO 8601, e.g. "2024-01-01T00:00:00Z"`,
 		))
 	}
 
@@ -130,7 +130,7 @@ func (h *ShiftPatternHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.NewErrorResponse(
 			"validation_error",
-			"ref_start_date must be in YYYY-MM-DD format",
+			`ref_start_date must be ISO 8601, e.g. "2024-01-01T00:00:00Z"`,
 		))
 	}
 
@@ -180,17 +180,17 @@ func parseID(c *fiber.Ctx) (uuid.UUID, error) {
 }
 
 // parseEntryCommands converts DTO entry requests into use-case commands,
-// parsing ISO 8601 "HH:MM:SS" strings into time.Time values at the HTTP boundary.
+// parsing ISO 8601 RFC3339 strings into time.Time values at the HTTP boundary.
 func parseEntryCommands(entries []dto.ShiftEntryRequest) ([]input.ShiftEntryCommand, error) {
 	cmds := make([]input.ShiftEntryCommand, len(entries))
 	for i, e := range entries {
-		startTime, err := time.Parse("15:04:05", e.StartTime)
+		startTime, err := time.Parse(time.RFC3339, e.StartTime)
 		if err != nil {
-			return nil, fiber.NewError(fiber.StatusBadRequest, "each entry start_time must be in HH:MM:SS format")
+			return nil, fiber.NewError(fiber.StatusBadRequest, `each entry start_time must be ISO 8601, e.g. "2024-01-01T06:00:00Z"`)
 		}
-		endTime, err := time.Parse("15:04:05", e.EndTime)
+		endTime, err := time.Parse(time.RFC3339, e.EndTime)
 		if err != nil {
-			return nil, fiber.NewError(fiber.StatusBadRequest, "each entry end_time must be in HH:MM:SS format")
+			return nil, fiber.NewError(fiber.StatusBadRequest, `each entry end_time must be ISO 8601, e.g. "2024-01-01T14:00:00Z"`)
 		}
 		cmds[i] = input.ShiftEntryCommand{
 			DayIndex:  e.DayIndex,

@@ -35,13 +35,6 @@ func timeOfDayToMS(t time.Time) uint64 {
 	return uint64(t.Hour())*3_600_000 + uint64(t.Minute())*60_000 + uint64(t.Second())*1_000 //nolint:gosec
 }
 
-func msToTimeOfDay(ms uint64) time.Time {
-	h := int(ms / 3_600_000)             //nolint:gosec
-	m := int((ms % 3_600_000) / 60_000)  //nolint:gosec
-	s := int((ms % 60_000) / 1_000)      //nolint:gosec
-	return time.Date(0, 1, 1, h, m, s, 0, time.UTC)
-}
-
 // durationMS computes the duration between two time-of-day values in milliseconds.
 // Overnight shifts (end < start) are handled correctly by wrapping around 24 h.
 // A full-day shift (start == end) is treated as exactly 24 h.

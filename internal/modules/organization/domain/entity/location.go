@@ -25,13 +25,13 @@ type Location struct {
 	code           string
 	name           string
 	kind           LocationKind
-	createdBy      string
+	createdBy      uuid.UUID
 	children       []*Location
 	shiftPatternID uuid.UUID
 }
 
 // NewLocation creates a new Location with the given attributes.
-func NewLocation(code string, name string, kind LocationKind, parent *Location, shiftPatternID uuid.UUID, createdBy string) *Location {
+func NewLocation(code string, name string, kind LocationKind, parent *Location, shiftPatternID uuid.UUID, createdBy uuid.UUID) *Location {
 	now := time.Now()
 	return &Location{
 		code:           code,
@@ -48,7 +48,7 @@ func NewLocation(code string, name string, kind LocationKind, parent *Location, 
 
 // NewRootLocation creates a new root Location (plant level) with no parent.
 // Plants do not operate shifts, so no shift pattern is assigned.
-func NewRootLocation(code string, name string, createdBy string) *Location {
+func NewRootLocation(code string, name string, createdBy uuid.UUID) *Location {
 	return NewLocation(code, name, LocationKindPlant, nil, uuid.UUID{}, createdBy)
 }
 
@@ -120,7 +120,7 @@ func IsValidLocationKind(kind string) bool {
 }
 
 // CreatedBy returns the ID of the user who created this location.
-func (l *Location) CreatedBy() string {
+func (l *Location) CreatedBy() uuid.UUID {
 	return l.createdBy
 }
 

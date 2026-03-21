@@ -17,7 +17,7 @@ type AddLocationCommand struct {
 	Kind           string
 	ParentCode     string
 	RootCode       string
-	CreatedBy      string
+	CreatedBy      uuid.UUID
 }
 
 // AddLocationUseCase defines the use case for adding a child location.

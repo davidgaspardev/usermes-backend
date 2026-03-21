@@ -57,11 +57,14 @@ func ToLocationResponse(location *entity.Location) LocationResponse {
 	}
 
 	resp := LocationResponse{
-		Code:      location.Code(),
-		Name:      location.Name(),
-		Kind:      string(location.Kind()),
-		CreatedBy: location.CreatedBy(),
-		Children:  children,
+		Code:     location.Code(),
+		Name:     location.Name(),
+		Kind:     string(location.Kind()),
+		Children: children,
+	}
+
+	if id := location.CreatedBy(); id != (uuid.UUID{}) {
+		resp.CreatedBy = id.String()
 	}
 
 	if id := location.ShiftPatternID(); id != (uuid.UUID{}) {

@@ -15,7 +15,7 @@ type LocationRecord struct {
 	Name           string
 	Kind           string
 	ParentCode     string
-	CreatedBy      string
+	CreatedBy      uuid.UUID
 	ShiftPatternID uuid.UUID
 	CreatedAt      uint64 // Unix ms
 	UpdatedAt      uint64 // Unix ms

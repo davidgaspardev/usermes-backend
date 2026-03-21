@@ -49,7 +49,7 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 	command := input.CreateLocationRootCommand{
 		Code:      req.Code,
 		Name:      req.Name,
-		CreatedBy: userID.String(),
+		CreatedBy: userID,
 	}
 
 	locationRoot, err := usecase.NewCreateLocationRootUseCase(h.locationRepository).Execute(c.Context(), command)
@@ -85,7 +85,7 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 		Kind:       req.Kind,
 		ParentCode: req.ParentCode,
 		RootCode:   req.RootCode,
-		CreatedBy:  userID.String(),
+		CreatedBy:  userID,
 	}
 
 	location, err := usecase.NewAddLocationUseCase(h.locationRepository, h.shiftPatternRepository).Execute(c.Context(), command)

@@ -30,7 +30,7 @@ func (uc *createLocationRootUseCaseImpl) Execute(ctx context.Context, command in
 		return nil, errors.ErrLocationAlreadyExists
 	}
 
-	location := entity.NewRootLocation(command.Code, command.Name)
+	location := entity.NewRootLocation(command.Code, command.Name, command.CreatedBy)
 	if err := uc.locationRepository.Create(location); err != nil {
 		return nil, err
 	}

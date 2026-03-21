@@ -15,6 +15,7 @@ type LocationRecord struct {
 	Name           string
 	Kind           string
 	ParentCode     string
+	CreatedBy      string
 	ShiftPatternID uuid.UUID
 	CreatedAt      uint64 // Unix ms
 	UpdatedAt      uint64 // Unix ms
@@ -37,6 +38,7 @@ func (r *locationRepositoryInMemory) Create(location *entity.Location) error {
 		Name:           location.Name(),
 		Kind:           string(location.Kind()),
 		ParentCode:     location.ParentCode(),
+		CreatedBy:      location.CreatedBy(),
 		ShiftPatternID: location.ShiftPatternID(),
 		CreatedAt:      uint64(location.CreatedAt().UnixMilli()), //nolint:gosec
 		UpdatedAt:      uint64(location.UpdatedAt().UnixMilli()), //nolint:gosec
@@ -66,6 +68,7 @@ func (r *locationRepositoryInMemory) buildLocationTree(rootCode string) *entity.
 				entity.LocationKind(location.Kind),
 				nil,
 				location.ShiftPatternID,
+				location.CreatedBy,
 			)
 			break
 		}
@@ -89,6 +92,7 @@ func (r *locationRepositoryInMemory) buildChildren(parent *entity.Location) {
 				entity.LocationKind(location.Kind),
 				parent,
 				location.ShiftPatternID,
+				location.CreatedBy,
 			)
 			r.buildChildren(childCopy)
 			parent.AddChild(childCopy)
@@ -117,6 +121,7 @@ func (r *locationRepositoryInMemory) FindByCode(code string) (*entity.Location, 
 				entity.LocationKind(loc.Kind),
 				nil,
 				loc.ShiftPatternID,
+				loc.CreatedBy,
 			), nil
 		}
 	}

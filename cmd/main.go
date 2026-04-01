@@ -77,7 +77,7 @@ func main() {
 	httpServer.RegisterRoutes(organizationRoutes.SetupRoutes)
 
 	// Production module routes
-	productionRoutes := productionhttp.NewProductionRoutes(resourceService, authMiddleware.Authenticate)
+	productionRoutes := productionhttp.NewProductionRoutes(resourceService, authMiddleware.Authenticate, organizationRoutes.LocationCodeMiddleware())
 	httpServer.RegisterRoutes(productionRoutes.SetupRoutes)
 
 	// Log all registered endpoints

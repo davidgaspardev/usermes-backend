@@ -11,6 +11,7 @@ type OrganizationRoutes struct {
 	locationHandler     *LocationHandler
 	shiftPatternHandler *ShiftPatternHandler
 	authMiddleware      fiber.Handler
+	locationMiddleware  *LocationMiddleware
 }
 
 // NewOrganizationRoutes creates a new OrganizationRoutes with the given repositories.
@@ -23,7 +24,13 @@ func NewOrganizationRoutes(
 		locationHandler:     NewLocationHandler(locationRepository, shiftPatternRepository),
 		shiftPatternHandler: NewShiftPatternHandler(locationRepository, shiftPatternRepository),
 		authMiddleware:      authMiddleware,
+		locationMiddleware:  NewLocationMiddleware(locationRepository),
 	}
+}
+
+// LocationCodeMiddleware returns the location code verification handler for use by other modules.
+func (o *OrganizationRoutes) LocationCodeMiddleware() fiber.Handler {
+	return o.locationMiddleware.VerifyLocationCode
 }
 
 // SetupRoutes registers all organization routes on the given Fiber app.
@@ -33,8 +40,8 @@ func (o *OrganizationRoutes) SetupRoutes(app *fiber.App) {
 	locationRoutes.Post("/", o.locationHandler.Create)
 	locationRoutes.Post("/add", o.locationHandler.Add)
 	locationRoutes.Get("/", o.locationHandler.GetAll)
-	locationRoutes.Get("/:location_code", o.locationHandler.GetByCode)
-	locationRoutes.Post("/:location_code/shift-patterns", o.shiftPatternHandler.Create)
+	locationRoutes.Get("/:location_code", o.locationMiddleware.VerifyLocationCode, o.locationHandler.GetByCode)
+	locationRoutes.Post("/:location_code/shift-patterns", o.locationMiddleware.VerifyLocationCode, o.shiftPatternHandler.Create)
 
 	shiftPatternRoutes := app.Group("/v1/api/organization/shift-patterns", o.authMiddleware)
 

@@ -28,15 +28,15 @@ func NewOrganizationRoutes(
 
 // SetupRoutes registers all organization routes on the given Fiber app.
 func (o *OrganizationRoutes) SetupRoutes(app *fiber.App) {
-	locationRoutes := app.Group("/v1/api/organization/locations")
+	locationRoutes := app.Group("/v1/api/organization/locations", o.authMiddleware)
 
-	locationRoutes.Post("/", o.authMiddleware, o.locationHandler.Create)
-	locationRoutes.Post("/add", o.authMiddleware, o.locationHandler.Add)
+	locationRoutes.Post("/", o.locationHandler.Create)
+	locationRoutes.Post("/add", o.locationHandler.Add)
 	locationRoutes.Get("/", o.locationHandler.GetAll)
 	locationRoutes.Get("/:location_code", o.locationHandler.GetByCode)
-	locationRoutes.Post("/:location_code/shift-patterns", o.authMiddleware, o.shiftPatternHandler.Create)
+	locationRoutes.Post("/:location_code/shift-patterns", o.shiftPatternHandler.Create)
 
-	shiftPatternRoutes := app.Group("/v1/api/organization/shift-patterns")
+	shiftPatternRoutes := app.Group("/v1/api/organization/shift-patterns", o.authMiddleware)
 
 	shiftPatternRoutes.Get("/:id", o.shiftPatternHandler.GetByID)
 	shiftPatternRoutes.Put("/:id", o.shiftPatternHandler.Update)

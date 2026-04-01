@@ -9,18 +9,20 @@ import (
 // ProductionRoutes configures all routes for the production module
 type ProductionRoutes struct {
 	resourceHandler *ResourceHandler
+	authMiddleware  fiber.Handler
 }
 
 // NewProductionRoutes creates a new instance of ProductionRoutes
-func NewProductionRoutes(resourceService input.ResourceService) *ProductionRoutes {
+func NewProductionRoutes(resourceService input.ResourceService, authMiddleware fiber.Handler) *ProductionRoutes {
 	return &ProductionRoutes{
 		resourceHandler: NewResourceHandler(resourceService),
+		authMiddleware:  authMiddleware,
 	}
 }
 
 // SetupRoutes registers all production routes with the Fiber app
 func (r *ProductionRoutes) SetupRoutes(app *fiber.App) {
-	resources := app.Group("/v1/api/production/locations/:location_code")
+	resources := app.Group("/v1/api/production/locations/:location_code", r.authMiddleware)
 
 	resources.Post("/resources/", r.resourceHandler.Create)
 	resources.Get("/resources/", r.resourceHandler.GetAll)

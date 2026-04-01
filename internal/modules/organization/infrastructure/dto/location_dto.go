@@ -44,6 +44,7 @@ type LocationResponse struct {
 	Code           string             `json:"code"`
 	Name           string             `json:"name"`
 	Kind           string             `json:"kind"`
+	CreatedBy      string             `json:"created_by,omitempty"`
 	ShiftPatternID string             `json:"shift_pattern_id,omitempty"`
 	Children       []LocationResponse `json:"children,omitempty"`
 }
@@ -60,6 +61,10 @@ func ToLocationResponse(location *entity.Location) LocationResponse {
 		Name:     location.Name(),
 		Kind:     string(location.Kind()),
 		Children: children,
+	}
+
+	if id := location.CreatedBy(); id != (uuid.UUID{}) {
+		resp.CreatedBy = id.String()
 	}
 
 	if id := location.ShiftPatternID(); id != (uuid.UUID{}) {

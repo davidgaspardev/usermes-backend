@@ -59,6 +59,7 @@ func (uc *addLocationUseCaseImpl) Execute(ctx context.Context, command input.Add
 		entity.LocationKind(command.Kind),
 		parentLocation,
 		shiftPatternID,
+		command.CreatedBy,
 	)
 
 	if err := uc.locationRepository.Create(location); err != nil {

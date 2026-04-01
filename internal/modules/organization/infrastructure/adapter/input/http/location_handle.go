@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/input"
 	"github.com/davidgaspardev/usermes-backend/internal/modules/organization/application/port/output"
@@ -44,9 +45,11 @@ func (h *LocationHandler) Create(c *fiber.Ctx) error {
 		))
 	}
 
+	userID, _ := c.Locals("userID").(uuid.UUID)
 	command := input.CreateLocationRootCommand{
-		Code: req.Code,
-		Name: req.Name,
+		Code:      req.Code,
+		Name:      req.Name,
+		CreatedBy: userID,
 	}
 
 	locationRoot, err := usecase.NewCreateLocationRootUseCase(h.locationRepository).Execute(c.Context(), command)
@@ -75,12 +78,14 @@ func (h *LocationHandler) Add(c *fiber.Ctx) error {
 		))
 	}
 
+	userID, _ := c.Locals("userID").(uuid.UUID)
 	command := input.AddLocationCommand{
 		Code:       req.Code,
 		Name:       req.Name,
 		Kind:       req.Kind,
 		ParentCode: req.ParentCode,
 		RootCode:   req.RootCode,
+		CreatedBy:  userID,
 	}
 
 	location, err := usecase.NewAddLocationUseCase(h.locationRepository, h.shiftPatternRepository).Execute(c.Context(), command)

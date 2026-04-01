@@ -1,11 +1,11 @@
 info:
-  name: Create Root Location
+  name: Login user
   type: http
   seq: 2
 
 http:
   method: POST
-  url: "{{baseURL}}/v1/api/organization/locations/"
+  url: http://localhost:3001/v1/api/iam/users/login
   headers:
     - name: Content-Type
       value: application/json
@@ -15,12 +15,10 @@ http:
     type: json
     data: |-
       {
-        "code": "PLANT-01",
-        "name": "Plant 01"
+        "username": "dvd",
+        "password": "test1234"
       }
-  auth:
-    type: bearer
-    token: "{{authToken}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

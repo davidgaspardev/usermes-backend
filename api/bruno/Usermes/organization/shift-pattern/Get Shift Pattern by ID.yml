@@ -8,9 +8,11 @@ http:
   url: "{{baseURL}}/v1/api/organization/shift-patterns/:id"
   params:
     - name: id
-      value: 8dc516b5-a2d8-4a4f-9bf7-5fde578faa0c
+      value: 45ccf58c-f7b6-487b-89de-b02eb98168f5
       type: path
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{authToken}}"
 
 settings:
   encodeUrl: true

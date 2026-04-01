@@ -72,11 +72,12 @@ func main() {
 	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
 
 	// Organization module routes
-	organizationRoutes := organizationhttp.NewOrganizationRoutes(locationRepository, shiftPatternRepository)
+	authMiddleware := iamhttp.NewAuthMiddleware(tokenGenerator)
+	organizationRoutes := organizationhttp.NewOrganizationRoutes(locationRepository, shiftPatternRepository, authMiddleware.Authenticate)
 	httpServer.RegisterRoutes(organizationRoutes.SetupRoutes)
 
 	// Production module routes
-	productionRoutes := productionhttp.NewProductionRoutes(resourceService)
+	productionRoutes := productionhttp.NewProductionRoutes(resourceService, authMiddleware.Authenticate, organizationRoutes.LocationCodeMiddleware())
 	httpServer.RegisterRoutes(productionRoutes.SetupRoutes)
 
 	// Log all registered endpoints

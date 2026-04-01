@@ -25,8 +25,8 @@ type Location struct {
 	code           string
 	name           string
 	kind           LocationKind
-	createdBy      uuid.UUID
 	children       []*Location
+	createdBy      uuid.UUID
 	shiftPatternID uuid.UUID
 }
 

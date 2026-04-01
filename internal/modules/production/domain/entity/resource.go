@@ -10,8 +10,7 @@ import (
 type Resource struct {
 	createdAt    time.Time
 	updatedAt    time.Time
-	plantCode    string
-	shiftID      *string
+	locationCode string
 	code         string
 	resourceType string
 	tags         []string
@@ -30,13 +29,12 @@ func copyStringSlice(src []string) []string {
 }
 
 // NewResource creates a new resource instance
-func NewResource(plantCode, code string, shiftID *string, resourceType string, stopFactor int16, tags []string) *Resource {
+func NewResource(locationCode, code, resourceType string, stopFactor int16, tags []string) *Resource {
 	now := time.Now()
 	return &Resource{
 		id:           uuid.New(),
-		plantCode:    plantCode,
+		locationCode: locationCode,
 		code:         code,
-		shiftID:      shiftID,
 		resourceType: resourceType,
 		stopFactor:   stopFactor,
 		tags:         copyStringSlice(tags),
@@ -48,8 +46,7 @@ func NewResource(plantCode, code string, shiftID *string, resourceType string, s
 // ReconstructResource reconstructs a resource from persistence
 func ReconstructResource(
 	id uuid.UUID,
-	plantCode, code string,
-	shiftID *string,
+	locationCode, code string,
 	resourceType string,
 	stopFactor int16,
 	tags []string,
@@ -58,9 +55,8 @@ func ReconstructResource(
 ) *Resource {
 	return &Resource{
 		id:           id,
-		plantCode:    plantCode,
+		locationCode: locationCode,
 		code:         code,
-		shiftID:      shiftID,
 		resourceType: resourceType,
 		stopFactor:   stopFactor,
 		tags:         copyStringSlice(tags),
@@ -74,19 +70,14 @@ func (r *Resource) ID() uuid.UUID {
 	return r.id
 }
 
-// PlantCode returns the plant code
-func (r *Resource) PlantCode() string {
-	return r.plantCode
+// LocationCode returns the location code
+func (r *Resource) LocationCode() string {
+	return r.locationCode
 }
 
 // Code returns the resource code
 func (r *Resource) Code() string {
 	return r.code
-}
-
-// ShiftID returns the shift ID (can be nil)
-func (r *Resource) ShiftID() *string {
-	return r.shiftID
 }
 
 // Type returns the resource type
@@ -120,12 +111,6 @@ func (r *Resource) UpdateCode(code string) {
 	r.updatedAt = time.Now()
 }
 
-// UpdateShiftID updates the shift ID
-func (r *Resource) UpdateShiftID(shiftID *string) {
-	r.shiftID = shiftID
-	r.updatedAt = time.Now()
-}
-
 // UpdateType updates the resource type
 func (r *Resource) UpdateType(resourceType string) {
 	r.resourceType = resourceType
@@ -144,18 +129,17 @@ func (r *Resource) UpdateTags(tags []string) {
 	r.updatedAt = time.Now()
 }
 
-// Update updates all mutable fields at once
-func (r *Resource) Update(code string, shiftID *string, resourceType string, stopFactor int16, tags []string) {
-	r.code = code
-	r.shiftID = shiftID
-	r.resourceType = resourceType
-	r.stopFactor = stopFactor
-	r.tags = copyStringSlice(tags)
+// UpdateLocationCode updates the location code
+func (r *Resource) UpdateLocationCode(locationCode string) {
+	r.locationCode = locationCode
 	r.updatedAt = time.Now()
 }
 
-// UpdatePlantCode updates the plant code (for migration purposes)
-func (r *Resource) UpdatePlantCode(plantCode string) {
-	r.plantCode = plantCode
+// Update updates all mutable fields at once
+func (r *Resource) Update(code, resourceType string, stopFactor int16, tags []string) {
+	r.code = code
+	r.resourceType = resourceType
+	r.stopFactor = stopFactor
+	r.tags = copyStringSlice(tags)
 	r.updatedAt = time.Now()
 }

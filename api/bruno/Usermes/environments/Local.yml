@@ -1,0 +1,6 @@
+name: Local
+variables:
+  - name: baseURL
+    value: http://localhost:3001
+  - secret: true
+    name: authToken

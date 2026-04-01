@@ -13,9 +13,8 @@ type ResourceService interface {
 	// Create creates a new resource
 	Create(
 		ctx context.Context,
-		plantCode string,
+		locationCode string,
 		code string,
-		shiftID *string,
 		resourceType string,
 		stopFactor int16,
 		tags []string,
@@ -25,9 +24,8 @@ type ResourceService interface {
 	Update(
 		ctx context.Context,
 		id uuid.UUID,
-		plantCode string,
+		locationCode string,
 		code string,
-		shiftID *string,
 		resourceType string,
 		stopFactor int16,
 		tags []string,
@@ -39,18 +37,15 @@ type ResourceService interface {
 	// GetByID retrieves a resource by ID
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Resource, error)
 
-	// GetByCode retrieves a resource by code within a plant
-	GetByCode(ctx context.Context, plantCode, code string) (*entity.Resource, error)
+	// GetByCode retrieves a resource by code within a location
+	GetByCode(ctx context.Context, locationCode, code string) (*entity.Resource, error)
 
-	// GetByPlant retrieves all resources for a specific plant
-	GetByPlant(ctx context.Context, plantCode string, limit, offset int) ([]*entity.Resource, error)
+	// GetByLocation retrieves all resources for a specific location
+	GetByLocation(ctx context.Context, locationCode string, limit, offset int) ([]*entity.Resource, error)
 
 	// GetAll retrieves all resources with pagination
 	GetAll(ctx context.Context, limit, offset int) ([]*entity.Resource, error)
 
 	// GetByType retrieves all resources of a specific type
 	GetByType(ctx context.Context, resourceType string, limit, offset int) ([]*entity.Resource, error)
-
-	// GetByShiftID retrieves all resources assigned to a specific shift
-	GetByShiftID(ctx context.Context, shiftID string, limit, offset int) ([]*entity.Resource, error)
 }

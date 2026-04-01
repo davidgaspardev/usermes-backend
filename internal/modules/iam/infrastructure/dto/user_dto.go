@@ -11,7 +11,7 @@ import (
 // RegisterRequest represents the request body for user registration
 type RegisterRequest struct {
 	Email    string `json:"email"`
-	Password string `json:"password"`
+	Password string `json:"password"` //nolint:gosec // intentional: request DTO receives user-provided password
 	Username string `json:"username"`
 	Name     string `json:"name"`
 }
@@ -19,7 +19,7 @@ type RegisterRequest struct {
 // LoginRequest represents the request body for user login
 type LoginRequest struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Password string `json:"password"` //nolint:gosec // intentional: request DTO receives user-provided password
 }
 
 // UpdateUserRequest represents the request body for updating user information
@@ -101,7 +101,7 @@ func NewSuccessResponse(message string, data interface{}) SuccessResponse {
 	}
 }
 
-// ValidateRegisterRequest validates the register request
+// Validate validates the register request.
 func (r *RegisterRequest) Validate() error {
 	if r.Email == "" {
 		return &ValidationError{Field: "email", Message: "email is required"}
@@ -118,7 +118,7 @@ func (r *RegisterRequest) Validate() error {
 	return nil
 }
 
-// ValidateLoginRequest validates the login request
+// Validate validates the login request.
 func (r *LoginRequest) Validate() error {
 	if r.Username == "" {
 		return &ValidationError{Field: "username", Message: "username is required"}
@@ -129,7 +129,7 @@ func (r *LoginRequest) Validate() error {
 	return nil
 }
 
-// ValidateUpdateUserRequest validates the update user request
+// Validate validates the update user request.
 func (r *UpdateUserRequest) Validate() error {
 	if r.Name == "" {
 		return &ValidationError{Field: "name", Message: "name is required"}
@@ -137,7 +137,7 @@ func (r *UpdateUserRequest) Validate() error {
 	return nil
 }
 
-// ValidateChangePasswordRequest validates the change password request
+// Validate validates the change password request.
 func (r *ChangePasswordRequest) Validate() error {
 	if r.OldPassword == "" {
 		return &ValidationError{Field: "old_password", Message: "old password is required"}

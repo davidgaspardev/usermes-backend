@@ -35,7 +35,4 @@ type ResourceRepository interface {
 
 	// FindByType retrieves all resources of a specific type
 	FindByType(ctx context.Context, resourceType string, limit, offset int) ([]*entity.Resource, error)
-
-	// FindByShiftID retrieves all resources assigned to a specific shift
-	FindByShiftID(ctx context.Context, shiftID string, limit, offset int) ([]*entity.Resource, error)
 }

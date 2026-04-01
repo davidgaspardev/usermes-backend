@@ -9,6 +9,9 @@ import (
 	iamusecase "github.com/davidgaspardev/usermes-backend/internal/modules/iam/application/usecase"
 	iamhttp "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/input/http"
 	iampersistence "github.com/davidgaspardev/usermes-backend/internal/modules/iam/infrastructure/adapter/output/persistence"
+	organizationhttp "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/input/http"
+	organizationpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/adapter/output/persistence"
+	organizationseeder "github.com/davidgaspardev/usermes-backend/internal/modules/organization/infrastructure/seeder"
 	productionusecase "github.com/davidgaspardev/usermes-backend/internal/modules/production/application/usecase"
 	productionhttp "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/input/http"
 	productionpersistence "github.com/davidgaspardev/usermes-backend/internal/modules/production/infrastructure/adapter/output/persistence"
@@ -36,9 +39,22 @@ func main() {
 		config.TokenDuration,
 	)
 
+	// Initialize Organization module
+	locationRepository := organizationpersistence.NewLocationRepositoryInMemory()
+
 	// Initialize Resource module
 	resourceRepository := productionpersistence.NewMemoryResourceRepository()
 	resourceService := productionusecase.NewResourceService(resourceRepository)
+
+	// Initialize Shift Pattern repository (Organization) and seed default patterns
+	shiftPatternRepository := organizationpersistence.NewMemoryShiftPatternRepository()
+	if err := organizationseeder.SeedDefaultShiftPatterns(shiftPatternRepository); err != nil {
+		log.Fatalf("Failed to seed default shift patterns: %v", err)
+	}
+
+	// Initialize Shift instance repository (Production)
+	shiftRepository := productionpersistence.NewMemoryShiftRepository()
+	_ = shiftRepository // available for use case wiring
 
 	// Initialize HTTP server
 	serverConfig := server.DefaultConfig()
@@ -55,8 +71,13 @@ func main() {
 	iamRoutes := iamhttp.NewIAMRoutes(userService, tokenGenerator)
 	httpServer.RegisterRoutes(iamRoutes.SetupRoutes)
 
+	// Organization module routes
+	authMiddleware := iamhttp.NewAuthMiddleware(tokenGenerator)
+	organizationRoutes := organizationhttp.NewOrganizationRoutes(locationRepository, shiftPatternRepository, authMiddleware.Authenticate)
+	httpServer.RegisterRoutes(organizationRoutes.SetupRoutes)
+
 	// Production module routes
-	productionRoutes := productionhttp.NewProductionRoutes(resourceService)
+	productionRoutes := productionhttp.NewProductionRoutes(resourceService, authMiddleware.Authenticate, organizationRoutes.LocationCodeMiddleware())
 	httpServer.RegisterRoutes(productionRoutes.SetupRoutes)
 
 	// Log all registered endpoints
@@ -72,7 +93,7 @@ func main() {
 // Config holds the application configuration
 type Config struct {
 	AppName       string
-	JWTSecret     string
+	JWTSecret     string //nolint:gosec // intentional: config struct holds the secret by design
 	TokenDuration time.Duration
 	ServerPort    int
 }
@@ -99,7 +120,7 @@ func loadConfig() Config {
 		if p, valid := parseValidPort(portStr); valid {
 			port = p
 		} else {
-			log.Printf("Warning: Invalid PORT value '%s' (must be 1-65535), using default port %d", portStr, DefaultServerPort)
+			log.Printf("Warning: Invalid PORT value %q (must be 1-65535), using default port %d", portStr, DefaultServerPort) //nolint:gosec // %q escapes all control characters, preventing log injection
 		}
 	}
 

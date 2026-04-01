@@ -8,7 +8,6 @@ import (
 
 // CreateResourceRequest represents the request body for creating a resource
 type CreateResourceRequest struct {
-	ShiftID    *string  `json:"shift_id,omitempty"`
 	Code       string   `json:"code" validate:"required,min=2,max=50"`
 	Type       string   `json:"type" validate:"required,min=2,max=50"`
 	Tags       []string `json:"tags,omitempty"`
@@ -17,7 +16,6 @@ type CreateResourceRequest struct {
 
 // UpdateResourceRequest represents the request body for updating a resource
 type UpdateResourceRequest struct {
-	ShiftID    *string  `json:"shift_id,omitempty"`
 	Code       string   `json:"code" validate:"required,min=2,max=50"`
 	Type       string   `json:"type" validate:"required,min=2,max=50"`
 	Tags       []string `json:"tags,omitempty"`
@@ -26,14 +24,14 @@ type UpdateResourceRequest struct {
 
 // ResourceResponse represents the response body for resource data
 type ResourceResponse struct {
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	ShiftID    *string   `json:"shift_id,omitempty"`
-	ID         string    `json:"id"`
-	Code       string    `json:"code"`
-	Type       string    `json:"type"`
-	Tags       []string  `json:"tags,omitempty"`
-	StopFactor int16     `json:"stop_factor"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	ID           string    `json:"id"`
+	LocationCode string    `json:"location_code"`
+	Code         string    `json:"code"`
+	Type         string    `json:"type"`
+	Tags         []string  `json:"tags,omitempty"`
+	StopFactor   int16     `json:"stop_factor"`
 }
 
 // ResourceListResponse represents the response body for a list of resources
@@ -59,14 +57,14 @@ type SuccessResponse struct {
 // ToResourceResponse converts a Resource entity to ResourceResponse DTO
 func ToResourceResponse(resource *entity.Resource) ResourceResponse {
 	return ResourceResponse{
-		ID:         resource.ID().String(),
-		Code:       resource.Code(),
-		ShiftID:    resource.ShiftID(),
-		Type:       resource.Type(),
-		StopFactor: resource.StopFactor(),
-		Tags:       resource.Tags(),
-		CreatedAt:  resource.CreatedAt(),
-		UpdatedAt:  resource.UpdatedAt(),
+		ID:           resource.ID().String(),
+		LocationCode: resource.LocationCode(),
+		Code:         resource.Code(),
+		Type:         resource.Type(),
+		StopFactor:   resource.StopFactor(),
+		Tags:         resource.Tags(),
+		CreatedAt:    resource.CreatedAt(),
+		UpdatedAt:    resource.UpdatedAt(),
 	}
 }
 

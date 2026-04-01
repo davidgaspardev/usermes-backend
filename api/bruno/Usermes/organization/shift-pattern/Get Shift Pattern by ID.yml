@@ -1,0 +1,21 @@
+info:
+  name: Get Shift Pattern by ID
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseURL}}/v1/api/organization/shift-patterns/:id"
+  params:
+    - name: id
+      value: 45ccf58c-f7b6-487b-89de-b02eb98168f5
+      type: path
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

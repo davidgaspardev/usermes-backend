@@ -134,7 +134,9 @@ http:
           }
         ]
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{authToken}}"
 
 settings:
   encodeUrl: true

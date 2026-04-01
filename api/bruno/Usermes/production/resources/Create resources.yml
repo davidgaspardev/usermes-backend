@@ -25,7 +25,9 @@ http:
         "shift_id": null,
         "tags": []
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{authToken}}"
 
 settings:
   encodeUrl: true

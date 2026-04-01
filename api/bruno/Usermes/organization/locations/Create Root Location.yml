@@ -18,7 +18,9 @@ http:
         "code": "PLANT-01",
         "name": "Plant 01"
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{authToken}}"
 
 settings:
   encodeUrl: true

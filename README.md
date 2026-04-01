@@ -111,8 +111,8 @@ All routes are prefixed with `/v1/api`.
 **Requirements:** Go 1.22+
 
 ```bash
-go run cmd/main.go
-# Server starts on :3001
+make run        # start server on :3001
+make dev        # start with hot reload (requires air)
 ```
 
 **Environment variables:**
@@ -124,23 +124,7 @@ go run cmd/main.go
 ## Testing
 
 ```bash
-# Run all tests
-go test ./...
-
-# With coverage
-go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out
+make test           # run all tests
+make test-coverage  # run tests with coverage threshold check
+make coverage-html  # generate HTML coverage report
 ```
-
-## Test Coverage
-
-| Package | Coverage |
-|---------|----------|
-| `iam/domain/entity` | 100% |
-| `iam/infrastructure/persistence` | 100% |
-| `iam/domain/valueobject` | 95.3% |
-| `iam/application/usecase` | 81.6% |
-| `organization/domain/entity` | 89.9% |
-| `organization/application/usecase` | 84.6% |
-| `production/domain/entity` | 81.8% |
-| `production/application/usecase` | 81.4% |
-| `production/infrastructure/persistence` | 81.8% |

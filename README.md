@@ -1,4 +1,4 @@
-# UserMes Backend
+# Usermes Backend
 
 [![CI](https://github.com/davidgaspardev/usermes-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/davidgaspardev/usermes-backend/actions/workflows/ci.yml)
 

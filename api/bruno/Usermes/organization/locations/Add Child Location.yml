@@ -21,7 +21,9 @@ http:
         "parent_code": "PLANT-01",
         "root_code": "PLANT-01"
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{authToken}}"
 
 settings:
   encodeUrl: true

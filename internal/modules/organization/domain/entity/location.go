@@ -26,14 +26,17 @@ type Location struct {
 	name           string
 	kind           LocationKind
 	children       []*Location
+	id             uuid.UUID
 	createdBy      uuid.UUID
 	shiftPatternID uuid.UUID
 }
 
 // NewLocation creates a new Location with the given attributes.
 func NewLocation(code string, name string, kind LocationKind, parent *Location, shiftPatternID uuid.UUID, createdBy uuid.UUID) *Location {
+	id := uuid.New()
 	now := time.Now()
 	return &Location{
+		id:             id,
 		code:           code,
 		name:           name,
 		kind:           kind,
